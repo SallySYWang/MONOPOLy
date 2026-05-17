@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【擊殺鬼王】大富翁</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%;
+  background: #020617;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+#app {
+  width: min(100vw, 177.78vh);
+  height: min(100vh, 56.25vw);
+  font-size: min(1.8vw, 3.2vh);
+  position: relative;
+  background: #020617;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.red-glow {
+  text-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444, 0 0 40px #ef4444;
+  color: #ef4444;
+}
+.gold-glow {
+  text-shadow: 0 0 10px #fbbf24, 0 0 20px #fbbf24;
+  color: #fbbf24;
+}
+@keyframes pulse-glow {
+  0%, 100% { text-shadow: 0 0 10px #ef4444, 0 0 30px #ef4444, 0 0 60px #ef4444; opacity: 1; }
+  50% { text-shadow: 0 0 20px #ef4444, 0 0 60px #ef4444, 0 0 100px #ef4444; opacity: 0.85; }
+}
+.slash-text {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+  color: #ef4444;
+}
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  width: 100%;
+  height: 100%;
+  gap: 2px;
+}
+.board-cell {
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+.control-panel {
+  grid-column: 2 / 5;
+  grid-row: 2 / 5;
+  background: #020617;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5em;
+  overflow: hidden;
+}
+.log-container {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 #0f172a;
+}
+.log-container::-webkit-scrollbar { width: 4px; }
+.log-container::-webkit-scrollbar-track { background: #0f172a; }
+.log-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+.token-row {
+  display: flex; flex-wrap: wrap; gap: 1px; margin-top: 2px; justify-content: center;
+}
+.token {
+  width: 1.3em; height: 1.3em;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.5em; font-weight: bold;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.4);
+  flex-shrink: 0;
+}
+.boss-token {
+  background: #7f1d1d;
+  border: 1px solid #ef4444;
+}
+.hp-bar-inner {
+  transition: width 0.5s ease;
+}
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.78);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+}
+.announcement-card {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 0.7em;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- SPLASH SCREEN -->
+  <div v-if="screen === 'splash'" class="flex flex-col items-center justify-center h-full w-full bg-slate-950 px-8">
+    <div class="red-glow font-black mb-2 tracking-widest" style="font-size:2.5em">【擊殺鬼王】大富翁</div>
+    <div class="text-slate-400 mb-8" style="font-size:1em">2026 新生教會主日學製作</div>
+    <div class="grid grid-cols-2 gap-3 mb-8" style="width:min(100%,500px)">
+      <div v-for="team in teams" :key="team.id"
+           class="flex items-center gap-3 bg-slate-900 rounded-lg px-4 py-2 border border-slate-700">
+        <img :src="team.avatar" style="width:2.2em;height:2.2em;border-radius:50%;object-fit:cover;flex-shrink:0;" :style="{border: '2px solid ' + team.color}" onerror="this.style.display='none'">
+        <span class="text-white font-semibold" style="font-size:0.85em">{{ team.name }}</span>
+      </div>
+    </div>
+    <button @click="startGame"
+            class="bg-red-600 hover:bg-red-500 text-white font-bold px-10 py-2 rounded-xl transition-all"
+            style="font-size:1.1em">
+      開始遊戲
+    </button>
+  </div>
+
+  <!-- FINAL STRIKE SCREEN -->
+  <div v-else-if="screen === 'finalStrike'" class="flex flex-col items-center justify-center h-full w-full bg-black">
+    <div class="gold-glow font-black mb-4 tracking-widest" style="font-size:2em">鬼王無慘血量歸零！</div>
+    <div class="text-slate-400 mb-10" style="font-size:1.1em">全員準備好——同時揮刀！</div>
+    <div class="border-4 border-red-600 px-12 py-6 mb-10 rounded-2xl">
+      <div class="slash-text font-black tracking-widest" style="font-size:3.5em">鬼 殺 隊 ―― 斬 ！</div>
+    </div>
+    <button @click="screen = 'victory'"
+            class="bg-red-700 hover:bg-red-500 text-white font-bold px-10 py-3 rounded-xl transition-all"
+            style="font-size:1.2em">
+      完 成 斬 擊
+    </button>
+  </div>
+
+  <!-- VICTORY SCREEN -->
+  <div v-else-if="screen === 'victory'" class="flex flex-col items-center justify-center h-full w-full bg-slate-950">
+    <div class="gold-glow font-black mb-8 tracking-wide text-center" style="font-size:1.5em">鬼王無慘已被消滅！鬼殺隊全員英勇獲勝！</div>
+    <div style="width:min(100%,480px)">
+      <div v-for="(team, idx) in rankedTeams" :key="team.id"
+           class="flex items-center gap-4 px-5 py-2 rounded-xl mb-2 border"
+           :class="victoryRowClass(idx)">
+        <span style="font-size:1.4em;width:1.5em;text-align:center">{{ rankBadge(idx) }}</span>
+        <img :src="team.avatar" style="width:2em;height:2em;border-radius:50%;object-fit:cover;flex-shrink:0;" :style="{border: '2px solid ' + team.color}" onerror="this.style.display='none'">
+        <span class="text-white font-bold flex-1" style="font-size:0.9em">{{ team.name }}</span>
+        <span v-if="idx === 0" class="text-yellow-400 font-bold" style="font-size:0.75em">最強鬼殺隊員</span>
+        <span class="text-green-400 font-bold" style="font-size:0.9em">{{ team.damageDealt }} 傷</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOSS VICTORY SCREEN -->
+  <div v-else-if="screen === 'bossVictory'" class="flex flex-col items-center justify-center h-full w-full bg-slate-950">
+    <div class="text-red-800 font-black tracking-widest mb-4" style="font-size:2.5em">鬼王勝利！</div>
+    <div class="text-slate-500" style="font-size:1.2em">所有隊伍已被消滅...</div>
+  </div>
+
+  <!-- MAIN GAME SCREEN -->
+  <template v-else-if="screen === 'game'">
+
+    <!-- Top bar -->
+    <div class="flex items-center justify-between px-4 bg-slate-900 border-b border-slate-700 flex-shrink-0" style="height:7%;min-height:0">
+      <div class="text-yellow-400 font-bold" style="font-size:0.9em">大會第 {{ globalRound }} 輪</div>
+      <div class="red-glow font-black tracking-widest" style="font-size:1em">【擊殺鬼王】大富翁</div>
+      <div class="flex gap-2">
+        <button @click="undoLastAction" :disabled="!lastSnapshot"
+                class="px-3 py-1 rounded transition-all font-bold"
+                :class="lastSnapshot ? 'bg-amber-700 hover:bg-amber-600 text-white' : 'bg-slate-800 text-slate-600 cursor-not-allowed'"
+                style="font-size:0.8em">
+          ↩ 上一步
+        </button>
+        <button @click="showSaveModal = true"
+                class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded transition-all"
+                style="font-size:0.8em">
+          💾 存檔/讀檔
+        </button>
+      </div>
+    </div>
+
+    <!-- Main 3-column layout -->
+    <div class="flex flex-1 overflow-hidden">
+
+      <!-- LEFT COLUMN -->
+      <div class="flex flex-col bg-slate-950 border-r border-slate-800 overflow-y-auto log-container" style="width:30%;padding:0.5em">
+
+        <!-- Boss Card -->
+        <div class="bg-slate-900 rounded-xl border border-red-900 mb-3 flex-shrink-0" style="padding:0.6em">
+          <div class="flex items-center gap-2 mb-1">
+            <img :src="MUZAN_AVATAR" style="width:2.2em;height:2.2em;border-radius:50%;object-fit:cover;border:2px solid #ef4444;flex-shrink:0" onerror="this.style.display='none'">
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-red-400 font-black" style="font-size:0.9em">鬼王無慘</span>
+                <span class="text-red-300 font-bold" style="font-size:0.8em">{{ ghostKingHP }}/100 HP</span>
+              </div>
+            </div>
+          </div>
+          <div class="w-full bg-slate-700 rounded-full mb-2" style="height:0.5em">
+            <div class="hp-bar-inner rounded-full h-full"
+                 :style="{width: Math.max(0, ghostKingHP) + '%', background: 'linear-gradient(to right, #dc2626, #ef4444)'}"></div>
+          </div>
+          <div class="flex gap-2 flex-wrap items-center">
+            <span v-if="bossStatus.nextAttackMultiplier > 1" class="bg-indigo-900 text-indigo-300 rounded-full" style="font-size:0.65em;padding:0.2em 0.5em">🌙 夜晚 ×{{ bossStatus.nextAttackMultiplier }}</span>
+            <span v-if="bossStatus.isBossTurnSkip" class="bg-yellow-900 text-yellow-300 rounded-full" style="font-size:0.65em;padding:0.2em 0.5em">☀️ 白天跳過</span>
+            <span class="text-slate-500" style="font-size:0.65em">格 {{ bossPosition }}</span>
+          </div>
+        </div>
+
+        <!-- Teams List -->
+        <div class="flex flex-col gap-2">
+          <div v-for="team in teams" :key="team.id"
+               class="rounded-lg border transition-all"
+               :class="teamRowClass(team)"
+               style="padding:0.4em">
+            <div class="flex items-center gap-2 mb-1">
+              <img :src="team.avatar" style="width:1.8em;height:1.8em;border-radius:50%;object-fit:cover;flex-shrink:0;" :style="{border: '2px solid ' + team.color}" onerror="this.style.display='none'">
+              <span class="text-white font-semibold flex-1" style="font-size:0.7em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">{{ team.name }}</span>
+              <span v-if="team.hp <= 0" class="text-slate-500" style="font-size:0.6em">(已陣亡)</span>
+              <span class="font-bold" :style="{color: team.color, fontSize:'0.7em'}">{{ team.hp }}/10</span>
+            </div>
+            <div class="w-full bg-slate-700 rounded-full mb-1" style="height:0.35em">
+              <div class="hp-bar-inner rounded-full h-full"
+                   :style="{width: Math.max(0, team.hp * 10) + '%', background: team.color}"></div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex gap-1" style="font-size:0.8em">
+                <span v-if="team.status.shieldActive" title="護盾">🛡️</span>
+                <span v-if="team.status.doubleDamage" title="雙倍攻擊">⚔️</span>
+              </div>
+              <span class="text-green-400" style="font-size:0.62em">傷害: {{ team.damageDealt }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CENTER COLUMN -->
+      <div class="flex flex-col items-center justify-center bg-slate-950" style="width:40%;padding:0.4em">
+        <div style="width:100%;aspect-ratio:1/1;max-height:100%;position:relative">
+          <div class="board-grid" style="height:100%;width:100%">
+
+            <template v-for="row in 5" :key="'r'+row">
+              <template v-for="col in 5" :key="'r'+row+'c'+col">
+
+                <!-- Control panel: only rendered at (2,2) but spans 3x3 via CSS grid -->
+                <div v-if="row === 2 && col === 2" class="control-panel">
+
+                  <div class="text-center" style="margin-bottom:0.4em">
+                    <div class="text-slate-500" style="font-size:0.55em;letter-spacing:0.05em;margin-bottom:0.1em">現在輪到</div>
+                    <div v-if="currentTurnType === 'player' && teams[currentTeamIndex]"
+                         class="font-black" style="font-size:0.9em"
+                         :style="{color: teams[currentTeamIndex].color}">
+                      {{ teams[currentTeamIndex].name }}
+                    </div>
+                    <div v-else-if="currentTurnType === 'boss'" class="text-red-400 font-black" style="font-size:0.9em">👹 鬼王無慘</div>
+                    <div class="text-slate-400" style="font-size:0.65em;margin-top:0.1em">{{ phaseLabel }}</div>
+                    <div v-if="nextTurnInfo" style="margin-top:0.35em;padding-top:0.35em;border-top:1px solid #334155;">
+                      <span class="text-slate-500" style="font-size:0.55em;">下一位：</span>
+                      <span class="font-semibold" style="font-size:0.6em;" :style="{color: nextTurnInfo.color}">{{ nextTurnInfo.name }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Player ROLL -->
+                  <div v-if="currentPhase === 'roll' && currentTurnType === 'player'" style="width:100%">
+                    <div class="text-slate-400 text-center" style="font-size:0.65em;margin-bottom:0.3em">選擇骰子點數</div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
+                      <button v-for="n in 6" :key="n" @click="playerRoll(n)"
+                              class="bg-blue-700 hover:bg-blue-500 text-white font-bold rounded transition-all"
+                              style="font-size:0.85em;padding:0.3em 0">
+                        {{ n }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Player ACTION: task -->
+                  <div v-else-if="currentPhase === 'action' && currentTurnType === 'player' && currentSquare && currentSquare.type === 'task'"
+                       style="width:100%;display:flex;flex-direction:column;gap:0.3em">
+                    <button @click="taskSuccess"
+                            class="bg-green-700 hover:bg-green-500 text-white font-bold rounded transition-all w-full"
+                            style="font-size:0.8em;padding:0.4em">
+                      ✅ 任務成功
+                    </button>
+                    <button @click="taskFail"
+                            class="bg-red-800 hover:bg-red-600 text-white font-bold rounded transition-all w-full"
+                            style="font-size:0.8em;padding:0.4em">
+                      ❌ 任務失敗
+                    </button>
+                  </div>
+
+                  <!-- Player ACTION: card - picking phase -->
+                  <div v-else-if="currentPhase === 'action' && currentTurnType === 'player' && currentSquare && currentSquare.type === 'card'"
+                       style="width:100%">
+                    <!-- Before cards are shown -->
+                    <div v-if="cardChoices.length === 0">
+                      <div class="text-purple-300 text-center" style="font-size:0.62em;margin-bottom:0.3em">{{ currentSquare.name }}</div>
+                      <button @click="prepareCards"
+                              class="bg-purple-700 hover:bg-purple-500 text-white font-bold rounded transition-all w-full"
+                              style="font-size:0.8em;padding:0.5em">
+                        🎴 翻牌
+                      </button>
+                    </div>
+                    <!-- Cards face-down, pick one -->
+                    <div v-else-if="flippedCardIndex === null">
+                      <div class="text-purple-300 text-center" style="font-size:0.6em;margin-bottom:0.3em">選一張翻開</div>
+                      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.25em">
+                        <div v-for="(c, i) in cardChoices" :key="i"
+                             @click="flipCard(i)"
+                             style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;border-radius:0.375em;cursor:pointer;background:#3b0764;border:1px solid #7c3aed;font-size:1.2em;transition:transform 0.15s"
+                             onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                          🎴
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Card revealed -->
+                    <div v-else style="text-align:center">
+                      <div :class="cardChoices[flippedCardIndex].isChance ? 'text-green-300' : 'text-purple-300'" style="font-size:0.6em;font-weight:bold;">
+                        {{ cardChoices[flippedCardIndex].isChance ? '✨ 機會卡' : '⚠️ 命運卡' }}
+                      </div>
+                      <div class="text-white font-black" style="font-size:0.75em;margin:0.15em 0">{{ cardChoices[flippedCardIndex].card.name }}</div>
+                    </div>
+                  </div>
+
+                  <!-- Player NEXT -->
+                  <div v-else-if="currentPhase === 'next' && currentTurnType === 'player'" style="width:100%">
+                    <button @click="nextPlayerTurn"
+                            class="bg-slate-600 hover:bg-slate-400 text-white font-bold rounded transition-all w-full"
+                            style="font-size:0.8em;padding:0.5em">
+                      換下一位 →
+                    </button>
+                  </div>
+
+                  <!-- Boss ROLL -->
+                  <div v-else-if="currentPhase === 'boss-roll'" style="width:100%">
+                    <div class="text-slate-400 text-center" style="font-size:0.65em;margin-bottom:0.3em">鬼王移動點數</div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
+                      <button v-for="n in 6" :key="n" @click="bossRoll(n)"
+                              class="bg-red-900 hover:bg-red-700 text-white font-bold rounded transition-all"
+                              style="font-size:0.85em;padding:0.3em 0">
+                        {{ n }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Boss ATTACK -->
+                  <div v-else-if="currentPhase === 'boss-attack'" style="width:100%">
+                    <div class="text-red-400 text-center font-bold" style="font-size:0.62em;margin-bottom:0.2em">
+                      攻擊：{{ bossTargets.map(function(t){return t.name}).join(' / ') }}
+                    </div>
+                    <div class="text-slate-400 text-center" style="font-size:0.6em;margin-bottom:0.25em">傷害骰子點數</div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
+                      <button v-for="n in 6" :key="n" @click="bossAttack(n)"
+                              class="bg-red-900 hover:bg-red-700 text-white font-bold rounded transition-all"
+                              style="font-size:0.85em;padding:0.3em 0">
+                        {{ n }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Boss NEXT -->
+                  <div v-else-if="currentPhase === 'boss-next'" style="width:100%">
+                    <button @click="endBossTurn"
+                            class="bg-slate-600 hover:bg-slate-400 text-white font-bold rounded transition-all w-full"
+                            style="font-size:0.8em;padding:0.5em">
+                      換下一位 →
+                    </button>
+                  </div>
+
+                </div>
+
+                <!-- Skip interior cells (not control panel origin) -->
+                <div v-else-if="row >= 2 && row <= 4 && col >= 2 && col <= 4" style="display:none"></div>
+
+                <!-- Board cell -->
+                <div v-else
+                     class="board-cell rounded flex flex-col border"
+                     :class="cellClass(row, col)"
+                     style="padding:0.25em;min-width:0">
+                  <template v-if="squareAt(row, col)">
+                    <div class="text-slate-400 text-center" style="font-size:0.5em;line-height:1">格{{ squareAt(row, col).id }}</div>
+                    <div class="text-center leading-tight" style="font-size:0.48em;" :class="squareAt(row, col).type === 'card' ? 'text-purple-400' : 'text-slate-500'">{{ squareAt(row, col).type === 'card' ? '🎴' : '⚔️' }}</div>
+                    <div class="token-row">
+                      <template v-for="team in teams" :key="team.id">
+                        <div v-if="team.position === squareAt(row, col).id && team.hp > 0"
+                             class="token" :style="{background: team.color}">
+                          {{ team.id }}
+                        </div>
+                      </template>
+                      <div v-if="bossPosition === squareAt(row, col).id" class="token boss-token">鬼</div>
+                    </div>
+                  </template>
+                </div>
+
+              </template>
+            </template>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="flex flex-col bg-slate-950 border-l border-slate-800" style="width:30%">
+
+        <!-- Announcement panel -->
+        <div class="announcement-card flex-shrink-0" style="margin:0.5em;min-height:35%">
+          <div class="text-slate-400 font-semibold" style="font-size:0.6em;margin-bottom:0.4em;letter-spacing:0.05em;text-transform:uppercase">當前任務公告</div>
+          <div v-if="announcement.title" class="text-white font-bold" style="font-size:0.75em;margin-bottom:0.3em">{{ announcement.title }}</div>
+          <div v-if="announcement.desc" class="text-yellow-300 font-semibold" style="font-size:0.72em;line-height:1.4">{{ announcement.desc }}</div>
+          <div v-if="announcement.cardType" class="rounded font-bold" style="font-size:0.65em;padding:0.2em 0.5em;margin-top:0.4em;display:inline-block"
+               :class="announcement.cardType === '機會卡' ? 'bg-green-900 text-green-300' : 'bg-purple-900 text-purple-300'">
+            {{ announcement.cardType }}
+          </div>
+          <div v-if="announcement.cardName" class="text-white font-black" style="font-size:1.1em;margin-top:0.2em">{{ announcement.cardName }}</div>
+          <div v-if="announcement.cardEffect" class="text-slate-300" style="font-size:0.65em;margin-top:0.2em">{{ announcement.cardEffect }}</div>
+          <div v-if="announcement.result" class="font-bold" style="font-size:0.85em;margin-top:0.4em"
+               :class="announcement.resultColor || 'text-white'">{{ announcement.result }}</div>
+        </div>
+
+        <!-- Log panel -->
+        <div class="flex-1 overflow-y-auto log-container" style="padding:0 0.5em 0.5em 0.5em">
+          <div class="text-slate-500 font-semibold" style="font-size:0.58em;margin-bottom:0.3em;letter-spacing:0.05em;text-transform:uppercase">事件日誌</div>
+          <div v-for="(entry, idx) in gameLog" :key="idx"
+               class="rounded"
+               :class="logEntryClass(entry.type)"
+               style="font-size:0.62em;padding:0.15em 0.3em;margin-bottom:0.15em">
+            <span class="text-slate-500" style="margin-right:0.3em">{{ entry.time }}</span>
+            <span>{{ entry.msg }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SAVE/LOAD MODAL -->
+    <div v-if="showSaveModal" class="modal-overlay" @click.self="showSaveModal = false">
+      <div class="bg-slate-900 border border-slate-600 rounded-2xl" style="padding:1.2em;width:min(90%,380px)">
+        <div class="text-white font-bold" style="font-size:1em;margin-bottom:0.6em">💾 存檔 / 讀檔</div>
+        <textarea v-model="saveJsonStr"
+                  class="w-full bg-slate-800 text-green-300 font-mono rounded border border-slate-600 resize-none"
+                  style="height:10em;font-size:0.6em;padding:0.5em;margin-bottom:0.5em"
+                  placeholder="存檔 JSON 會顯示在這裡..."></textarea>
+        <div class="flex gap-2">
+          <button @click="generateSave" class="flex-1 bg-blue-700 hover:bg-blue-500 text-white font-bold py-2 rounded transition-all" style="font-size:0.78em">產生存檔</button>
+          <button @click="loadSave" class="flex-1 bg-green-700 hover:bg-green-500 text-white font-bold py-2 rounded transition-all" style="font-size:0.78em">讀取存檔</button>
+          <button @click="showSaveModal = false" class="bg-slate-700 hover:bg-slate-500 text-white rounded transition-all" style="font-size:0.78em;padding:0.3em 0.6em">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIVE SELECTION MODAL -->
+    <div v-if="showReviveModal" class="modal-overlay">
+      <div class="bg-slate-900 border border-purple-600 rounded-2xl" style="padding:1.2em;min-width:200px">
+        <div class="text-white font-bold" style="font-size:1em;margin-bottom:0.8em">死者甦醒：選擇復活隊伍</div>
+        <div class="flex flex-col gap-2">
+          <button v-for="team in deadTeams" :key="team.id" @click="reviveTeam(team.id)"
+                  class="flex items-center gap-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg border border-slate-600 transition-all"
+                  style="padding:0.5em 0.8em;font-size:0.85em">
+            <div class="rounded-full flex-shrink-0" style="width:0.7em;height:0.7em" :style="{background: team.color}"></div>
+            <span class="font-semibold">{{ team.name }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </template>
+
+</div>
+
+<script>
+var Vue3 = Vue;
+var createApp = Vue3.createApp;
+
+// ---- Game Data ----
+var SQUARES = [
+  { id:1,  type:'task', name:'衝到牧師館',    desc:'衝到牧師館，吃掉愛玉',               damage:10 },
+  { id:2,  type:'task', name:'拍大合照',       desc:'衝到牧師館，拍一張大合照',           damage:10 },
+  { id:3,  type:'task', name:'繩子接球',       desc:'衝到主日學教室，繩子接球',           damage:10 },
+  { id:4,  type:'task', name:'找到特定物品',   desc:'衝到主日學教室，找到特定物品',       damage:10 },
+  { id:5,  type:'task', name:'巧拼拼圖案',     desc:'衝到主日學教室，用巧拼拼圖案',       damage:10 },
+  { id:6,  type:'task', name:'會議室背金句',   desc:'衝到會議室，背金句',                 damage:10 },
+  { id:7,  type:'task', name:'會議室寫考卷',   desc:'衝到會議室，寫考卷',                 damage:10 },
+  { id:8,  type:'task', name:'原地唱歌',       desc:'原地唱歌',                           damage:5  },
+  { id:9,  type:'task', name:'金雞獨立',       desc:'原地金雞獨立',                       damage:5  },
+  { id:10, type:'card', name:'猜拳抽卡',       desc:'原地跟鬼王猜拳，抽取隨機卡片'                },
+  { id:11, type:'task', name:'骰子比大小',     desc:'原地跟鬼王骰子比大小',               damage:10 },
+  { id:12, type:'card', name:'丟銅板抽卡',     desc:'原地跟鬼王拼運氣（丟銅板），抽取隨機卡片'   },
+  { id:13, type:'task', name:'車棚揮刀50下',   desc:'衝到車棚，揮刀 50 下',               damage:10 },
+  { id:14, type:'task', name:'車棚開合跳',     desc:'衝到車棚，開合跳',                   damage:10 },
+  { id:15, type:'task', name:'飲料喝完',       desc:'衝到備課教室，把飲料喝完',           damage:10 },
+  { id:16, type:'card', name:'特殊抽卡格',     desc:'特殊任務格子：抽取隨機卡片'                 },
+];
+
+// row,col -> squareId (1-indexed)
+var BOARD_LAYOUT = {
+  '1-1': 1,  '1-2': 2,  '1-3': 3,  '1-4': 4,  '1-5': 5,
+  '2-5': 6,  '3-5': 7,  '4-5': 8,
+  '5-5': 9,  '5-4': 10, '5-3': 11, '5-2': 12, '5-1': 13,
+  '4-1': 14, '3-1': 15, '2-1': 16,
+};
+
+var CHANCE_CARDS = [
+  { id:'revive', name:'死者甦醒', effect:'復活一隊已陣亡的小組，HP 重置為 5' },
+  { id:'heal',   name:'生命藥水', effect:'本組回復 5 HP（上限 10）' },
+  { id:'shield', name:'防護盾',   effect:'獲得護盾標記，下次鬼王攻擊無效' },
+  { id:'double', name:'強化攻擊', effect:'獲得雙倍標記，任務成功時傷害加倍' },
+];
+
+var FATE_CARDS = [
+  { id:'night',  name:'夜晚來臨',          effect:'鬼王下一回合攻擊傷害 ×2' },
+  { id:'day',    name:'白天來了',           effect:'鬼王下一回合暫停行動' },
+  { id:'blast',  name:'鬼放大招',           effect:'無慘立即對所有存活隊伍造成 3 點傷害' },
+  { id:'peace',  name:'真是個平安的一天',  effect:'無事發生' },
+];
+
+var MUZAN_AVATAR = 'https://static.wikia.nocookie.net/kimetsu-no-yaiba/images/9/92/%E9%AC%BC%E8%88%9E%E8%BE%BB%E7%84%A1%E6%85%98_%E5%8B%95%E7%95%AB%E8%B3%87%E8%A8%8A%E6%A1%86.png/revision/latest/scale-to-width-down/130?cb=20191023023455&path-prefix=zh-tw';
+
+function defaultTeams() {
+  return [
+    { id:1, name:'霞柱 ‧ 時透',   color:'#14b8a6', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'https://static.wikia.nocookie.net/kimetsu-no-yaiba/images/3/30/%E6%99%82%E9%80%8F%E7%84%A1%E4%B8%80%E9%83%8E_Portrait.png/revision/latest/scale-to-width-down/130?cb=20190907025323&path-prefix=zh-tw' },
+    { id:2, name:'水柱 ‧ 義勇',   color:'#3b82f6', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'https://static.wikia.nocookie.net/kimetsu-no-yaiba/images/8/8a/%E5%AF%8C%E5%B2%A1%E7%BE%A9%E5%8B%87_Portrait.png/revision/latest/scale-to-width-down/130?cb=20191022132426&path-prefix=zh-tw' },
+    { id:3, name:'炎柱 ‧ 杏壽郎', color:'#f97316', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'https://static.wikia.nocookie.net/kimetsu-no-yaiba/images/6/62/%E7%85%89%E7%8D%84%E6%9D%8F%E5%A3%BD%E9%83%8E_Portrait.png/revision/latest/scale-to-width-down/130?cb=20191022132453&path-prefix=zh-tw' },
+    { id:4, name:'蛇柱 ‧ 伊黑',   color:'#a855f7', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'https://static.wikia.nocookie.net/kimetsu-no-yaiba/images/0/07/%E4%BC%8A%E9%BB%91%E5%B0%8F%E8%8A%AD%E5%85%A7_Portrait.png/revision/latest/scale-to-width-down/130?cb=20190907025345&path-prefix=zh-tw' },
+    { id:5, name:'蟲柱 ‧ 忍',     color:'#ec4899', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'https://static.wikia.nocookie.net/kimetsu-no-yaiba/images/4/45/%E8%83%A1%E8%9D%B6%E5%BF%8D_Portrait.png/revision/latest/scale-to-width-down/130?cb=20190915124904&path-prefix=zh-tw' },
+    { id:6, name:'風柱 ‧ 實彌',   color:'#22c55e', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'https://static.wikia.nocookie.net/kimetsu-no-yaiba/images/e/ec/%E4%B8%8D%E6%AD%BB%E5%B7%9D%E5%AF%A6%E5%BD%8C_Portrait.png/revision/latest/scale-to-width-down/130?cb=20191022131815&path-prefix=zh-tw' },
+  ];
+}
+
+function ringDistance(a, b) {
+  var diff = Math.abs(a - b);
+  return Math.min(diff, 16 - diff);
+}
+
+function nowStr() {
+  var d = new Date();
+  var hh = d.getHours().toString().padStart(2,'0');
+  var mm = d.getMinutes().toString().padStart(2,'0');
+  var ss = d.getSeconds().toString().padStart(2,'0');
+  return hh + ':' + mm + ':' + ss;
+}
+
+createApp({
+  data: function() {
+    return {
+      screen: 'splash',
+      currentTurnType: 'player',
+      currentTeamIndex: 0,
+      currentPhase: 'roll',
+      globalRound: 1,
+      ghostKingHP: 100,
+      bossPosition: 1,
+      bossStatus: { nextAttackMultiplier: 1, isBossTurnSkip: false },
+      MUZAN_AVATAR: MUZAN_AVATAR,
+      teams: defaultTeams(),
+      lastSnapshot: null,
+      bossTargets: [],
+      gameLog: [],
+      announcement: { title:'', desc:'', cardType:'', cardName:'', cardEffect:'', result:'', resultColor:'' },
+      showSaveModal: false,
+      showReviveModal: false,
+      deadTeams: [],
+      saveJsonStr: '',
+      cardChoices: [],
+      flippedCardIndex: null,
+    };
+  },
+
+  computed: {
+    nextTurnInfo: function() {
+      if (this.currentTurnType === 'boss') {
+        // After boss, it's the first living team in next round
+        for (var i = 0; i < this.teams.length; i++) {
+          if (this.teams[i].hp > 0) return { name: this.teams[i].name, color: this.teams[i].color };
+        }
+        return null;
+      }
+      // Find next living team after current
+      for (var j = this.currentTeamIndex + 1; j < this.teams.length; j++) {
+        if (this.teams[j].hp > 0) return { name: this.teams[j].name, color: this.teams[j].color };
+      }
+      // No more teams → boss is next
+      return { name: '鬼王無慘', color: '#ef4444' };
+    },
+    currentSquare: function() {
+      if (this.currentTurnType !== 'player') return null;
+      var team = this.teams[this.currentTeamIndex];
+      if (!team) return null;
+      var pos = team.position;
+      for (var i = 0; i < SQUARES.length; i++) {
+        if (SQUARES[i].id === pos) return SQUARES[i];
+      }
+      return null;
+    },
+    phaseLabel: function() {
+      var map = {
+        'roll': '擲骰中',
+        'action': '行動中',
+        'next': '結算',
+        'boss-roll': '鬼王移動',
+        'boss-attack': '鬼王攻擊',
+        'boss-next': '回合結算',
+      };
+      return map[this.currentPhase] || '';
+    },
+    rankedTeams: function() {
+      return this.teams.slice().sort(function(a,b){ return b.damageDealt - a.damageDealt; });
+    },
+  },
+
+  methods: {
+    saveSnapshot: function() {
+      this.lastSnapshot = {
+        ghostKingHP: this.ghostKingHP,
+        bossPosition: this.bossPosition,
+        currentTurnType: this.currentTurnType,
+        currentTeamIndex: this.currentTeamIndex,
+        currentPhase: this.currentPhase,
+        globalRound: this.globalRound,
+        bossStatus: { nextAttackMultiplier: this.bossStatus.nextAttackMultiplier, isBossTurnSkip: this.bossStatus.isBossTurnSkip },
+        bossTargets: this.bossTargets.slice(),
+        cardChoices: this.cardChoices.slice(),
+        flippedCardIndex: this.flippedCardIndex,
+        announcement: Object.assign({}, this.announcement),
+        teams: this.teams.map(function(t) {
+          return { id:t.id, position:t.position, hp:t.hp, damageDealt:t.damageDealt, status:{ shieldActive:t.status.shieldActive, doubleDamage:t.status.doubleDamage } };
+        }),
+      };
+    },
+
+    undoLastAction: function() {
+      if (!this.lastSnapshot) return;
+      var s = this.lastSnapshot;
+      this.ghostKingHP = s.ghostKingHP;
+      this.bossPosition = s.bossPosition;
+      this.currentTurnType = s.currentTurnType;
+      this.currentTeamIndex = s.currentTeamIndex;
+      this.currentPhase = s.currentPhase;
+      this.globalRound = s.globalRound;
+      this.bossStatus = { nextAttackMultiplier: s.bossStatus.nextAttackMultiplier, isBossTurnSkip: s.bossStatus.isBossTurnSkip };
+      this.bossTargets = s.bossTargets.slice();
+      this.cardChoices = s.cardChoices.slice();
+      this.flippedCardIndex = s.flippedCardIndex;
+      this.announcement = Object.assign({}, s.announcement);
+      var self = this;
+      s.teams.forEach(function(saved) {
+        var team = self.teams.find(function(t){ return t.id === saved.id; });
+        if (team) {
+          team.position = saved.position;
+          team.hp = saved.hp;
+          team.damageDealt = saved.damageDealt;
+          team.status.shieldActive = saved.status.shieldActive;
+          team.status.doubleDamage = saved.status.doubleDamage;
+        }
+      });
+      this.addLog('system', '↩ 已還原上一步');
+      this.lastSnapshot = null;
+    },
+
+    startGame: function() {
+      this.screen = 'game';
+      this.addLog('system', '遊戲開始！第 1 輪，從 ' + this.teams[0].name + ' 開始！');
+      this.refreshAnnouncement();
+    },
+
+    addLog: function(type, msg) {
+      this.gameLog.unshift({ type: type, msg: msg, time: nowStr() });
+    },
+
+    logEntryClass: function(type) {
+      var map = {
+        damage: 'text-red-400',
+        success: 'text-green-400',
+        card: 'text-yellow-400',
+        system: 'text-slate-400',
+        fail: 'text-orange-400',
+        heal: 'text-teal-400',
+        shield: 'text-cyan-400',
+      };
+      return map[type] || 'text-slate-400';
+    },
+
+    rankBadge: function(idx) {
+      return ['🥇','🥈','🥉','4','5','6'][idx];
+    },
+
+    victoryRowClass: function(idx) {
+      if (idx === 0) return 'bg-yellow-900 border-yellow-400';
+      if (idx === 1) return 'bg-slate-800 border-slate-500';
+      if (idx === 2) return 'bg-amber-950 border-amber-700';
+      return 'bg-slate-900 border-slate-700';
+    },
+
+    teamRowClass: function(team) {
+      if (team.hp <= 0) return 'bg-slate-900 border-slate-800 opacity-50';
+      var activeTeam = this.teams[this.currentTeamIndex];
+      if (this.currentTurnType === 'player' && activeTeam && activeTeam.id === team.id) {
+        return 'border-yellow-400 bg-slate-800';
+      }
+      return 'bg-slate-900 border-slate-700';
+    },
+
+    squareAt: function(row, col) {
+      var id = BOARD_LAYOUT[row + '-' + col];
+      if (!id) return null;
+      for (var i = 0; i < SQUARES.length; i++) {
+        if (SQUARES[i].id === id) return SQUARES[i];
+      }
+      return null;
+    },
+
+    cellClass: function(row, col) {
+      var sq = this.squareAt(row, col);
+      if (!sq) return 'bg-slate-950 border-slate-950';
+      if (sq.type === 'card') return 'bg-purple-950 border-purple-800';
+      return 'bg-slate-900 border-slate-700';
+    },
+
+    refreshAnnouncement: function() {
+      var sq = this.currentSquare;
+      if (sq) {
+        this.announcement.title = '格 ' + sq.id + '：' + sq.name;
+        this.announcement.desc = sq.desc;
+      } else if (this.currentTurnType === 'boss') {
+        this.announcement.title = '鬼王無慘';
+        this.announcement.desc = '鬼王行動中...';
+      }
+    },
+
+    clearAnnouncementResult: function() {
+      this.announcement.cardType = '';
+      this.announcement.cardName = '';
+      this.announcement.cardEffect = '';
+      this.announcement.result = '';
+      this.announcement.resultColor = '';
+    },
+
+    movePosition: function(pos, steps) {
+      return ((pos - 1 + steps) % 16) + 1;
+    },
+
+    // ---- Player Turn ----
+    playerRoll: function(n) {
+      this.saveSnapshot();
+      var team = this.teams[this.currentTeamIndex];
+      var newPos = this.movePosition(team.position, n);
+      team.position = newPos;
+      var sq = null;
+      for (var i = 0; i < SQUARES.length; i++) {
+        if (SQUARES[i].id === newPos) { sq = SQUARES[i]; break; }
+      }
+      this.addLog('system', team.name + ' 擲出 ' + n + '，移動到格 ' + newPos + '「' + (sq ? sq.name : '') + '」');
+      this.currentPhase = 'action';
+      this.clearAnnouncementResult();
+      this.refreshAnnouncement();
+    },
+
+    taskSuccess: function() {
+      this.saveSnapshot();
+      var team = this.teams[this.currentTeamIndex];
+      var sq = this.currentSquare;
+      var dmg = sq.damage;
+      var doubled = false;
+      if (team.status.doubleDamage) {
+        dmg = dmg * 2;
+        doubled = true;
+        team.status.doubleDamage = false;
+      }
+      team.damageDealt += dmg;
+      this.ghostKingHP = Math.max(0, this.ghostKingHP - dmg);
+      var msg = team.name + ' 任務成功！造成 ' + dmg + ' 傷害' + (doubled ? '（雙倍！）' : '') + '。鬼王剩 ' + this.ghostKingHP + ' HP';
+      this.addLog('success', msg);
+      this.announcement.result = '✅ 任務成功！-' + dmg + ' HP' + (doubled ? ' 雙倍！' : '');
+      this.announcement.resultColor = 'text-green-400';
+      this.currentPhase = 'next';
+      if (this.ghostKingHP <= 0) {
+        this.screen = 'finalStrike';
+      }
+    },
+
+    taskFail: function() {
+      this.saveSnapshot();
+      var team = this.teams[this.currentTeamIndex];
+      this.addLog('fail', team.name + ' 任務失敗。');
+      this.announcement.result = '❌ 任務失敗';
+      this.announcement.resultColor = 'text-orange-400';
+      this.currentPhase = 'next';
+    },
+
+    prepareCards: function() {
+      // Generate 4 shuffled card choices (pre-determined but hidden)
+      var choices = [];
+      for (var i = 0; i < 4; i++) {
+        var isChance = Math.random() < 0.5;
+        var pool = isChance ? CHANCE_CARDS : FATE_CARDS;
+        var card = pool[Math.floor(Math.random() * pool.length)];
+        choices.push({ isChance: isChance, card: card });
+      }
+      this.cardChoices = choices;
+      this.flippedCardIndex = null;
+      this.announcement.title = '選一張牌翻開';
+      this.announcement.desc = '';
+    },
+
+    flipCard: function(index) {
+      this.saveSnapshot();
+      this.flippedCardIndex = index;
+      var choice = this.cardChoices[index];
+      var team = this.teams[this.currentTeamIndex];
+      var cardType = choice.isChance ? '機會卡' : '命運卡';
+
+      this.announcement.cardType = cardType;
+      this.announcement.cardName = choice.card.name;
+      this.announcement.cardEffect = choice.card.effect;
+      this.announcement.result = '';
+
+      this.addLog('card', team.name + ' 抽到' + cardType + '：' + choice.card.name);
+      this.applyCard(choice.card, choice.isChance, team);
+      this.currentPhase = 'next';
+    },
+
+    applyCard: function(card, isChance, team) {
+      if (isChance) {
+        if (card.id === 'revive') {
+          var dead = this.teams.filter(function(t){ return t.hp <= 0; });
+          if (dead.length === 0) {
+            this.addLog('system', '死者甦醒：目前沒有陣亡隊伍，無效果。');
+          } else if (dead.length === 1) {
+            dead[0].hp = 5;
+            this.addLog('heal', '死者甦醒：' + dead[0].name + ' 復活，HP 恢復為 5！');
+          } else {
+            this.deadTeams = dead;
+            this.showReviveModal = true;
+          }
+        } else if (card.id === 'heal') {
+          var prev = team.hp;
+          team.hp = Math.min(10, team.hp + 5);
+          this.addLog('heal', '生命藥水：' + team.name + ' 回復 ' + (team.hp - prev) + ' HP（現在 ' + team.hp + ' HP）');
+        } else if (card.id === 'shield') {
+          team.status.shieldActive = true;
+          this.addLog('shield', '防護盾：' + team.name + ' 獲得護盾標記！');
+        } else if (card.id === 'double') {
+          team.status.doubleDamage = true;
+          this.addLog('system', '強化攻擊：' + team.name + ' 獲得雙倍攻擊標記！');
+        }
+      } else {
+        if (card.id === 'night') {
+          this.bossStatus.nextAttackMultiplier = 2;
+          this.addLog('system', '夜晚來臨：鬼王下一次攻擊傷害 ×2！');
+        } else if (card.id === 'day') {
+          this.bossStatus.isBossTurnSkip = true;
+          this.addLog('system', '白天來了：鬼王下一回合將跳過行動！');
+        } else if (card.id === 'blast') {
+          this.addLog('damage', '鬼放大招：無慘對所有存活隊伍造成 3 點傷害！');
+          for (var i = 0; i < this.teams.length; i++) {
+            var t = this.teams[i];
+            if (t.hp > 0) {
+              if (t.status.shieldActive) {
+                t.status.shieldActive = false;
+                this.addLog('shield', t.name + ' 護盾抵擋了大招！');
+              } else {
+                t.hp = Math.max(0, t.hp - 3);
+                this.addLog('damage', t.name + ' 受到 3 點傷害，剩餘 ' + t.hp + ' HP' + (t.hp <= 0 ? '（已陣亡！）' : ''));
+              }
+            }
+          }
+          this.checkAllDead();
+        } else if (card.id === 'peace') {
+          this.addLog('system', '真是個平安的一天：無事發生。');
+        }
+      }
+    },
+
+    reviveTeam: function(teamId) {
+      for (var i = 0; i < this.teams.length; i++) {
+        if (this.teams[i].id === teamId) {
+          this.teams[i].hp = 5;
+          this.addLog('heal', '死者甦醒：' + this.teams[i].name + ' 復活，HP 恢復為 5！');
+          break;
+        }
+      }
+      this.showReviveModal = false;
+      this.deadTeams = [];
+    },
+
+    nextPlayerTurn: function() {
+      this.saveSnapshot();
+      this.cardChoices = [];
+      this.flippedCardIndex = null;
+      var currentIdx = this.currentTeamIndex;
+      var nextIdx = -1;
+      for (var i = currentIdx + 1; i < 6; i++) {
+        if (this.teams[i].hp > 0) {
+          nextIdx = i;
+          break;
+        }
+      }
+
+      if (nextIdx !== -1) {
+        this.currentTeamIndex = nextIdx;
+        this.currentPhase = 'roll';
+        this.currentTurnType = 'player';
+        this.announcement.title = '';
+        this.announcement.desc = '';
+        this.clearAnnouncementResult();
+        this.refreshAnnouncement();
+      } else {
+        // All player teams done → boss turn
+        this.currentTurnType = 'boss';
+        this.announcement.title = '鬼王無慘回合';
+        this.announcement.desc = '';
+        this.clearAnnouncementResult();
+
+        if (this.bossStatus.isBossTurnSkip) {
+          this.bossStatus.isBossTurnSkip = false;
+          this.addLog('system', '白天來了：鬼王跳過本回合行動！');
+          this.announcement.result = '☀️ 白天來了：鬼王跳過！';
+          this.announcement.resultColor = 'text-yellow-400';
+          this.currentPhase = 'boss-next';
+        } else {
+          this.currentPhase = 'boss-roll';
+        }
+      }
+    },
+
+    // ---- Boss Turn ----
+    calcBossTargets: function() {
+      var living = this.teams.filter(function(t){ return t.hp > 0; });
+      if (living.length <= 2) return living.slice();
+      var bossPos = this.bossPosition;
+      var withDist = living.map(function(t) {
+        return { team: t, dist: ringDistance(bossPos, t.position) };
+      });
+      withDist.sort(function(a, b) {
+        if (a.dist !== b.dist) return a.dist - b.dist;
+        return a.team.id - b.team.id;
+      });
+      return [withDist[0].team, withDist[1].team];
+    },
+
+    bossRoll: function(n) {
+      this.saveSnapshot();
+      this.bossPosition = this.movePosition(this.bossPosition, n);
+      this.addLog('system', '鬼王無慘擲出 ' + n + '，移動到格 ' + this.bossPosition);
+      this.bossTargets = this.calcBossTargets();
+      this.currentPhase = 'boss-attack';
+      this.announcement.title = '鬼王在格 ' + this.bossPosition;
+      this.announcement.desc = '攻擊目標：' + this.bossTargets.map(function(t){ return t.name; }).join(' 和 ');
+      this.announcement.result = '';
+    },
+
+    bossAttack: function(n) {
+      this.saveSnapshot();
+      var mult = this.bossStatus.nextAttackMultiplier;
+      var baseDmg = n * mult;
+      this.bossStatus.nextAttackMultiplier = 1;
+
+      this.addLog('damage', '鬼王無慘發動攻擊！骰子 ' + n + (mult > 1 ? ' ×' + mult : '') + ' = ' + baseDmg + ' 傷害');
+
+      for (var i = 0; i < this.bossTargets.length; i++) {
+        var targetRef = this.bossTargets[i];
+        var team = null;
+        for (var j = 0; j < this.teams.length; j++) {
+          if (this.teams[j].id === targetRef.id) { team = this.teams[j]; break; }
+        }
+        if (!team || team.hp <= 0) continue;
+        if (team.status.shieldActive) {
+          team.status.shieldActive = false;
+          this.addLog('shield', team.name + ' 的護盾擋下了攻擊！');
+        } else {
+          team.hp = Math.max(0, team.hp - baseDmg);
+          this.addLog('damage', team.name + ' 受到 ' + baseDmg + ' 點傷害，剩餘 ' + team.hp + ' HP' + (team.hp <= 0 ? '（已陣亡！）' : ''));
+        }
+      }
+
+      this.announcement.result = '💥 鬼王造成 ' + baseDmg + ' 傷害！';
+      this.announcement.resultColor = 'text-red-400';
+      this.currentPhase = 'boss-next';
+      this.checkAllDead();
+    },
+
+    endBossTurn: function() {
+      this.saveSnapshot();
+      this.globalRound++;
+      var firstIdx = -1;
+      for (var i = 0; i < this.teams.length; i++) {
+        if (this.teams[i].hp > 0) { firstIdx = i; break; }
+      }
+      if (firstIdx === -1) {
+        this.screen = 'bossVictory';
+        return;
+      }
+      this.currentTeamIndex = firstIdx;
+      this.currentTurnType = 'player';
+      this.currentPhase = 'roll';
+      this.bossTargets = [];
+      this.addLog('system', '第 ' + this.globalRound + ' 輪開始！');
+      this.announcement.title = '';
+      this.announcement.desc = '';
+      this.clearAnnouncementResult();
+      this.refreshAnnouncement();
+    },
+
+    checkAllDead: function() {
+      var allDead = true;
+      for (var i = 0; i < this.teams.length; i++) {
+        if (this.teams[i].hp > 0) { allDead = false; break; }
+      }
+      if (allDead) {
+        this.screen = 'bossVictory';
+      }
+    },
+
+    // ---- Save / Load ----
+    generateSave: function() {
+      var data = {
+        ghostKingHP: this.ghostKingHP,
+        bossPosition: this.bossPosition,
+        currentTurnType: this.currentTurnType,
+        currentTeamIndex: this.currentTeamIndex,
+        currentPhase: this.currentPhase,
+        globalRound: this.globalRound,
+        bossStatus: { nextAttackMultiplier: this.bossStatus.nextAttackMultiplier, isBossTurnSkip: this.bossStatus.isBossTurnSkip },
+        teams: this.teams.map(function(t) {
+          return {
+            id: t.id,
+            position: t.position,
+            hp: t.hp,
+            damageDealt: t.damageDealt,
+            status: { shieldActive: t.status.shieldActive, doubleDamage: t.status.doubleDamage },
+          };
+        }),
+      };
+      this.saveJsonStr = JSON.stringify(data, null, 2);
+    },
+
+    loadSave: function() {
+      try {
+        var data = JSON.parse(this.saveJsonStr);
+        this.ghostKingHP = data.ghostKingHP;
+        this.bossPosition = data.bossPosition;
+        this.currentTurnType = data.currentTurnType;
+        this.currentTeamIndex = data.currentTeamIndex;
+        this.currentPhase = data.currentPhase || 'roll';
+        this.globalRound = data.globalRound;
+        this.bossStatus = { nextAttackMultiplier: data.bossStatus.nextAttackMultiplier, isBossTurnSkip: data.bossStatus.isBossTurnSkip };
+        var defaults = defaultTeams();
+        this.teams = data.teams.map(function(saved) {
+          var def = null;
+          for (var i = 0; i < defaults.length; i++) {
+            if (defaults[i].id === saved.id) { def = defaults[i]; break; }
+          }
+          return {
+            id: def.id,
+            name: def.name,
+            color: def.color,
+            position: saved.position,
+            hp: saved.hp,
+            damageDealt: saved.damageDealt,
+            status: { shieldActive: saved.status.shieldActive, doubleDamage: saved.status.doubleDamage },
+          };
+        });
+        this.bossTargets = [];
+        this.showSaveModal = false;
+        this.screen = 'game';
+        this.gameLog = [];
+        this.addLog('system', '已從存檔還原，第 ' + this.globalRound + ' 輪');
+        this.clearAnnouncementResult();
+        this.refreshAnnouncement();
+      } catch(e) {
+        alert('讀取失敗，JSON 格式錯誤：' + e.message);
+      }
+    },
+  },
+}).mount('#app');
+</script>
+</body>
+</html>
