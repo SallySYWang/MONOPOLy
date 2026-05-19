@@ -268,8 +268,25 @@ html, body {
                     </div>
                   </div>
 
+                  <!-- Player SETTLE: settle last round's task -->
+                  <div v-if="currentPhase === 'settle' && currentTurnType === 'player' && teams[currentTeamIndex] && teams[currentTeamIndex].pendingTask"
+                       style="width:100%;display:flex;flex-direction:column;gap:0.3em">
+                    <div class="text-yellow-300 text-center font-bold" style="font-size:0.6em;margin-bottom:0.1em">⏳ 結算上回合任務</div>
+                    <div class="text-slate-300 text-center" style="font-size:0.62em;margin-bottom:0.25em">{{ teams[currentTeamIndex].pendingTask.name }}</div>
+                    <button @click="settleTaskSuccess"
+                            class="bg-green-700 hover:bg-green-500 text-white font-bold rounded transition-all w-full"
+                            style="font-size:0.8em;padding:0.4em">
+                      ✅ 任務成功
+                    </button>
+                    <button @click="settleTaskFail"
+                            class="bg-red-800 hover:bg-red-600 text-white font-bold rounded transition-all w-full"
+                            style="font-size:0.8em;padding:0.4em">
+                      ❌ 任務失敗
+                    </button>
+                  </div>
+
                   <!-- Player ROLL -->
-                  <div v-if="currentPhase === 'roll' && currentTurnType === 'player'" style="width:100%">
+                  <div v-else-if="currentPhase === 'roll' && currentTurnType === 'player'" style="width:100%">
                     <div class="text-slate-400 text-center" style="font-size:0.65em;margin-bottom:0.3em">選擇骰子點數</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
                       <button v-for="n in 6" :key="n" @click="playerRoll(n)"
@@ -280,18 +297,14 @@ html, body {
                     </div>
                   </div>
 
-                  <!-- Player ACTION: task -->
+                  <!-- Player ACTION: task - send them to do the task, result next round -->
                   <div v-else-if="currentPhase === 'action' && currentTurnType === 'player' && currentSquare && (currentSquare.type === 'task' || currentSquare.type === 'start')"
                        style="width:100%;display:flex;flex-direction:column;gap:0.3em">
-                    <button @click="taskSuccess"
-                            class="bg-green-700 hover:bg-green-500 text-white font-bold rounded transition-all w-full"
+                    <div class="text-slate-300 text-center" style="font-size:0.6em;margin-bottom:0.25em">{{ currentSquare.desc }}</div>
+                    <button @click="startTask"
+                            class="bg-amber-600 hover:bg-amber-500 text-white font-bold rounded transition-all w-full"
                             style="font-size:0.8em;padding:0.4em">
-                      ✅ 任務成功
-                    </button>
-                    <button @click="taskFail"
-                            class="bg-red-800 hover:bg-red-600 text-white font-bold rounded transition-all w-full"
-                            style="font-size:0.8em;padding:0.4em">
-                      ❌ 任務失敗
+                      🏃 出發執行任務！
                     </button>
                   </div>
 
@@ -523,12 +536,12 @@ var MUZAN_AVATAR = 'assets/muzan.png';
 
 function defaultTeams() {
   return [
-    { id:1, name:'霞柱 ‧ 時透',   color:'#14b8a6', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team1.png' },
-    { id:2, name:'水柱 ‧ 義勇',   color:'#3b82f6', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team2.png' },
-    { id:3, name:'炎柱 ‧ 杏壽郎', color:'#f97316', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team3.png' },
-    { id:4, name:'蛇柱 ‧ 伊黑',   color:'#a855f7', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team4.png' },
-    { id:5, name:'蟲柱 ‧ 忍',     color:'#ec4899', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team5.png' },
-    { id:6, name:'風柱 ‧ 實彌',   color:'#22c55e', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team6.png' },
+    { id:1, name:'霞柱 ‧ 時透',   color:'#14b8a6', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team1.png', pendingTask:null },
+    { id:2, name:'水柱 ‧ 義勇',   color:'#3b82f6', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team2.png', pendingTask:null },
+    { id:3, name:'炎柱 ‧ 杏壽郎', color:'#f97316', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team3.png', pendingTask:null },
+    { id:4, name:'蛇柱 ‧ 伊黑',   color:'#a855f7', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team4.png', pendingTask:null },
+    { id:5, name:'蟲柱 ‧ 忍',     color:'#ec4899', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team5.png', pendingTask:null },
+    { id:6, name:'風柱 ‧ 實彌',   color:'#22c55e', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team6.png', pendingTask:null },
   ];
 }
 
@@ -599,6 +612,7 @@ createApp({
     },
     phaseLabel: function() {
       var map = {
+        'settle': '結算上回合任務',
         'roll': '擲骰中',
         'action': '行動中',
         'next': '結算',
@@ -628,7 +642,7 @@ createApp({
         flippedCardIndex: this.flippedCardIndex,
         announcement: Object.assign({}, this.announcement),
         teams: this.teams.map(function(t) {
-          return { id:t.id, position:t.position, hp:t.hp, damageDealt:t.damageDealt, status:{ shieldActive:t.status.shieldActive, doubleDamage:t.status.doubleDamage } };
+          return { id:t.id, position:t.position, hp:t.hp, damageDealt:t.damageDealt, status:{ shieldActive:t.status.shieldActive, doubleDamage:t.status.doubleDamage }, pendingTask: t.pendingTask ? { name:t.pendingTask.name, damage:t.pendingTask.damage } : null };
         }),
       };
     },
@@ -656,6 +670,7 @@ createApp({
           team.damageDealt = saved.damageDealt;
           team.status.shieldActive = saved.status.shieldActive;
           team.status.doubleDamage = saved.status.doubleDamage;
+          team.pendingTask = saved.pendingTask || null;
         }
       });
       this.addLog('system', '↩ 已還原上一步');
@@ -761,11 +776,22 @@ createApp({
       this.refreshAnnouncement();
     },
 
-    taskSuccess: function() {
+    startTask: function() {
       this.saveSnapshot();
       var team = this.teams[this.currentTeamIndex];
       var sq = this.currentSquare;
-      var dmg = sq.damage;
+      team.pendingTask = { name: sq.name, damage: sq.damage };
+      this.addLog('system', team.name + ' 出發執行任務：「' + sq.name + '」（結果下輪揭曉）');
+      this.announcement.result = '🏃 執行中，下輪結算';
+      this.announcement.resultColor = 'text-yellow-400';
+      this.currentPhase = 'next';
+    },
+
+    settleTaskSuccess: function() {
+      this.saveSnapshot();
+      var team = this.teams[this.currentTeamIndex];
+      var task = team.pendingTask;
+      var dmg = task.damage;
       var doubled = false;
       if (team.status.doubleDamage) {
         dmg = dmg * 2;
@@ -774,23 +800,26 @@ createApp({
       }
       team.damageDealt += dmg;
       this.ghostKingHP = Math.max(0, this.ghostKingHP - dmg);
-      var msg = team.name + ' 任務成功！造成 ' + dmg + ' 傷害' + (doubled ? '（雙倍！）' : '') + '。鬼王剩 ' + this.ghostKingHP + ' HP';
+      var msg = team.name + ' 任務「' + task.name + '」成功！造成 ' + dmg + ' 傷害' + (doubled ? '（雙倍！）' : '') + '。鬼王剩 ' + this.ghostKingHP + ' HP';
       this.addLog('success', msg);
       this.announcement.result = '✅ 任務成功！-' + dmg + ' HP' + (doubled ? ' 雙倍！' : '');
       this.announcement.resultColor = 'text-green-400';
-      this.currentPhase = 'next';
+      team.pendingTask = null;
+      this.currentPhase = 'roll';
       if (this.ghostKingHP <= 0) {
         this.screen = 'finalStrike';
       }
     },
 
-    taskFail: function() {
+    settleTaskFail: function() {
       this.saveSnapshot();
       var team = this.teams[this.currentTeamIndex];
-      this.addLog('fail', team.name + ' 任務失敗。');
+      var task = team.pendingTask;
+      this.addLog('fail', team.name + ' 任務「' + task.name + '」失敗。');
       this.announcement.result = '❌ 任務失敗';
       this.announcement.resultColor = 'text-orange-400';
-      this.currentPhase = 'next';
+      team.pendingTask = null;
+      this.currentPhase = 'roll';
     },
 
     prepareCards: function() {
@@ -904,12 +933,19 @@ createApp({
 
       if (nextIdx !== -1) {
         this.currentTeamIndex = nextIdx;
-        this.currentPhase = 'roll';
         this.currentTurnType = 'player';
-        this.announcement.title = '';
-        this.announcement.desc = '';
         this.clearAnnouncementResult();
-        this.refreshAnnouncement();
+        var nextTeam = this.teams[nextIdx];
+        if (nextTeam.pendingTask) {
+          this.currentPhase = 'settle';
+          this.announcement.title = '⏳ 結算上回合任務';
+          this.announcement.desc = nextTeam.name + ' 的任務：' + nextTeam.pendingTask.name;
+        } else {
+          this.currentPhase = 'roll';
+          this.announcement.title = '';
+          this.announcement.desc = '';
+          this.refreshAnnouncement();
+        }
       } else {
         // All player teams done → boss turn
         this.currentTurnType = 'boss';
@@ -998,13 +1034,20 @@ createApp({
       }
       this.currentTeamIndex = firstIdx;
       this.currentTurnType = 'player';
-      this.currentPhase = 'roll';
       this.bossTargets = [];
       this.addLog('system', '第 ' + this.globalRound + ' 輪開始！');
-      this.announcement.title = '';
-      this.announcement.desc = '';
       this.clearAnnouncementResult();
-      this.refreshAnnouncement();
+      var firstTeam = this.teams[firstIdx];
+      if (firstTeam.pendingTask) {
+        this.currentPhase = 'settle';
+        this.announcement.title = '⏳ 結算上回合任務';
+        this.announcement.desc = firstTeam.name + ' 的任務：' + firstTeam.pendingTask.name;
+      } else {
+        this.currentPhase = 'roll';
+        this.announcement.title = '';
+        this.announcement.desc = '';
+        this.refreshAnnouncement();
+      }
     },
 
     checkAllDead: function() {
@@ -1034,6 +1077,7 @@ createApp({
             hp: t.hp,
             damageDealt: t.damageDealt,
             status: { shieldActive: t.status.shieldActive, doubleDamage: t.status.doubleDamage },
+            pendingTask: t.pendingTask ? { name:t.pendingTask.name, damage:t.pendingTask.damage } : null,
           };
         }),
       };
@@ -1060,10 +1104,12 @@ createApp({
             id: def.id,
             name: def.name,
             color: def.color,
+            avatar: def.avatar,
             position: saved.position,
             hp: saved.hp,
             damageDealt: saved.damageDealt,
             status: { shieldActive: saved.status.shieldActive, doubleDamage: saved.status.doubleDamage },
+            pendingTask: saved.pendingTask || null,
           };
         });
         this.bossTargets = [];
