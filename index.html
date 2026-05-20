@@ -1176,7 +1176,9 @@ createApp({
       var bossPos=this.bossPosition;
       var withDist=living.map(function(t){return{team:t,dist:ringDistance(bossPos,t.position)};});
       withDist.sort(function(a,b){return a.dist!==b.dist?a.dist-b.dist:a.team.id-b.team.id;});
-      return [withDist[0].team,withDist[1].team];
+      // 以第2近的距離為門檻，同距離的都納入攻擊範圍
+      var threshold=withDist[1].dist;
+      return withDist.filter(function(x){return x.dist<=threshold;}).map(function(x){return x.team;});
     },
     bossRoll: function(n) {
       this.saveSnapshot(); this.bossPosition=this.movePosition(this.bossPosition,n);
