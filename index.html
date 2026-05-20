@@ -7,7 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@300;400;500;700&family=Shippori+Mincho+B1:wght@800&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
   width: 100%; height: 100%;
@@ -53,27 +53,33 @@ html, body {
 }
 .slash-text { animation: pulse-opacity 1.4s ease-in-out infinite; color: #c23b2b; }
 
-/* ── board ── */
+/* ── board — Infinity Castle warm palette ── */
 .board-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
   width: 100%; height: 100%;
   gap: 2px;
-  background: #030208;
+  background: #020100; /* wooden beam gaps */
 }
 .board-cell {
   position: relative; overflow: hidden; min-height: 0;
-  background: #0e0b12;
-  border: 1px solid rgba(194,59,43,0.07);
+  background: #100c07;
+  border: 1px solid rgba(200,110,40,0.16);
+}
+/* subtle lantern glow in each cell */
+.board-cell::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 65% 75%, rgba(210,120,40,0.05) 0%, transparent 55%);
 }
 
 /* ── control panel ── */
 .control-panel {
   grid-column: 2 / 5;
   grid-row: 2 / 5;
-  background: #120f18;
-  border: 1px solid rgba(194,59,43,0.13);
+  background: #150f08;
+  border: 1px solid rgba(200,110,40,0.18);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   padding: 0.6em; overflow: hidden; position: relative;
@@ -81,25 +87,30 @@ html, body {
 .control-panel::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0; height: 1.5px;
-  background: linear-gradient(to right, transparent, #c23b2b 40%, #c23b2b 60%, transparent);
-  opacity: 0.45;
+  background: linear-gradient(to right, transparent, #c87828 40%, #c87828 60%, transparent);
+  opacity: 0.5;
 }
-/* faint radial glow at centre */
 .control-panel::after {
   content: '';
   position: absolute; inset: 0; pointer-events: none;
-  background:
-    radial-gradient(ellipse at 50% 50%, rgba(194,59,43,0.04) 0%, transparent 55%);
+  background: radial-gradient(ellipse at 50% 50%, rgba(200,110,40,0.05) 0%, transparent 55%);
 }
 
 /* ── tokens ── */
-.token-row { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 3px; justify-content: center; }
-.token {
-  width: 1.3em; height: 1.3em; border-radius: 2px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.46em; font-weight: 700; color: #fff; flex-shrink: 0;
+.token-row { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 2px; justify-content: center; }
+.token-avatar {
+  width: 1.45em; height: 1.45em;
+  border-radius: 50%; overflow: hidden; flex-shrink: 0;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.7);
+  transition: transform 0.15s ease-out;
 }
-.boss-token { background: #c23b2b; border-radius: 2px; }
+.token-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+@keyframes token-hop {
+  0%   { transform: scale(1)     translateY(0); }
+  40%  { transform: scale(1.15)  translateY(-0.25em); }
+  100% { transform: scale(1)     translateY(0); }
+}
+.token-hop { animation: token-hop 0.22s ease-out; }
 
 /* ── bars ── */
 .hp-bar-inner { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
@@ -181,14 +192,49 @@ html, body {
 }
 
 /* ── board cell flavours ── */
-.cell-trace        { background: #0e0b12; }
+.cell-trace        { background: #100c07; }
 .cell-trace-red    {
-  background: radial-gradient(ellipse at 50% 50%, rgba(184,144,64,0.07) 0%, transparent 70%), #0e0b12;
-  border-color: rgba(184,144,64,0.12) !important;
+  /* START — stronger lantern glow, gold frame */
+  background: radial-gradient(ellipse at 50% 55%, rgba(220,150,50,0.14) 0%, transparent 65%), #120e08;
+  border-color: rgba(210,150,50,0.28) !important;
 }
 .cell-trace-purple {
-  background: radial-gradient(ellipse at 50% 50%, rgba(120,80,180,0.08) 0%, transparent 70%), #0e0b12;
-  border-color: rgba(120,80,180,0.1) !important;
+  /* CARD — cooler amber-purple */
+  background: radial-gradient(ellipse at 50% 50%, rgba(160,80,180,0.08) 0%, transparent 65%), #100b0e;
+  border-color: rgba(150,70,180,0.14) !important;
+}
+
+/* ══ SPLASH SCREEN — Infinity Castle movie poster ══ */
+.splash-wrap {
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; width: 100%;
+  /* Warm amber architectural atmosphere */
+  background-image: url('assets/splash-bg.png');
+  background-size: cover;
+  background-position: center center;
+}
+
+/* ink circle wrapper */
+.splash-circle {
+  position: relative; z-index: 2;
+  width: 20em; height: 20em;
+  flex-shrink: 0;
+  animation: splash-in 0.7s cubic-bezier(0.2,0.8,0.3,1) 0.15s both;
+  /* outer red glow */
+  filter: drop-shadow(0 0 2.5em rgba(180,25,8,0.55)) drop-shadow(0 0 6em rgba(150,15,5,0.25));
+}
+.splash-circle-text {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 1.4em 1.6em; text-align: center;
+}
+
+@keyframes splash-in {
+  from { opacity:0; transform:scale(0.9); }
+  to   { opacity:1; transform:scale(1); }
 }
 
 /* ── Tailwind overrides for dark bg ── */
@@ -322,41 +368,82 @@ html, body {
 <div id="app">
 
   <!-- ══ SPLASH ══ -->
-  <div v-if="screen === 'splash'" class="flex h-full w-full" style="padding:3em 4.5em;gap:4em;align-items:center">
+  <div v-if="screen === 'splash'" class="splash-wrap">
 
-    <!-- LEFT -->
-    <div style="flex:0 0 auto;max-width:44%">
-      <!-- decorative label -->
-      <div style="font-size:0.44em;letter-spacing:0.22em;text-transform:uppercase;color:rgba(184,144,64,0.5);margin-bottom:0.8em">鬼殺隊 · Demon Slayer Corps</div>
-      <div class="font-display text-accent" style="font-size:5.2em;line-height:0.88;margin-bottom:0.08em">擊殺鬼王</div>
-      <div class="font-display" style="font-size:2.5em;letter-spacing:0.1em;margin-bottom:0.6em;color:#e0d4c0">大富翁</div>
-      <!-- ink divider -->
-      <div style="width:3em;height:1.5px;background:linear-gradient(to right,#c23b2b,transparent);margin-bottom:1.2em;opacity:0.7"></div>
-      <div class="text-muted" style="font-size:0.62em;letter-spacing:0.05em;margin-bottom:2.2em">2026 新生教會主日學製作</div>
-      <button @click="startGame" class="btn btn-red" style="font-size:0.72em;padding:0.55em 2.2em;letter-spacing:0.12em">
+    <!-- 劇場版 floating label (upper-left of circle) -->
+    <div style="position:relative;z-index:3;font-size:0.55em;font-weight:700;letter-spacing:0.18em;color:rgba(245,215,140,0.85);margin-bottom:0.35em;font-family:'Noto Sans TC',sans-serif">
+      劇場版
+    </div>
+
+    <!-- SVG brushstroke circle + title -->
+    <div class="splash-circle">
+
+      <!-- SVG: white bg + red ink brushstroke ring -->
+      <svg viewBox="0 0 220 220"
+           style="position:absolute;inset:0;width:100%;height:100%;overflow:visible"
+           aria-hidden="true">
+        <defs>
+          <filter id="ink-brush" x="-12%" y="-12%" width="124%" height="124%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.038" numOctaves="4" seed="7" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="5.5"
+                               xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+        </defs>
+        <!-- warm white/cream interior -->
+        <circle cx="110" cy="110" r="96" fill="#faf2e4"/>
+        <!-- main red brushstroke -->
+        <circle cx="110" cy="110" r="96"
+                fill="none" stroke="#b51812" stroke-width="22"
+                stroke-linecap="round"
+                filter="url(#ink-brush)"
+                transform="rotate(-10 110 110)"/>
+        <!-- second pass — darker overlap for depth -->
+        <circle cx="110" cy="110" r="96"
+                fill="none" stroke="rgba(140,12,6,0.5)" stroke-width="10"
+                stroke-linecap="round"
+                stroke-dasharray="200 430"
+                filter="url(#ink-brush)"
+                transform="rotate(80 110 110)"/>
+      </svg>
+
+      <!-- text content inside circle -->
+      <div class="splash-circle-text">
+        <!-- main title — Shippori Mincho B1, BLACK on white -->
+        <div style="font-family:'Shippori Mincho B1',serif;font-weight:800;font-size:3.5em;line-height:0.86;letter-spacing:0.06em;color:#111">堅持夏趣</div>
+        <!-- red subtitle — same font -->
+        <div style="font-family:'Shippori Mincho B1',serif;font-weight:800;font-size:0.88em;line-height:1.35;letter-spacing:0.08em;margin-top:0.28em;color:#b51812">2026 無限城篇</div>
+      </div>
+    </div>
+
+    <!-- buttons -->
+    <div class="flex flex-col items-center" style="margin-top:1.3em;gap:0.45em;position:relative;z-index:3">
+      <button @click="startGame" class="btn btn-red"
+              style="font-size:0.72em;padding:0.55em 3.2em;letter-spacing:0.18em">
         開始遊戲
       </button>
       <button v-if="hasSavedGame" @click="restoreAutoSave"
               class="btn btn-ghost"
-              style="font-size:0.62em;padding:0.45em 2em;letter-spacing:0.1em;margin-top:0.7em;display:block;width:100%">
+              style="font-size:0.58em;padding:0.4em 2.2em;letter-spacing:0.1em">
         ↩ 繼續上次遊戲
       </button>
     </div>
 
-    <!-- RIGHT: team roster -->
-    <div style="flex:1;border-left:1px solid rgba(194,59,43,0.12);padding-left:2.5em">
-      <div class="section-label">參賽隊伍 · Roster</div>
+    <!-- team roster — avatar strip -->
+    <div class="flex items-end gap-4" style="margin-top:1.4em;position:relative;z-index:3">
       <div v-for="(team, idx) in teams" :key="team.id"
-           class="flex items-center gap-3"
-           style="padding:0.42em 0;border-bottom:1px solid rgba(194,59,43,0.06)">
-        <span class="font-display text-dim" style="font-size:0.7em;width:1.6em;flex-shrink:0">0{{ idx+1 }}</span>
+           class="flex flex-col items-center" style="gap:0.28em">
         <img :src="team.avatar"
-             style="width:1.8em;height:1.8em;border-radius:50%;object-fit:cover;flex-shrink:0"
-             :style="{outline:'1.5px solid '+team.color,outlineOffset:'1px',opacity:0.9}"
+             style="width:1.9em;height:1.9em;border-radius:50%;object-fit:cover"
+             :style="{outline:'1.5px solid '+team.color,outlineOffset:'1px',opacity:0.8}"
              onerror="this.style.display='none'">
-        <span class="text-cream" style="font-size:0.8em;font-weight:500;flex:1">{{ team.name }}</span>
-        <span style="font-size:0.52em;opacity:0.7" :style="{color:team.color}">●</span>
+        <span style="font-size:0.34em;letter-spacing:0.03em;white-space:nowrap"
+              :style="{color:team.color,opacity:0.65}">{{ team.name }}</span>
       </div>
+    </div>
+
+    <!-- copyright -->
+    <div style="position:absolute;bottom:0.8em;font-size:0.33em;letter-spacing:0.1em;color:rgba(220,185,110,0.2);z-index:2">
+      © 新生教會主日學 2026
     </div>
   </div>
 
@@ -490,7 +577,7 @@ html, body {
 
       <!-- ── CENTER ── -->
       <div class="flex flex-col items-center justify-center"
-           style="width:56%;padding:0.4em;background:#060408">
+           style="width:56%;padding:0.4em;background:#080502">
         <div style="width:100%;aspect-ratio:1/1;max-height:100%;position:relative">
           <div class="board-grid" style="height:100%;width:100%">
 
@@ -533,7 +620,9 @@ html, body {
                        style="width:100%;position:relative;z-index:1">
                     <div class="text-center" style="font-size:0.62em;margin-bottom:0.3em;color:#6a5a50">選擇骰子點數</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
-                      <button v-for="n in 6" :key="n" @click="playerRoll(n)" class="dice-btn dice-btn-player">{{ n }}</button>
+                      <button v-for="n in 6" :key="n" @click="playerRoll(n)"
+                              :disabled="isAnimating"
+                              class="dice-btn dice-btn-player">{{ n }}</button>
                     </div>
                   </div>
 
@@ -617,19 +706,27 @@ html, body {
                      style="padding:0.25em;min-width:0">
                   <template v-if="squareAt(row,col)">
                     <div class="text-center"
-                         style="font-size:0.38em;letter-spacing:0.04em;line-height:1;font-family:'Bebas Neue',sans-serif;color:rgba(194,59,43,0.25)">
+                         style="font-size:0.38em;letter-spacing:0.04em;line-height:1;font-family:'Bebas Neue',sans-serif;color:rgba(200,130,60,0.3)">
                       {{ squareAt(row,col).id }}
                     </div>
-                    <div class="text-center leading-tight" style="font-size:0.5em;opacity:0.55"
-                         :style="{color: squareAt(row,col).type==='start'?'#b89040':squareAt(row,col).type==='card'?'#9060c0':'rgba(194,59,43,0.5)'}">
+                    <div class="text-center leading-tight" style="font-size:0.5em;opacity:0.6"
+                         :style="{color: squareAt(row,col).type==='start'?'#e8a84a':squareAt(row,col).type==='card'?'#b060c8':'rgba(200,100,40,0.55)'}">
                       {{ squareAt(row,col).type==='start'?'★':squareAt(row,col).type==='card'?'◈':'×' }}
                     </div>
                     <div class="token-row">
                       <template v-for="team in teams" :key="team.id">
-                        <div v-if="team.position===squareAt(row,col).id&&team.hp>0"
-                             class="token" :style="{background:team.color}">{{ team.id }}</div>
+                        <div v-if="teamDisplayPos(team)===squareAt(row,col).id&&team.hp>0"
+                             class="token-avatar"
+                             :class="{' token-hop': hoppingTeam===team.id}"
+                             :style="{outline:'2px solid '+team.color,outlineOffset:'1px'}">
+                          <img :src="team.avatar" onerror="this.style.display='none'">
+                        </div>
                       </template>
-                      <div v-if="bossPosition===squareAt(row,col).id" class="token boss-token">鬼</div>
+                      <div v-if="bossPosition===squareAt(row,col).id"
+                           class="token-avatar"
+                           style="outline:2px solid #c23b2b;outline-offset:1px">
+                        <img :src="MUZAN_AVATAR" onerror="this.style.display='none'">
+                      </div>
                     </div>
                   </template>
                 </div>
@@ -812,6 +909,7 @@ createApp({
       cardChoices:[], flippedCardIndex:null,
       showCrowModal:false, crowMission:null,
       hasSavedGame:false, autoSaveMsg:'',
+      animatingPositions:{}, hoppingTeam:null, isAnimating:false,
     };
   },
 
@@ -949,18 +1047,50 @@ createApp({
     },
     movePosition: function(pos,steps) { return ((pos-1+steps)%16)+1; },
 
+    teamDisplayPos: function(team) {
+      return this.animatingPositions[team.id] !== undefined
+        ? this.animatingPositions[team.id]
+        : team.position;
+    },
+
     playerRoll: function(n) {
       this.saveSnapshot();
-      var team=this.teams[this.currentTeamIndex];
-      var newPos=this.movePosition(team.position,n);
-      team.position=newPos;
-      var sq=null;
-      for (var i=0;i<SQUARES.length;i++) if (SQUARES[i].id===newPos){sq=SQUARES[i];break;}
-      this.addLog('system',team.name+' 擲出 '+n+'，移動到格 '+newPos+'「'+(sq?sq.name:'')+'」');
-      this.currentPhase='action';
-      this.clearAnnouncementResult();
-      this.refreshAnnouncement();
-      if (sq&&(sq.type==='task'||sq.type==='start')){this.crowMission=sq;this.showCrowModal=true;}
+      var team = this.teams[this.currentTeamIndex];
+      var startPos = team.position;
+      var self = this;
+      var step = 0;
+      this.isAnimating = true;
+
+      function moveStep() {
+        step++;
+        var midPos = self.movePosition(startPos, step);
+        // update reactive display position
+        var ap = {}; for (var k in self.animatingPositions) ap[k] = self.animatingPositions[k];
+        ap[team.id] = midPos;
+        self.animatingPositions = ap;
+        // hop animation class pulse
+        self.hoppingTeam = team.id;
+        setTimeout(function(){ self.hoppingTeam = null; }, 220);
+
+        if (step < n) {
+          setTimeout(moveStep, 280);
+        } else {
+          // animation done — commit final state
+          setTimeout(function() {
+            team.position = midPos;
+            self.animatingPositions = {};
+            self.isAnimating = false;
+            var sq = null;
+            for (var i = 0; i < SQUARES.length; i++) if (SQUARES[i].id === midPos) { sq = SQUARES[i]; break; }
+            self.addLog('system', team.name + ' 擲出 ' + n + '，移動到格 ' + midPos + '「' + (sq ? sq.name : '') + '」');
+            self.currentPhase = 'action';
+            self.clearAnnouncementResult();
+            self.refreshAnnouncement();
+            if (sq && (sq.type === 'task' || sq.type === 'start')) { self.crowMission = sq; self.showCrowModal = true; }
+          }, 280);
+        }
+      }
+      setTimeout(moveStep, 80);
     },
     closeCrowModal: function() { this.showCrowModal=false; },
 
