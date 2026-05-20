@@ -362,6 +362,95 @@ html, body {
   animation:text-reveal 0.4s ease-out 1.35s both;
 }
 
+/* ══ CARD REVEAL MODAL ══ */
+.card-overlay {
+  position:absolute !important; inset:0;
+  background:rgba(4,2,6,0.92); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:200; cursor:pointer;
+  animation:crow-overlay-in 0.3s ease-out;
+}
+.card-modal {
+  position:relative; width:min(58%,360px);
+  padding:1.8em 2.4em 1.4em; text-align:center;
+  cursor:default; overflow:hidden;
+  animation:crow-modal-in 0.4s cubic-bezier(0.2,0.8,0.3,1) 0.05s both;
+}
+.card-modal::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--card-accent-grad); opacity:0.55;
+}
+.card-modal-icon {
+  font-size:2em; margin-bottom:0.2em;
+  animation:text-reveal 0.3s ease-out 0.2s both;
+}
+.card-modal-type {
+  font-size:0.4em; letter-spacing:0.22em; text-transform:uppercase;
+  margin-bottom:0.3em;
+  animation:text-reveal 0.3s ease-out 0.3s both;
+}
+.card-modal-name {
+  font-family:'Shippori Mincho B1',serif; font-weight:800;
+  font-size:1.6em; line-height:1; letter-spacing:0.06em;
+  margin:0.15em 0 0.3em;
+  animation:text-reveal 0.3s ease-out 0.45s both;
+}
+.card-modal-divider {
+  height:1px; width:50%; margin:0 auto 0.65em;
+  animation:divider-grow 0.4s ease-out 0.6s both;
+}
+.card-modal-effect {
+  font-size:0.68em; line-height:1.6; color:rgba(245,237,224,0.55);
+  animation:text-reveal 0.3s ease-out 0.75s both;
+}
+.card-modal-dismiss {
+  display:block; margin-top:1em; font-size:0.42em; letter-spacing:0.14em;
+  color:rgba(245,237,224,0.22); text-transform:uppercase;
+  animation:text-reveal 0.3s ease-out 1s both;
+}
+/* chance = green, fate = red */
+.card-modal.chance {
+  --card-accent-grad: linear-gradient(to right,transparent,#5ab88a,transparent);
+  background: radial-gradient(ellipse at 50% 0%, rgba(90,184,138,0.08) 0%, transparent 55%),
+              linear-gradient(170deg,#090e0b 0%,#060c08 100%);
+  border:1px solid rgba(90,184,138,0.2);
+}
+.card-modal.fate {
+  --card-accent-grad: linear-gradient(to right,transparent,#c23b2b,transparent);
+  background: radial-gradient(ellipse at 50% 0%, rgba(194,59,43,0.08) 0%, transparent 55%),
+              linear-gradient(170deg,#120c0f 0%,#0e0809 100%);
+  border:1px solid rgba(194,59,43,0.2);
+}
+
+/* ══ DAMAGE EFFECTS ══ */
+@keyframes cell-hit-shake {
+  0%,100% { transform:translateX(0); }
+  20%     { transform:translateX(-4px); }
+  40%     { transform:translateX(4px); }
+  60%     { transform:translateX(-3px); }
+  80%     { transform:translateX(2px); }
+}
+@keyframes cell-hit-flash {
+  0%   { box-shadow:inset 0 0 0 100vw rgba(194,59,43,0.55); }
+  100% { box-shadow:inset 0 0 0 100vw rgba(194,59,43,0); }
+}
+.cell-hit {
+  animation: cell-hit-shake 0.4s ease-out, cell-hit-flash 0.6s ease-out;
+}
+@keyframes float-dmg {
+  0%   { transform:translateX(-50%) translateY(0);      opacity:1; }
+  100% { transform:translateX(-50%) translateY(-2.2em); opacity:0; }
+}
+.floating-dmg {
+  position:absolute; left:50%; top:40%;
+  transform:translateX(-50%);
+  font-family:'Bebas Neue',sans-serif; font-size:1.1em;
+  color:#ef4444; font-weight:700; white-space:nowrap;
+  text-shadow:0 0 8px rgba(194,59,43,0.9);
+  animation:float-dmg 0.9s ease-out forwards;
+  pointer-events:none; z-index:10;
+}
+
 </style>
 </head>
 <body>
@@ -609,10 +698,22 @@ html, body {
                        style="width:100%;display:flex;flex-direction:column;gap:0.3em;position:relative;z-index:1">
                     <div class="text-center font-bold" style="font-size:0.58em;margin-bottom:0.1em;color:#c8a040">⏳ 結算上回合任務</div>
                     <div class="text-center" style="font-size:0.6em;margin-bottom:0.25em;color:#9a8a78">{{ teams[currentTeamIndex].pendingTask.name }}</div>
-                    <button @click="settleTaskSuccess" class="btn"
-                            style="font-size:0.7em;padding:0.45em;width:100%;border-color:rgba(90,184,138,0.3);color:#5ab88a">任務成功</button>
-                    <button @click="settleTaskFail" class="btn btn-red"
-                            style="font-size:0.7em;padding:0.45em;width:100%">任務失敗</button>
+                    <template v-if="!taskSuccessRolling">
+                      <button @click="settleTaskSuccess" class="btn"
+                              style="font-size:0.7em;padding:0.45em;width:100%;border-color:rgba(90,184,138,0.3);color:#5ab88a">任務成功</button>
+                      <button @click="settleTaskFail" class="btn btn-red"
+                              style="font-size:0.7em;padding:0.45em;width:100%">任務失敗</button>
+                    </template>
+                    <template v-else>
+                      <div class="text-center" style="font-size:0.6em;margin-bottom:0.2em;color:#5ab88a">骰骰子決定傷害</div>
+                      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
+                        <button v-for="n in 6" :key="n" @click="applyTaskDamage(n)"
+                                class="dice-btn"
+                                style="background:rgba(90,184,138,0.08);color:#5ab88a;border-color:rgba(90,184,138,0.25)">
+                          {{ n }}
+                        </button>
+                      </div>
+                    </template>
                   </div>
 
                   <!-- ROLL -->
@@ -702,9 +803,12 @@ html, body {
                 <!-- board cell -->
                 <div v-else
                      class="board-cell flex flex-col"
-                     :class="cellClass(row,col)"
+                     :class="[cellClass(row,col), squareAt(row,col)&&flashingCells[squareAt(row,col).id]?'cell-hit':'']"
                      style="padding:0.25em;min-width:0">
                   <template v-if="squareAt(row,col)">
+                    <!-- floating damage numbers -->
+                    <div v-for="dmg in floatingDamages.filter(function(d){return squareAt(row,col)&&d.squareId===squareAt(row,col).id;})"
+                         :key="dmg.id" class="floating-dmg">-{{ dmg.damage }}</div>
                     <div class="text-center"
                          style="font-size:0.38em;letter-spacing:0.04em;line-height:1;font-family:'Bebas Neue',sans-serif;color:rgba(200,130,60,0.3)">
                       {{ squareAt(row,col).id }}
@@ -781,6 +885,30 @@ html, body {
             <span class="font-semibold">{{ team.name }}</span>
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- ══ CARD REVEAL MODAL ══ -->
+    <div v-if="showCardModal" class="card-overlay" @click="closeCardModal">
+      <div class="card-modal" :class="cardModalData&&cardModalData.isChance?'chance':'fate'" @click.stop>
+        <div class="crow-corner crow-corner-tl"></div>
+        <div class="crow-corner crow-corner-tr"></div>
+        <div class="crow-corner crow-corner-bl"></div>
+        <div class="crow-corner crow-corner-br"></div>
+        <div class="card-modal-icon">{{ cardModalData&&cardModalData.isChance?'✨':'⚠️' }}</div>
+        <div class="card-modal-type"
+             :style="cardModalData&&cardModalData.isChance?'color:rgba(90,184,138,0.7)':'color:rgba(194,59,43,0.7)'">
+          {{ cardModalData&&cardModalData.type }}
+        </div>
+        <div class="card-modal-name"
+             :style="cardModalData&&cardModalData.isChance?'color:#5ab88a':'color:#e8908a'">
+          {{ cardModalData&&cardModalData.name }}
+        </div>
+        <div class="card-modal-divider"
+             :style="cardModalData&&cardModalData.isChance?'background:linear-gradient(to right,transparent,rgba(90,184,138,0.45),transparent)':'background:linear-gradient(to right,transparent,rgba(194,59,43,0.45),transparent)'">
+        </div>
+        <div class="card-modal-effect">{{ cardModalData&&cardModalData.effect }}</div>
+        <div class="card-modal-dismiss">點擊任意處繼續</div>
       </div>
     </div>
 
@@ -872,16 +1000,16 @@ var FATE_CARDS = [
   { id:'peace', name:'真是個平安的一天', effect:'無事發生' },
 ];
 
-var MUZAN_AVATAR = 'assets/muzan.png';
+var MUZAN_AVATAR = 'assets/avatar-muzan.png';
 
 function defaultTeams() {
   return [
-    { id:1, name:'霞柱 ‧ 時透',   color:'#14b8a6', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/team1.png', pendingTask:null },
-    { id:2, name:'水柱 ‧ 義勇',   color:'#3b82f6', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/team2.png', pendingTask:null },
-    { id:3, name:'炎柱 ‧ 杏壽郎', color:'#f97316', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/team3.png', pendingTask:null },
-    { id:4, name:'蛇柱 ‧ 伊黑',   color:'#a855f7', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/team4.png', pendingTask:null },
-    { id:5, name:'蟲柱 ‧ 忍',     color:'#ec4899', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/team5.png', pendingTask:null },
-    { id:6, name:'風柱 ‧ 實彌',   color:'#22c55e', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/team6.png', pendingTask:null },
+    { id:1, name:'霞柱 ‧ 時透',   color:'#14b8a6', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/avatar-tokito.png',  pendingTask:null },
+    { id:2, name:'水柱 ‧ 義勇',   color:'#3b82f6', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/avatar-tomioka.png', pendingTask:null },
+    { id:3, name:'炎柱 ‧ 杏壽郎', color:'#f97316', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/avatar-rengoku.png', pendingTask:null },
+    { id:4, name:'蛇柱 ‧ 伊黑',   color:'#a855f7', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/avatar-iguro.png',   pendingTask:null },
+    { id:5, name:'蟲柱 ‧ 忍',     color:'#ec4899', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/avatar-shinobu.png', pendingTask:null },
+    { id:6, name:'風柱 ‧ 實彌',   color:'#22c55e', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/avatar-sanemi.png',  pendingTask:null },
   ];
 }
 
@@ -910,6 +1038,9 @@ createApp({
       showCrowModal:false, crowMission:null,
       hasSavedGame:false, autoSaveMsg:'',
       animatingPositions:{}, hoppingTeam:null, isAnimating:false,
+      taskSuccessRolling:false,
+      showCardModal:false, cardModalData:null,
+      flashingCells:{}, floatingDamages:[],
     };
   },
 
@@ -1093,6 +1224,22 @@ createApp({
       setTimeout(moveStep, 80);
     },
     closeCrowModal: function() { this.showCrowModal=false; },
+    closeCardModal: function() { this.showCardModal=false; },
+
+    triggerDamageEffect: function(teamId, damage) {
+      var team=null;
+      for (var i=0;i<this.teams.length;i++) if(this.teams[i].id===teamId){team=this.teams[i];break;}
+      if (!team) return;
+      var sqId=this.teamDisplayPos(team);
+      // flash
+      var nf=Object.assign({},this.flashingCells); nf[sqId]=true; this.flashingCells=nf;
+      // floating number
+      var entry={id:Date.now()+Math.random(),squareId:sqId,damage:damage};
+      this.floatingDamages=this.floatingDamages.concat([entry]);
+      var self=this;
+      setTimeout(function(){var nf2=Object.assign({},self.flashingCells);delete nf2[sqId];self.flashingCells=nf2;},650);
+      setTimeout(function(){self.floatingDamages=self.floatingDamages.filter(function(d){return d.id!==entry.id;});},950);
+    },
 
     startTask: function() {
       this.saveSnapshot();
@@ -1103,14 +1250,17 @@ createApp({
       this.currentPhase='next';
     },
     settleTaskSuccess: function() {
+      this.taskSuccessRolling = true;
+    },
+    applyTaskDamage: function(n) {
       this.saveSnapshot();
       var team=this.teams[this.currentTeamIndex]; var task=team.pendingTask;
-      var dmg=task.damage; var doubled=false;
+      var dmg=n; var doubled=false;
       if (team.status.doubleDamage){dmg=dmg*2;doubled=true;team.status.doubleDamage=false;}
       team.damageDealt+=dmg; this.ghostKingHP=Math.max(0,this.ghostKingHP-dmg);
-      this.addLog('success',team.name+' 任務「'+task.name+'」成功！造成 '+dmg+' 傷害'+(doubled?'（雙倍！）':'')+'。鬼王剩 '+this.ghostKingHP+' HP');
-      this.announcement.result='✅ 任務成功！-'+dmg+' HP'+(doubled?' 雙倍！':''); this.announcement.resultColor='text-green-400';
-      team.pendingTask=null; this.currentPhase='roll';
+      this.addLog('success',team.name+' 任務「'+task.name+'」成功！骰出 '+n+(doubled?' ×2':'')+'，造成 '+dmg+' 傷害。鬼王剩 '+this.ghostKingHP+' HP');
+      this.announcement.result='✅ 任務成功！骰出 '+n+(doubled?' ×2':'')+' → -'+dmg+' HP'; this.announcement.resultColor='text-green-400';
+      team.pendingTask=null; this.currentPhase='roll'; this.taskSuccessRolling=false;
       if (this.ghostKingHP<=0) this.screen='finalStrike';
     },
     settleTaskFail: function() {
@@ -1118,7 +1268,7 @@ createApp({
       var team=this.teams[this.currentTeamIndex]; var task=team.pendingTask;
       this.addLog('fail',team.name+' 任務「'+task.name+'」失敗。');
       this.announcement.result='❌ 任務失敗'; this.announcement.resultColor='text-orange-400';
-      team.pendingTask=null; this.currentPhase='roll';
+      team.pendingTask=null; this.currentPhase='roll'; this.taskSuccessRolling=false;
     },
     prepareCards: function() {
       var choices=[];
@@ -1134,6 +1284,9 @@ createApp({
       this.announcement.cardEffect=choice.card.effect; this.announcement.result='';
       this.addLog('card',team.name+' 抽到'+cardType+'：'+choice.card.name);
       this.applyCard(choice.card,choice.isChance,team); this.currentPhase='next';
+      // show card reveal modal
+      this.cardModalData={isChance:choice.isChance,type:cardType,name:choice.card.name,effect:choice.card.effect};
+      this.showCardModal=true;
     },
     applyCard: function(card,isChance,team) {
       if (isChance) {
@@ -1146,7 +1299,7 @@ createApp({
         else if (card.id==='day'){this.bossStatus.isBossTurnSkip=true;this.addLog('system','白天來了：鬼王下一回合將跳過行動！');}
         else if (card.id==='blast'){
           this.addLog('damage','鬼放大招：無慘對所有存活隊伍造成 3 點傷害！');
-          for (var i=0;i<this.teams.length;i++){var t=this.teams[i];if(t.hp>0){if(t.status.shieldActive){t.status.shieldActive=false;this.addLog('shield',t.name+' 護盾抵擋了大招！');}else{t.hp=Math.max(0,t.hp-3);this.addLog('damage',t.name+' 受到 3 點傷害，剩餘 '+t.hp+' HP'+(t.hp<=0?'（已陣亡！）':''));}}}
+          for (var i=0;i<this.teams.length;i++){var t=this.teams[i];if(t.hp>0){if(t.status.shieldActive){t.status.shieldActive=false;this.addLog('shield',t.name+' 護盾抵擋了大招！');}else{t.hp=Math.max(0,t.hp-3);this.addLog('damage',t.name+' 受到 3 點傷害，剩餘 '+t.hp+' HP'+(t.hp<=0?'（已陣亡！）':''));this.triggerDamageEffect(t.id,3);}}}
           this.checkAllDead();
         } else if (card.id==='peace'){this.addLog('system','真是個平安的一天：無事發生。');}
       }
@@ -1176,8 +1329,8 @@ createApp({
       var bossPos=this.bossPosition;
       var withDist=living.map(function(t){return{team:t,dist:ringDistance(bossPos,t.position)};});
       withDist.sort(function(a,b){return a.dist!==b.dist?a.dist-b.dist:a.team.id-b.team.id;});
-      // 以第2近的距離為門檻，同距離的都納入攻擊範圍
-      var threshold=withDist[1].dist;
+      // 以最近距離為門檻，同距離的都納入攻擊範圍
+      var threshold=withDist[0].dist;
       return withDist.filter(function(x){return x.dist<=threshold;}).map(function(x){return x.team;});
     },
     bossRoll: function(n) {
@@ -1197,7 +1350,7 @@ createApp({
         for (var j=0;j<this.teams.length;j++) if(this.teams[j].id===targetRef.id){team=this.teams[j];break;}
         if(!team||team.hp<=0) continue;
         if(team.status.shieldActive){team.status.shieldActive=false;this.addLog('shield',team.name+' 的護盾擋下了攻擊！');}
-        else{team.hp=Math.max(0,team.hp-baseDmg);this.addLog('damage',team.name+' 受到 '+baseDmg+' 點傷害，剩餘 '+team.hp+' HP'+(team.hp<=0?'（已陣亡！）':''));}
+        else{team.hp=Math.max(0,team.hp-baseDmg);this.addLog('damage',team.name+' 受到 '+baseDmg+' 點傷害，剩餘 '+team.hp+' HP'+(team.hp<=0?'（已陣亡！）':''));this.triggerDamageEffect(team.id,baseDmg);}
       }
       this.announcement.result='💥 鬼王造成 '+baseDmg+' 傷害！'; this.announcement.resultColor='text-red-400';
       this.currentPhase='boss-next'; this.checkAllDead();
