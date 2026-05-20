@@ -11,7 +11,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
   width: 100%; height: 100%;
-  background: #0a0a0a;
+  background: #07050a;
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
   font-family: 'Noto Sans TC', system-ui, sans-serif;
@@ -21,25 +21,37 @@ html, body {
   height: min(100vh, 56.25vw);
   font-size: min(1.8vw, 3.2vh);
   position: relative;
-  background: #0a0a0a;
+  background: #07050a;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  color: #e8e2d5;
+  color: #e0d4c0;
 }
+/* subtle cross-grid texture — like Japanese textile */
+#app::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(194,59,43,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(194,59,43,0.022) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+#app > * { position: relative; z-index: 1; }
+
 /* ── typography ── */
 .font-display { font-family: 'Bebas Neue', system-ui, sans-serif; letter-spacing: 0.03em; }
-.text-cream  { color: #e8e2d5; }
-.text-dim    { color: #555; }
-.text-muted  { color: #888; }
-.text-accent { color: #ef4444; }
+.text-cream  { color: #e0d4c0; }
+.text-dim    { color: #5a4a40; }
+.text-muted  { color: #8a7868; }
+.text-accent { color: #c23b2b; }
+.text-gold   { color: #b89040; }
 
-/* ── pulse for slash screen ── */
+/* ── pulse for slash ── */
 @keyframes pulse-opacity {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
+  50%       { opacity: 0.4; }
 }
-.slash-text { animation: pulse-opacity 1.4s ease-in-out infinite; color: #ef4444; }
+.slash-text { animation: pulse-opacity 1.4s ease-in-out infinite; color: #c23b2b; }
 
 /* ── board ── */
 .board-grid {
@@ -48,431 +60,379 @@ html, body {
   grid-template-rows: repeat(5, 1fr);
   width: 100%; height: 100%;
   gap: 2px;
+  background: #030208;
 }
 .board-cell {
-  position: relative;
-  overflow: hidden;
-  min-height: 0;
+  position: relative; overflow: hidden; min-height: 0;
+  background: #0e0b12;
+  border: 1px solid rgba(194,59,43,0.07);
 }
+
+/* ── control panel ── */
 .control-panel {
   grid-column: 2 / 5;
   grid-row: 2 / 5;
-  background: #111;
-  border: 1px solid rgba(255,255,255,0.06);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0.6em;
-  overflow: hidden;
+  background: #120f18;
+  border: 1px solid rgba(194,59,43,0.13);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 0.6em; overflow: hidden; position: relative;
+}
+.control-panel::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1.5px;
+  background: linear-gradient(to right, transparent, #c23b2b 40%, #c23b2b 60%, transparent);
+  opacity: 0.45;
+}
+/* faint radial glow at centre */
+.control-panel::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(194,59,43,0.04) 0%, transparent 55%);
 }
 
 /* ── tokens ── */
-.token-row {
-  display: flex; flex-wrap: wrap; gap: 2px; margin-top: 3px; justify-content: center;
-}
+.token-row { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 3px; justify-content: center; }
 .token {
-  width: 1.3em; height: 1.3em;
-  border-radius: 2px;
+  width: 1.3em; height: 1.3em; border-radius: 2px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.46em; font-weight: 700;
-  color: #fff;
-  flex-shrink: 0;
+  font-size: 0.46em; font-weight: 700; color: #fff; flex-shrink: 0;
 }
-.boss-token {
-  background: #ef4444;
-  border-radius: 2px;
-}
+.boss-token { background: #c23b2b; border-radius: 2px; }
 
 /* ── bars ── */
 .hp-bar-inner { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
 
 /* ── scrollbar ── */
-.log-container { scrollbar-width: thin; scrollbar-color: #333 #111; }
+.log-container { scrollbar-width: thin; scrollbar-color: #2a1a14 #0d0b11; }
 .log-container::-webkit-scrollbar { width: 3px; }
-.log-container::-webkit-scrollbar-track { background: #111; }
-.log-container::-webkit-scrollbar-thumb { background: #333; }
+.log-container::-webkit-scrollbar-track { background: #0d0b11; }
+.log-container::-webkit-scrollbar-thumb { background: #2a1a14; }
 
-/* ── section label ── */
+/* ── section label — gold editorial ── */
 .section-label {
-  font-size: 0.48em;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #444;
-  font-weight: 500;
-  margin-bottom: 0.5em;
-  padding-bottom: 0.35em;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.42em; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(184,144,64,0.45); font-weight: 500;
+  margin-bottom: 0.5em; padding-bottom: 0.38em;
+  border-bottom: 1px solid rgba(194,59,43,0.1);
 }
 
 /* ── announcement card ── */
 .announcement-card {
-  background: transparent;
-  border: none;
-  border-top: 1px solid rgba(255,255,255,0.07);
+  background: transparent; border: none;
+  border-top: 1px solid rgba(194,59,43,0.1);
   padding: 0.7em;
 }
 
 /* ── modal ── */
 .modal-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.88);
-  backdrop-filter: blur(8px);
+  position: absolute !important; inset: 0;
+  background: rgba(3,1,6,0.92); backdrop-filter: blur(10px);
   display: flex; align-items: center; justify-content: center;
   z-index: 100;
 }
 
-/* ── flat buttons ── */
+/* ── buttons ── */
 .btn {
-  font-family: 'Noto Sans TC', system-ui, sans-serif;
-  font-weight: 700;
-  cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.05);
-  color: #e8e2d5;
-  border-radius: 2px;
+  font-family: 'Noto Sans TC', system-ui, sans-serif; font-weight: 700;
+  cursor: pointer; border-radius: 2px; outline: none;
   letter-spacing: 0.06em;
-  transition: background 0.15s, color 0.15s;
-  outline: none;
+  border: 1px solid rgba(194,59,43,0.22);
+  background: rgba(194,59,43,0.06);
+  color: #e0d4c0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-.btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-.btn-red  { background: #ef4444; border-color: #ef4444; color: #fff; }
-.btn-red:hover { background: #f87171; border-color: #f87171; }
-.btn-ghost { background: transparent; border-color: rgba(255,255,255,0.18); }
-.btn-ghost:hover { background: rgba(255,255,255,0.06); }
-.btn:disabled, .btn[disabled] { opacity: 0.25; cursor: not-allowed; }
+.btn:hover { background: #c23b2b; color: #fff; border-color: #c23b2b; }
+.btn-red  { background: #c23b2b; border-color: #c23b2b; color: #fff; }
+.btn-red:hover { background: #a02f22; border-color: #a02f22; }
+.btn-ghost { background: transparent; border-color: rgba(224,212,192,0.1); color: #8a7868; }
+.btn-ghost:hover { background: rgba(224,212,192,0.06); color: #e0d4c0; border-color: rgba(224,212,192,0.18); }
+.btn:disabled, .btn[disabled] { opacity: 0.2; cursor: not-allowed; }
 
-/* ── dice buttons ── */
+/* ── dice ── */
 .dice-btn {
-  font-family: 'Bebas Neue', system-ui, sans-serif;
-  font-size: 1em;
-  padding: 0.3em 0;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  border-radius: 2px;
-  display: flex; align-items: center; justify-content: center;
-  transition: background 0.12s, color 0.12s;
-  border: 1px solid rgba(255,255,255,0.08);
+  font-family: 'Bebas Neue', sans-serif; font-size: 1em;
+  padding: 0.3em 0; letter-spacing: 0.05em; cursor: pointer;
+  border-radius: 2px; display: flex; align-items: center; justify-content: center;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  border: 1px solid rgba(224,212,192,0.07);
 }
-.dice-btn:hover { filter: brightness(1.3); }
-.dice-btn-player { background: rgba(255,255,255,0.06); color: #e8e2d5; }
-.dice-btn-boss   { background: rgba(239,68,68,0.12); color: #fca5a5; border-color: rgba(239,68,68,0.2); }
+.dice-btn:hover { background: #c23b2b !important; color: #fff !important; border-color: #c23b2b !important; }
+.dice-btn-player { background: rgba(224,212,192,0.04); color: #e0d4c0; }
+.dice-btn-boss   { background: rgba(194,59,43,0.1); color: #e8908a; border-color: rgba(194,59,43,0.2); }
 
-/* ═══════════════════════════════════════
-   AMBIENT MOTION SYSTEM
-   Multiple independent animations running
-   simultaneously — like the Shopify
-   "Built to Last" living illustration.
-═══════════════════════════════════════ */
-
-/* 1. Particle float */
-@keyframes float-up {
-  0%   { transform: translateY(0) rotate(0deg);    opacity: 0; }
-  5%   { opacity: 0.13; }
-  95%  { opacity: 0.06; }
-  100% { transform: translateY(-105vh) rotate(18deg); opacity: 0; }
-}
-/* 2. Scan line sweeping down a panel */
-@keyframes scan-down {
-  0%   { top: -1px; opacity: 0; }
-  3%   { opacity: 1; }
-  97%  { opacity: 1; }
-  100% { top: 100%;  opacity: 0; }
-}
-/* 3. HP bar shimmer */
-@keyframes shimmer-sweep {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-/* 4. Node / token pulse ring */
-@keyframes pulse-ring {
-  0%   { transform: scale(1);   opacity: 0.7; }
-  100% { transform: scale(2.4); opacity: 0; }
-}
-/* 5. Ticker conveyor belt */
+/* ── ticker ── */
 @keyframes ticker-scroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-/* 6. Board cell trace flow */
-@keyframes trace-flow {
-  0%   { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
-}
-/* 7. Data node hop (dots moving between cells) */
-@keyframes data-hop {
-  0%   { transform: translateX(-120%); opacity: 0; }
-  8%   { opacity: 0.5; }
-  92%  { opacity: 0.5; }
-  100% { transform: translateX(120%);  opacity: 0; }
-}
-/* 8. Slow spin */
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-/* 9. Counter-spin */
-@keyframes spin-rev {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-360deg); }
-}
-/* 10. Subtle breathe for active phase label */
-@keyframes breathe {
-  0%, 100% { opacity: 0.55; }
-  50%       { opacity: 1; }
-}
-
-/* ── 1. Ambient particle layer ── */
-.ambient-layer {
-  position: absolute; inset: 0;
-  pointer-events: none; overflow: hidden; z-index: 0;
-}
-.particle {
-  position: absolute; bottom: -2em;
-  font-family: 'Bebas Neue', monospace;
-  font-size: 0.55em;
-  color: rgba(255,255,255,0.06);
-  animation: float-up linear infinite;
-  user-select: none; pointer-events: none;
-}
-.p1  { left:  4%; animation-duration:20s; animation-delay: 0s; }
-.p2  { left: 10%; animation-duration:26s; animation-delay: 3s; }
-.p3  { left: 18%; animation-duration:17s; animation-delay: 7s; }
-.p4  { left: 27%; animation-duration:23s; animation-delay: 1s; }
-.p5  { left: 36%; animation-duration:19s; animation-delay: 9s; }
-.p6  { left: 47%; animation-duration:22s; animation-delay: 4s; }
-.p7  { left: 58%; animation-duration:16s; animation-delay: 11s; }
-.p8  { left: 68%; animation-duration:24s; animation-delay: 6s; }
-.p9  { left: 78%; animation-duration:18s; animation-delay: 2s; }
-.p10 { left: 88%; animation-duration:21s; animation-delay: 8s; }
-.p11 { left: 94%; animation-duration:15s; animation-delay: 5s; }
-.p12 { left: 32%; animation-duration:28s; animation-delay:13s; }
-
-/* ── 2. Scan line panels ── */
-.scan-panel { position: relative; overflow: hidden; }
-.scan-panel::after {
-  content: '';
-  position: absolute; left: 0; right: 0; height: 1px;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.07), transparent);
-  animation: scan-down 7s ease-in-out infinite;
-  animation-delay: var(--scan-delay, 0s);
-  pointer-events: none; z-index: 2;
-}
-.scan-panel-red::after {
-  background: linear-gradient(to right, transparent, rgba(239,68,68,0.12), transparent);
-  animation: scan-down 5s ease-in-out infinite;
-}
-
-/* ── 3. HP bar shimmer overlay ── */
-.hp-shimmer {
-  position: relative; overflow: hidden;
-}
-.hp-shimmer::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
-  background-size: 200% 100%;
-  animation: shimmer-sweep 2.2s ease-in-out infinite;
-  pointer-events: none;
-}
-
-/* ── 4. Pulse ring on active row ── */
-.pulse-wrap { position: relative; }
-.pulse-wrap::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1px solid currentColor;
-  animation: pulse-ring 1.6s ease-out infinite;
-  pointer-events: none;
-}
-
-/* ── 5. Ticker conveyor belt ── */
 .ticker-wrap {
-  flex: 1; overflow: hidden; position: relative;
+  flex: 1; overflow: hidden;
   mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
 }
 .ticker-inner {
   display: inline-block; white-space: nowrap;
-  animation: ticker-scroll 22s linear infinite;
+  animation: ticker-scroll 28s linear infinite;
   font-size: 0.42em; letter-spacing: 0.14em;
-  color: #252525; text-transform: uppercase;
+  color: rgba(194,59,43,0.18); text-transform: uppercase;
   font-family: 'Bebas Neue', sans-serif;
 }
 
-/* ── 6. Board cell trace border ── */
-.cell-trace {
-  background:
-    linear-gradient(90deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 100%);
-  background-size: 200% 100%;
-  animation: trace-flow 4s linear infinite;
-}
-.cell-trace-red {
-  background:
-    linear-gradient(90deg, rgba(239,68,68,0.05) 0%, rgba(239,68,68,0.14) 50%, rgba(239,68,68,0.05) 100%);
-  background-size: 200% 100%;
-  animation: trace-flow 3s linear infinite;
+/* ── board cell flavours ── */
+.cell-trace        { background: #0e0b12; }
+.cell-trace-red    {
+  background: radial-gradient(ellipse at 50% 50%, rgba(184,144,64,0.07) 0%, transparent 70%), #0e0b12;
+  border-color: rgba(184,144,64,0.12) !important;
 }
 .cell-trace-purple {
+  background: radial-gradient(ellipse at 50% 50%, rgba(120,80,180,0.08) 0%, transparent 70%), #0e0b12;
+  border-color: rgba(120,80,180,0.1) !important;
+}
+
+/* ── Tailwind overrides for dark bg ── */
+.text-red-400    { color: #e86050 !important; }
+.text-green-400  { color: #5ab88a !important; }
+.text-yellow-400 { color: #c8a040 !important; }
+.text-yellow-300 { color: #c8a040 !important; }
+.text-teal-400   { color: #4ab0a0 !important; }
+.text-cyan-400   { color: #5090c8 !important; }
+.text-orange-400 { color: #d07040 !important; }
+.text-slate-400  { color: #7a6a60 !important; }
+.text-slate-500  { color: #5a4a42 !important; }
+.text-slate-300  { color: #a09080 !important; }
+.text-purple-300 { color: #9878c8 !important; }
+.text-white      { color: #e0d4c0 !important; }
+
+/* ══════════════════════════════════════════
+   CROW MESSENGER MODAL — 鎹烏送信
+══════════════════════════════════════════ */
+@keyframes crow-overlay-in  { from { opacity:0 } to { opacity:1 } }
+@keyframes crow-modal-in {
+  from { transform: translateY(-2.5em) scale(0.96); opacity:0 }
+  to   { transform: translateY(0) scale(1); opacity:1 }
+}
+@keyframes crow-fly-in {
+  0%   { transform: translate(40%,-60%) rotate(-20deg) scale(0.5); opacity:0 }
+  65%  { transform: translate(0,0) rotate(3deg) scale(1.06); opacity:1 }
+  100% { transform: translate(0,0) rotate(0deg) scale(1); opacity:1 }
+}
+@keyframes crow-eye-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+@keyframes seal-stamp {
+  from { transform:rotate(12deg) scale(1.8); opacity:0 }
+  to   { transform:rotate(12deg) scale(1); opacity:1 }
+}
+@keyframes text-reveal {
+  from { opacity:0; transform:translateY(0.4em) }
+  to   { opacity:1; transform:translateY(0) }
+}
+@keyframes divider-grow {
+  from { width:0; opacity:0 }
+  to   { width:50%; opacity:1 }
+}
+.crow-overlay {
+  position:absolute !important; inset:0;
+  background:rgba(4,2,6,0.92); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:200; cursor:pointer;
+  animation:crow-overlay-in 0.35s ease-out;
+}
+.crow-modal {
+  position:relative; width:min(76%,460px);
   background:
-    linear-gradient(90deg, rgba(167,139,250,0.05) 0%, rgba(167,139,250,0.14) 50%, rgba(167,139,250,0.05) 100%);
-  background-size: 200% 100%;
-  animation: trace-flow 5s linear infinite;
+    radial-gradient(ellipse at 50% 0%, rgba(194,59,43,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(80,30,80,0.06) 0%, transparent 50%),
+    linear-gradient(170deg,#100c14 0%,#0d080e 50%,#08080f 100%);
+  border:1px solid rgba(194,59,43,0.14);
+  padding:1.8em 2.2em 1.4em;
+  text-align:center; cursor:default; overflow:hidden;
+  animation:crow-modal-in 0.45s cubic-bezier(0.2,0.8,0.3,1) 0.1s both;
+}
+.crow-modal::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(194,59,43,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(194,59,43,0.025) 1px, transparent 1px);
+  background-size:18px 18px;
+}
+.crow-modal::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(to right,transparent,#c23b2b,transparent); opacity:0.5;
+}
+.crow-corner {
+  position:absolute; width:1.2em; height:1.2em;
+  border-color:rgba(194,59,43,0.3); border-style:solid;
+}
+.crow-corner-tl { top:0.5em; left:0.5em; border-width:1px 0 0 1px; }
+.crow-corner-tr { top:0.5em; right:0.5em; border-width:1px 1px 0 0; }
+.crow-corner-bl { bottom:0.5em; left:0.5em; border-width:0 0 1px 1px; }
+.crow-corner-br { bottom:0.5em; right:0.5em; border-width:0 1px 1px 0; }
+.crow-seal {
+  position:absolute; top:0.9em; right:0.9em;
+  font-family:'Bebas Neue',sans-serif; font-size:0.5em;
+  color:rgba(194,59,43,0.5); border:1.5px solid rgba(194,59,43,0.3);
+  width:2.4em; height:2.4em;
+  display:flex; align-items:center; justify-content:center;
+  letter-spacing:0.04em; line-height:1; transform:rotate(12deg);
+  animation:seal-stamp 0.3s ease-out 1.2s both;
+}
+.crow-figure {
+  display:flex; justify-content:center; margin-bottom:0.6em;
+  animation:crow-fly-in 0.6s cubic-bezier(0.2,0.8,0.3,1) 0.25s both;
+}
+.crow-eye-glow { animation:crow-eye-pulse 1.8s ease-in-out infinite; }
+.crow-eyeshine { animation:crow-eye-pulse 1.8s ease-in-out 0.3s infinite; }
+.crow-tagline {
+  font-family:'Bebas Neue',sans-serif; font-size:0.44em; letter-spacing:0.28em;
+  color:rgba(194,59,43,0.55); text-transform:uppercase; display:block;
+  animation:text-reveal 0.4s ease-out 0.7s both;
+}
+.crow-mission-name {
+  font-family:'Bebas Neue',sans-serif; font-size:1.4em; letter-spacing:0.1em; line-height:1;
+  color:#f5ede0; margin:0.18em 0 0.25em;
+  white-space: nowrap;
+  animation:text-reveal 0.4s ease-out 0.85s both;
+}
+.crow-hr {
+  height:1px; width:0;
+  background:linear-gradient(to right,transparent,rgba(194,59,43,0.45),transparent);
+  margin:0 auto 0.7em;
+  animation:divider-grow 0.5s ease-out 1s both;
+}
+.crow-mission-desc {
+  font-size:0.7em; line-height:1.65; color:rgba(245,237,224,0.58); letter-spacing:0.03em;
+  animation:text-reveal 0.4s ease-out 1.05s both;
+}
+.crow-damage-badge {
+  display:inline-block; margin-top:0.75em;
+  font-family:'Bebas Neue',sans-serif; font-size:0.6em; color:#c23b2b; letter-spacing:0.1em;
+  border:1px solid rgba(194,59,43,0.28); padding:0.12em 0.9em;
+  animation:text-reveal 0.4s ease-out 1.15s both;
+}
+.crow-dismiss {
+  display:block; margin-top:1.1em; font-size:0.44em; letter-spacing:0.14em;
+  color:rgba(245,237,224,0.25); text-transform:uppercase;
+  animation:text-reveal 0.4s ease-out 1.35s both;
 }
 
-/* ── 7. Data stream nodes ── */
-.data-stream { position: relative; overflow: hidden; }
-.data-stream::before {
-  content: '● ─ ─ ─ ○ ─ ─ ─ ● ─ ─ ─ ○ ─ ─ ─ ●';
-  position: absolute; top: 50%; left: 0; right: 0;
-  transform: translateY(-50%);
-  font-size: 0.3em; letter-spacing: 0.2em;
-  color: rgba(239,68,68,0.18); white-space: nowrap;
-  animation: data-hop 3.5s linear infinite;
-  pointer-events: none; z-index: 1;
-}
-
-/* ── 8. Spinning decorators ── */
-.spin-cw  { display:inline-block; animation: spin-slow 6s linear infinite; }
-.spin-ccw { display:inline-block; animation: spin-rev  8s linear infinite; }
-
-/* ── 9. Breathing phase label ── */
-.breathe { animation: breathe 2s ease-in-out infinite; }
-
-/* ── 10. Active glow border on control panel ── */
-@keyframes border-glow {
-  0%, 100% { border-color: rgba(255,255,255,0.06); }
-  50%       { border-color: rgba(255,255,255,0.14); }
-}
-.control-panel { animation: border-glow 3s ease-in-out infinite; }
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- SPLASH SCREEN -->
-  <div v-if="screen === 'splash'" class="flex h-full w-full" style="padding:3em 4em;gap:4em;align-items:center">
+  <!-- ══ SPLASH ══ -->
+  <div v-if="screen === 'splash'" class="flex h-full w-full" style="padding:3em 4.5em;gap:4em;align-items:center">
 
-    <!-- LEFT: title block -->
-    <div style="flex:0 0 auto;max-width:45%">
-      <div class="font-display text-accent" style="font-size:5em;line-height:0.9;margin-bottom:0.12em">擊殺鬼王</div>
-      <div class="font-display text-cream" style="font-size:2.4em;letter-spacing:0.1em;margin-bottom:0.5em">大富翁</div>
-      <div class="text-muted" style="font-size:0.65em;letter-spacing:0.05em;margin-bottom:2em">鬼殺隊 · 2026 新生教會主日學製作</div>
-      <button @click="startGame" class="btn btn-red"
-              style="font-size:0.72em;padding:0.55em 2em;letter-spacing:0.1em">
+    <!-- LEFT -->
+    <div style="flex:0 0 auto;max-width:44%">
+      <!-- decorative label -->
+      <div style="font-size:0.44em;letter-spacing:0.22em;text-transform:uppercase;color:rgba(184,144,64,0.5);margin-bottom:0.8em">鬼殺隊 · Demon Slayer Corps</div>
+      <div class="font-display text-accent" style="font-size:5.2em;line-height:0.88;margin-bottom:0.08em">擊殺鬼王</div>
+      <div class="font-display" style="font-size:2.5em;letter-spacing:0.1em;margin-bottom:0.6em;color:#e0d4c0">大富翁</div>
+      <!-- ink divider -->
+      <div style="width:3em;height:1.5px;background:linear-gradient(to right,#c23b2b,transparent);margin-bottom:1.2em;opacity:0.7"></div>
+      <div class="text-muted" style="font-size:0.62em;letter-spacing:0.05em;margin-bottom:2.2em">2026 新生教會主日學製作</div>
+      <button @click="startGame" class="btn btn-red" style="font-size:0.72em;padding:0.55em 2.2em;letter-spacing:0.12em">
         開始遊戲
       </button>
     </div>
 
-    <!-- RIGHT: team list (editorial numbered style) -->
-    <div style="flex:1">
-      <div class="section-label">參賽隊伍</div>
+    <!-- RIGHT: team roster -->
+    <div style="flex:1;border-left:1px solid rgba(194,59,43,0.12);padding-left:2.5em">
+      <div class="section-label">參賽隊伍 · Roster</div>
       <div v-for="(team, idx) in teams" :key="team.id"
            class="flex items-center gap-3"
-           style="padding:0.4em 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+           style="padding:0.42em 0;border-bottom:1px solid rgba(194,59,43,0.06)">
         <span class="font-display text-dim" style="font-size:0.7em;width:1.6em;flex-shrink:0">0{{ idx+1 }}</span>
-        <img :src="team.avatar" style="width:1.8em;height:1.8em;border-radius:50%;object-fit:cover;flex-shrink:0;opacity:0.9" :style="{outline:'1.5px solid '+team.color, outlineOffset:'1px'}" onerror="this.style.display='none'">
+        <img :src="team.avatar"
+             style="width:1.8em;height:1.8em;border-radius:50%;object-fit:cover;flex-shrink:0"
+             :style="{outline:'1.5px solid '+team.color,outlineOffset:'1px',opacity:0.9}"
+             onerror="this.style.display='none'">
         <span class="text-cream" style="font-size:0.8em;font-weight:500;flex:1">{{ team.name }}</span>
-        <span style="font-size:0.55em;letter-spacing:0.08em" :style="{color:team.color}">●</span>
+        <span style="font-size:0.52em;opacity:0.7" :style="{color:team.color}">●</span>
       </div>
     </div>
-
   </div>
 
-  <!-- FINAL STRIKE SCREEN -->
+  <!-- ══ FINAL STRIKE ══ -->
   <div v-else-if="screen === 'finalStrike'" class="flex flex-col items-center justify-center h-full w-full" style="padding:3em">
-    <div class="text-dim" style="font-size:0.55em;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.6em">Final Strike</div>
-    <div class="font-display text-cream" style="font-size:2.2em;margin-bottom:0.1em">鬼王無慘血量歸零</div>
-    <div class="text-muted" style="font-size:0.72em;margin-bottom:2.5em">全員準備好──同時揮刀</div>
-    <div style="border-top:1px solid rgba(239,68,68,0.3);border-bottom:1px solid rgba(239,68,68,0.3);padding:0.8em 3em;margin-bottom:2.5em">
-      <div class="font-display slash-text" style="font-size:4.5em;letter-spacing:0.2em">鬼殺隊――斬！</div>
+    <div style="font-size:0.52em;letter-spacing:0.22em;text-transform:uppercase;color:rgba(184,144,64,0.5);margin-bottom:0.7em">Final Strike</div>
+    <div class="font-display text-cream" style="font-size:2.2em;margin-bottom:0.15em">鬼王無慘血量歸零</div>
+    <div class="text-muted" style="font-size:0.7em;margin-bottom:2.5em">全員準備好──同時揮刀</div>
+    <div style="border-top:1px solid rgba(194,59,43,0.4);border-bottom:1px solid rgba(194,59,43,0.4);padding:0.8em 3.5em;margin-bottom:2.5em">
+      <div class="font-display slash-text" style="font-size:4.5em;letter-spacing:0.22em">鬼殺隊――斬！</div>
     </div>
-    <button @click="screen = 'victory'" class="btn btn-red"
-            style="font-size:0.7em;padding:0.55em 2.2em;letter-spacing:0.1em">
-      完成斬擊
-    </button>
+    <button @click="screen='victory'" class="btn btn-red" style="font-size:0.7em;padding:0.55em 2.4em;letter-spacing:0.12em">完成斬擊</button>
   </div>
 
-  <!-- VICTORY SCREEN -->
-  <div v-else-if="screen === 'victory'" class="flex h-full w-full" style="padding:3em 5em;gap:4em;align-items:center">
+  <!-- ══ VICTORY ══ -->
+  <div v-else-if="screen === 'victory'" class="flex h-full w-full" style="padding:3em 5em;gap:4.5em;align-items:center">
     <div style="flex:0 0 auto">
-      <div class="text-dim" style="font-size:0.55em;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.4em">Victory</div>
-      <div class="font-display text-accent" style="font-size:4.5em;line-height:0.9;margin-bottom:0.15em">鬼王<br>消滅</div>
-      <div class="text-muted" style="font-size:0.65em;margin-top:0.5em">鬼殺隊全員英勇獲勝</div>
+      <div style="font-size:0.52em;letter-spacing:0.22em;text-transform:uppercase;color:rgba(184,144,64,0.5);margin-bottom:0.4em">Victory</div>
+      <div class="font-display text-accent" style="font-size:4.8em;line-height:0.88;margin-bottom:0.2em">鬼王<br>消滅</div>
+      <div style="width:2.5em;height:1.5px;background:linear-gradient(to right,#b89040,transparent);margin-top:0.6em;opacity:0.7"></div>
+      <div class="text-muted" style="font-size:0.62em;margin-top:0.8em">鬼殺隊全員英勇獲勝</div>
     </div>
-    <div style="flex:1">
+    <div style="flex:1;border-left:1px solid rgba(194,59,43,0.12);padding-left:2.5em">
       <div class="section-label">最終排名</div>
       <div v-for="(team, idx) in rankedTeams" :key="team.id"
            class="flex items-center gap-3"
-           style="padding:0.45em 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+           style="padding:0.45em 0;border-bottom:1px solid rgba(194,59,43,0.06)">
         <span class="font-display text-dim" style="font-size:0.7em;width:1.6em;flex-shrink:0">0{{ idx+1 }}</span>
-        <img :src="team.avatar" style="width:1.8em;height:1.8em;border-radius:50%;object-fit:cover;flex-shrink:0" :style="{outline:'1.5px solid '+team.color,outlineOffset:'1px'}" onerror="this.style.display='none'">
+        <img :src="team.avatar"
+             style="width:1.8em;height:1.8em;border-radius:50%;object-fit:cover;flex-shrink:0"
+             :style="{outline:'1.5px solid '+team.color,outlineOffset:'1px'}"
+             onerror="this.style.display='none'">
         <span class="text-cream" style="font-size:0.82em;font-weight:500;flex:1">{{ team.name }}</span>
-        <span v-if="idx===0" class="text-dim" style="font-size:0.55em;letter-spacing:0.08em;text-transform:uppercase">最強</span>
-        <span style="font-size:0.75em;font-weight:700" :style="{color:team.color}">{{ team.damageDealt }}</span>
+        <span v-if="idx===0" style="font-size:0.5em;letter-spacing:0.1em;text-transform:uppercase;color:rgba(184,144,64,0.6)">最強</span>
+        <span class="font-display" style="font-size:0.8em" :style="{color:team.color}">{{ team.damageDealt }}</span>
       </div>
     </div>
   </div>
 
-  <!-- BOSS VICTORY SCREEN -->
+  <!-- ══ BOSS VICTORY ══ -->
   <div v-else-if="screen === 'bossVictory'" class="flex flex-col items-center justify-center h-full w-full">
-    <div class="text-dim" style="font-size:0.55em;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.6em">Game Over</div>
-    <div class="font-display text-accent" style="font-size:5em;line-height:0.9;margin-bottom:0.2em">鬼王<br>勝利</div>
-    <div class="text-muted" style="font-size:0.7em;margin-top:0.5em">所有隊伍已被消滅</div>
+    <div style="font-size:0.52em;letter-spacing:0.22em;text-transform:uppercase;color:rgba(194,59,43,0.4);margin-bottom:0.7em">Game Over</div>
+    <div class="font-display text-accent" style="font-size:5.2em;line-height:0.88;margin-bottom:0.2em">鬼王<br>勝利</div>
+    <div class="text-muted" style="font-size:0.68em;margin-top:0.6em">所有隊伍已被消滅</div>
   </div>
 
-  <!-- MAIN GAME SCREEN -->
+  <!-- ══ MAIN GAME ══ -->
   <template v-else-if="screen === 'game'">
 
-    <!-- ① AMBIENT PARTICLE LAYER — always on, behind everything -->
-    <div class="ambient-layer" aria-hidden="true">
-      <span class="particle p1">刃</span>
-      <span class="particle p2">×</span>
-      <span class="particle p3">◆</span>
-      <span class="particle p4">●</span>
-      <span class="particle p5">—</span>
-      <span class="particle p6">刃</span>
-      <span class="particle p7">◈</span>
-      <span class="particle p8">×</span>
-      <span class="particle p9">◆</span>
-      <span class="particle p10">●</span>
-      <span class="particle p11">斬</span>
-      <span class="particle p12">○</span>
-    </div>
-
-    <!-- Top bar — ② CONVEYOR BELT TICKER in center -->
-    <div class="flex items-center gap-3 flex-shrink-0" style="height:7%;min-height:0;padding:0 1.2em;background:#0a0a0a;border-bottom:1px solid rgba(255,255,255,0.07)">
+    <!-- TOP BAR -->
+    <div class="flex items-center gap-3 flex-shrink-0"
+         style="height:7%;min-height:0;padding:0 1.2em;background:#0d0b11;border-bottom:1px solid rgba(194,59,43,0.1)">
       <div class="font-display text-cream" style="font-size:1.1em;letter-spacing:0.05em;flex-shrink:0">擊殺鬼王大富翁</div>
-
-      <!-- ② Ticker belt -->
+      <!-- ticker -->
       <div class="ticker-wrap" style="flex:1">
         <div class="ticker-inner">
           KILL THE DEMON KING &nbsp;⸺&nbsp; 擊殺鬼王 &nbsp;⸺&nbsp; SLAYERS UNITE &nbsp;⸺&nbsp; 鬼殺隊集結 &nbsp;⸺&nbsp; ROUND {{ globalRound }} &nbsp;⸺&nbsp; DEMON HP {{ ghostKingHP }} &nbsp;⸺&nbsp; KILL THE DEMON KING &nbsp;⸺&nbsp; 擊殺鬼王 &nbsp;⸺&nbsp; SLAYERS UNITE &nbsp;⸺&nbsp; 鬼殺隊集結 &nbsp;⸺&nbsp; ROUND {{ globalRound }} &nbsp;⸺&nbsp; DEMON HP {{ ghostKingHP }} &nbsp;⸺&nbsp;
         </div>
       </div>
-
-      <div class="text-dim" style="font-size:0.52em;letter-spacing:0.12em;text-transform:uppercase;flex-shrink:0">RND <span class="text-cream font-display" style="font-size:1.3em">{{ globalRound }}</span></div>
+      <div class="text-muted" style="font-size:0.5em;letter-spacing:0.14em;text-transform:uppercase;flex-shrink:0">
+        RND <span class="font-display text-cream" style="font-size:1.35em">{{ globalRound }}</span>
+      </div>
       <div class="flex gap-2" style="flex-shrink:0">
-        <button @click="undoLastAction" :disabled="!lastSnapshot" class="btn btn-ghost"
-                style="font-size:0.55em;padding:0.3em 0.8em">↩ 上一步</button>
-        <button @click="showSaveModal = true" class="btn btn-ghost"
-                style="font-size:0.55em;padding:0.3em 0.8em">存檔</button>
+        <button @click="undoLastAction" :disabled="!lastSnapshot" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em">↩ 上一步</button>
+        <button @click="showSaveModal=true" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em">存檔</button>
       </div>
     </div>
 
-    <!-- Main 3-column layout -->
+    <!-- 3-COLUMN -->
     <div class="flex flex-1 overflow-hidden">
 
-      <!-- LEFT COLUMN — ③ SCAN LINE -->
-      <div class="flex flex-col overflow-y-auto log-container scan-panel" style="width:22%;padding:0.5em 0.6em;background:#0a0a0a;border-right:1px solid rgba(255,255,255,0.06)">
+      <!-- ── LEFT ── -->
+      <div class="flex flex-col overflow-y-auto log-container"
+           style="width:22%;padding:0.5em 0.6em;background:#0d0b11;border-right:1px solid rgba(194,59,43,0.1)">
 
-        <!-- Boss Card — ⑦ DATA STREAM + scan-red -->
-        <div class="flex-shrink-0 mb-3 data-stream scan-panel scan-panel-red" style="padding:0.5em 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <!-- Boss card -->
+        <div class="flex-shrink-0 mb-3" style="padding:0.5em 0;border-bottom:1px solid rgba(194,59,43,0.1)">
           <div class="flex items-center gap-2 mb-1">
-            <img :src="MUZAN_AVATAR" style="width:2em;height:2em;border-radius:50%;object-fit:cover;flex-shrink:0;opacity:0.9;outline:1.5px solid #ef4444;outline-offset:1px" onerror="this.style.display='none'">
+            <img :src="MUZAN_AVATAR"
+                 style="width:2em;height:2em;border-radius:50%;object-fit:cover;flex-shrink:0;opacity:0.9;outline:1.5px solid #c23b2b;outline-offset:1px"
+                 onerror="this.style.display='none'">
             <div class="flex-1">
               <div class="flex items-center justify-between">
                 <span class="text-accent" style="font-size:0.78em;font-weight:700">鬼王無慘</span>
@@ -480,36 +440,38 @@ html, body {
               </div>
             </div>
           </div>
-          <!-- ③ HP shimmer -->
-          <div class="w-full mb-1 hp-shimmer" style="height:2px;background:rgba(255,255,255,0.06)">
-            <div class="hp-bar-inner h-full" :style="{width:Math.max(0,ghostKingHP)+'%',background:'#ef4444'}"></div>
+          <div style="height:2px;background:rgba(194,59,43,0.12);margin-bottom:0.3em">
+            <div class="hp-bar-inner h-full" :style="{width:Math.max(0,ghostKingHP)+'%',background:'#c23b2b'}"></div>
           </div>
           <div class="flex gap-2 flex-wrap items-center">
-            <span v-if="bossStatus.nextAttackMultiplier > 1" class="text-dim" style="font-size:0.55em;letter-spacing:0.06em">夜晚 ×{{ bossStatus.nextAttackMultiplier }}</span>
-            <span v-if="bossStatus.isBossTurnSkip" class="text-dim" style="font-size:0.55em;letter-spacing:0.06em">白天跳過</span>
-            <span class="text-dim" style="font-size:0.52em">格 {{ bossPosition }}</span>
+            <span v-if="bossStatus.nextAttackMultiplier>1" class="text-dim" style="font-size:0.52em;letter-spacing:0.06em">夜晚 ×{{ bossStatus.nextAttackMultiplier }}</span>
+            <span v-if="bossStatus.isBossTurnSkip" class="text-dim" style="font-size:0.52em;letter-spacing:0.06em">白天跳過</span>
+            <span class="text-dim" style="font-size:0.5em">格 {{ bossPosition }}</span>
           </div>
         </div>
 
-        <!-- Teams List -->
+        <!-- Teams -->
         <div class="flex flex-col">
-          <div v-for="(team, idx) in teams" :key="team.id"
+          <div v-for="(team,idx) in teams" :key="team.id"
                :class="teamRowClass(team)"
-               style="padding:0.35em 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+               style="padding:0.35em 0;border-bottom:1px solid rgba(194,59,43,0.05)">
             <div class="flex items-center gap-2 mb-1">
               <span class="font-display text-dim" style="font-size:0.58em;width:1.4em;flex-shrink:0">0{{ idx+1 }}</span>
-              <!-- ④ pulse ring on active team avatar -->
               <div style="position:relative;flex-shrink:0;width:1.6em;height:1.6em">
-                <img :src="team.avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block" :style="{opacity: team.hp>0?0.9:0.3, outline:'1.5px solid '+(team.hp>0?team.color:'#333'), outlineOffset:'1px'}" onerror="this.style.display='none'">
-                <div v-if="currentTurnType==='player' && teams[currentTeamIndex] && teams[currentTeamIndex].id===team.id && team.hp>0"
-                     style="position:absolute;inset:-3px;border-radius:50%;border:1.5px solid currentColor;animation:pulse-ring 1.6s ease-out infinite;pointer-events:none"
+                <img :src="team.avatar"
+                     style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block"
+                     :style="{opacity:team.hp>0?0.9:0.3,outline:'1.5px solid '+(team.hp>0?team.color:'#2a1a14'),outlineOffset:'1px'}"
+                     onerror="this.style.display='none'">
+                <div v-if="currentTurnType==='player'&&teams[currentTeamIndex]&&teams[currentTeamIndex].id===team.id&&team.hp>0"
+                     style="position:absolute;inset:-3px;border-radius:50%;border:1.5px solid currentColor;pointer-events:none"
                      :style="{color:team.color}"></div>
               </div>
-              <span class="text-cream" style="font-size:0.7em;font-weight:500;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" :style="{opacity:team.hp>0?1:0.35}">{{ team.name }}</span>
-              <span class="font-display" style="font-size:0.75em" :style="{color:team.hp>0?team.color:'#333'}">{{ team.hp }}</span>
+              <span class="text-cream" style="font-size:0.7em;font-weight:500;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"
+                    :style="{opacity:team.hp>0?1:0.3}">{{ team.name }}</span>
+              <span class="font-display" style="font-size:0.75em" :style="{color:team.hp>0?team.color:'#2a1a14'}">{{ team.hp }}</span>
             </div>
             <div style="display:flex;gap:0.3em;align-items:center">
-              <div class="hp-shimmer" style="flex:1;height:2px;background:rgba(255,255,255,0.05)">
+              <div style="flex:1;height:2px;background:rgba(194,59,43,0.08)">
                 <div class="hp-bar-inner h-full" :style="{width:Math.max(0,team.hp*10)+'%',background:team.color,opacity:team.hp>0?1:0.2}"></div>
               </div>
               <span v-if="team.status.shieldActive" class="text-dim" style="font-size:0.5em">盾</span>
@@ -518,276 +480,279 @@ html, body {
             </div>
           </div>
         </div>
-
       </div>
 
-      <!-- CENTER COLUMN -->
-      <div class="flex flex-col items-center justify-center" style="width:56%;padding:0.4em;background:#0e0e0e">
+      <!-- ── CENTER ── -->
+      <div class="flex flex-col items-center justify-center"
+           style="width:56%;padding:0.4em;background:#060408">
         <div style="width:100%;aspect-ratio:1/1;max-height:100%;position:relative">
           <div class="board-grid" style="height:100%;width:100%">
 
             <template v-for="row in 5" :key="'r'+row">
               <template v-for="col in 5" :key="'r'+row+'c'+col">
 
-                <!-- Control panel: only rendered at (2,2) but spans 3x3 via CSS grid -->
-                <div v-if="row === 2 && col === 2" class="control-panel">
+                <!-- control panel -->
+                <div v-if="row===2&&col===2" class="control-panel">
 
-                  <div class="text-center" style="margin-bottom:0.5em">
-                    <div class="text-dim" style="font-size:0.44em;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.2em">現在輪到</div>
-                    <div v-if="currentTurnType === 'player' && teams[currentTeamIndex]"
-                         class="font-display" style="font-size:1.4em;line-height:1"
-                         :style="{color: teams[currentTeamIndex].color}">
+                  <div class="text-center" style="margin-bottom:0.5em;position:relative;z-index:1">
+                    <div class="text-dim" style="font-size:0.42em;letter-spacing:0.17em;text-transform:uppercase;margin-bottom:0.22em">現在輪到</div>
+                    <div v-if="currentTurnType==='player'&&teams[currentTeamIndex]"
+                         class="font-display" style="font-size:1.45em;line-height:1"
+                         :style="{color:teams[currentTeamIndex].color}">
                       {{ teams[currentTeamIndex].name }}
                     </div>
-                    <div v-else-if="currentTurnType === 'boss'" class="font-display text-accent" style="font-size:1.4em;line-height:1">鬼王無慘</div>
-                    <div class="text-dim breathe" style="margin-top:0.3em;font-size:0.48em;letter-spacing:0.1em;text-transform:uppercase">
-                      <span class="spin-cw" style="opacity:0.4;margin-right:0.3em">◎</span>{{ phaseLabel }}<span class="spin-ccw" style="opacity:0.4;margin-left:0.3em">◎</span>
+                    <div v-else-if="currentTurnType==='boss'" class="font-display text-accent" style="font-size:1.45em;line-height:1">鬼王無慘</div>
+                    <div class="text-dim" style="margin-top:0.3em;font-size:0.46em;letter-spacing:0.12em;text-transform:uppercase;opacity:0.7">
+                      {{ phaseLabel }}
                     </div>
-                    <div v-if="nextTurnInfo" class="text-dim" style="margin-top:0.4em;padding-top:0.3em;border-top:1px solid rgba(255,255,255,0.05);font-size:0.48em">
+                    <div v-if="nextTurnInfo" class="text-dim"
+                         style="margin-top:0.4em;padding-top:0.3em;border-top:1px solid rgba(194,59,43,0.08);font-size:0.46em">
                       下一位 <span style="font-weight:500" :style="{color:nextTurnInfo.color}">{{ nextTurnInfo.name }}</span>
                     </div>
                   </div>
 
-                  <!-- Player SETTLE: settle last round's task -->
-                  <div v-if="currentPhase === 'settle' && currentTurnType === 'player' && teams[currentTeamIndex] && teams[currentTeamIndex].pendingTask"
-                       style="width:100%;display:flex;flex-direction:column;gap:0.3em">
-                    <div class="text-yellow-300 text-center font-bold" style="font-size:0.6em;margin-bottom:0.1em">⏳ 結算上回合任務</div>
-                    <div class="text-slate-300 text-center" style="font-size:0.62em;margin-bottom:0.25em">{{ teams[currentTeamIndex].pendingTask.name }}</div>
+                  <!-- SETTLE -->
+                  <div v-if="currentPhase==='settle'&&currentTurnType==='player'&&teams[currentTeamIndex]&&teams[currentTeamIndex].pendingTask"
+                       style="width:100%;display:flex;flex-direction:column;gap:0.3em;position:relative;z-index:1">
+                    <div class="text-center font-bold" style="font-size:0.58em;margin-bottom:0.1em;color:#c8a040">⏳ 結算上回合任務</div>
+                    <div class="text-center" style="font-size:0.6em;margin-bottom:0.25em;color:#9a8a78">{{ teams[currentTeamIndex].pendingTask.name }}</div>
                     <button @click="settleTaskSuccess" class="btn"
-                            style="font-size:0.72em;padding:0.45em;width:100%;border-color:rgba(34,197,94,0.3);color:#86efac">
-                      任務成功
-                    </button>
+                            style="font-size:0.7em;padding:0.45em;width:100%;border-color:rgba(90,184,138,0.3);color:#5ab88a">任務成功</button>
                     <button @click="settleTaskFail" class="btn btn-red"
-                            style="font-size:0.72em;padding:0.45em;width:100%">
-                      任務失敗
-                    </button>
+                            style="font-size:0.7em;padding:0.45em;width:100%">任務失敗</button>
                   </div>
 
-                  <!-- Player ROLL -->
-                  <div v-else-if="currentPhase === 'roll' && currentTurnType === 'player'" style="width:100%">
-                    <div class="text-slate-400 text-center" style="font-size:0.65em;margin-bottom:0.3em">選擇骰子點數</div>
+                  <!-- ROLL -->
+                  <div v-else-if="currentPhase==='roll'&&currentTurnType==='player'"
+                       style="width:100%;position:relative;z-index:1">
+                    <div class="text-center" style="font-size:0.62em;margin-bottom:0.3em;color:#6a5a50">選擇骰子點數</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
-                      <button v-for="n in 6" :key="n" @click="playerRoll(n)"
-                              class="dice-btn dice-btn-player">
-                        {{ n }}
-                      </button>
+                      <button v-for="n in 6" :key="n" @click="playerRoll(n)" class="dice-btn dice-btn-player">{{ n }}</button>
                     </div>
                   </div>
 
-                  <!-- Player ACTION: task - send them to do the task, result next round -->
-                  <div v-else-if="currentPhase === 'action' && currentTurnType === 'player' && currentSquare && (currentSquare.type === 'task' || currentSquare.type === 'start')"
-                       style="width:100%;display:flex;flex-direction:column;gap:0.3em">
-                    <div class="text-slate-300 text-center" style="font-size:0.6em;margin-bottom:0.25em">{{ currentSquare.desc }}</div>
+                  <!-- ACTION: task -->
+                  <div v-else-if="currentPhase==='action'&&currentTurnType==='player'&&currentSquare&&(currentSquare.type==='task'||currentSquare.type==='start')"
+                       style="width:100%;display:flex;flex-direction:column;gap:0.3em;position:relative;z-index:1">
+                    <div class="text-center" style="font-size:0.6em;margin-bottom:0.25em;color:#9a8a78">{{ currentSquare.desc }}</div>
                     <button @click="startTask" class="btn"
-                            style="font-size:0.75em;padding:0.45em;width:100%;border-color:rgba(245,158,11,0.3);color:#fbbf24">
-                      出發執行任務
-                    </button>
+                            style="font-size:0.72em;padding:0.45em;width:100%;border-color:rgba(184,144,64,0.3);color:#b89040">出發執行任務</button>
                   </div>
 
-                  <!-- Player ACTION: card - picking phase -->
-                  <div v-else-if="currentPhase === 'action' && currentTurnType === 'player' && currentSquare && currentSquare.type === 'card'"
-                       style="width:100%">
-                    <!-- Before cards are shown -->
-                    <div v-if="cardChoices.length === 0">
-                      <div class="text-purple-300 text-center" style="font-size:0.62em;margin-bottom:0.3em">{{ currentSquare.name }}</div>
+                  <!-- ACTION: card -->
+                  <div v-else-if="currentPhase==='action'&&currentTurnType==='player'&&currentSquare&&currentSquare.type==='card'"
+                       style="width:100%;position:relative;z-index:1">
+                    <div v-if="cardChoices.length===0">
+                      <div class="text-center" style="font-size:0.6em;margin-bottom:0.3em;color:#9878c8">{{ currentSquare.name }}</div>
                       <button @click="prepareCards" class="btn w-full"
-                              style="font-size:0.75em;padding:0.5em;border-color:rgba(168,85,247,0.3);color:#d8b4fe">
-                        翻牌
-                      </button>
+                              style="font-size:0.72em;padding:0.5em;border-color:rgba(152,120,200,0.3);color:#9878c8">翻牌</button>
                     </div>
-                    <!-- Cards face-down, pick one -->
-                    <div v-else-if="flippedCardIndex === null">
-                      <div class="text-purple-300 text-center" style="font-size:0.6em;margin-bottom:0.3em">選一張翻開</div>
+                    <div v-else-if="flippedCardIndex===null">
+                      <div class="text-center" style="font-size:0.58em;margin-bottom:0.3em;color:#9878c8">選一張翻開</div>
                       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.25em">
-                        <div v-for="(c, i) in cardChoices" :key="i"
-                             @click="flipCard(i)"
-                             style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);font-size:1.1em;transition:border-color 0.12s,background 0.12s"
-                             onmouseover="this.style.background='#222';this.style.borderColor='rgba(255,255,255,0.25)'" onmouseout="this.style.background='#1a1a1a';this.style.borderColor='rgba(255,255,255,0.1)'">
-                          ?
-                        </div>
+                        <div v-for="(c,i) in cardChoices" :key="i" @click="flipCard(i)"
+                             style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#0e0b12;border:1px solid rgba(194,59,43,0.12);font-size:1.1em;transition:border-color 0.12s,background 0.12s"
+                             onmouseover="this.style.background='#1a1018';this.style.borderColor='rgba(194,59,43,0.3)'"
+                             onmouseout="this.style.background='#0e0b12';this.style.borderColor='rgba(194,59,43,0.12)'">?</div>
                       </div>
                     </div>
-                    <!-- Card revealed -->
                     <div v-else style="text-align:center">
-                      <div :style="cardChoices[flippedCardIndex].isChance ? 'font-size:0.55em;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#86efac' : 'font-size:0.55em;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#d8b4fe'">
+                      <div :style="cardChoices[flippedCardIndex].isChance
+                             ? 'font-size:0.52em;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#5ab88a'
+                             : 'font-size:0.52em;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#9878c8'">
                         {{ cardChoices[flippedCardIndex].isChance ? '✨ 機會卡' : '⚠️ 命運卡' }}
                       </div>
-                      <div class="text-white font-black" style="font-size:0.75em;margin:0.15em 0">{{ cardChoices[flippedCardIndex].card.name }}</div>
+                      <div class="font-display text-cream" style="font-size:0.82em;margin:0.15em 0;font-weight:900">{{ cardChoices[flippedCardIndex].card.name }}</div>
                     </div>
                   </div>
 
-                  <!-- Player NEXT -->
-                  <div v-else-if="currentPhase === 'next' && currentTurnType === 'player'" style="width:100%">
-                    <button @click="nextPlayerTurn" class="btn w-full"
-                            style="font-size:0.75em;padding:0.5em">
-                      換下一位 →
-                    </button>
+                  <!-- NEXT -->
+                  <div v-else-if="currentPhase==='next'&&currentTurnType==='player'"
+                       style="width:100%;position:relative;z-index:1">
+                    <button @click="nextPlayerTurn" class="btn w-full" style="font-size:0.72em;padding:0.5em">換下一位 →</button>
                   </div>
 
-                  <!-- Boss ROLL -->
-                  <div v-else-if="currentPhase === 'boss-roll'" style="width:100%">
-                    <div class="text-slate-400 text-center" style="font-size:0.65em;margin-bottom:0.3em">鬼王移動點數</div>
+                  <!-- BOSS ROLL -->
+                  <div v-else-if="currentPhase==='boss-roll'"
+                       style="width:100%;position:relative;z-index:1">
+                    <div class="text-center" style="font-size:0.62em;margin-bottom:0.3em;color:#6a5a50">鬼王移動點數</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
-                      <button v-for="n in 6" :key="n" @click="bossRoll(n)"
-                              class="dice-btn dice-btn-boss">
-                        {{ n }}
-                      </button>
+                      <button v-for="n in 6" :key="n" @click="bossRoll(n)" class="dice-btn dice-btn-boss">{{ n }}</button>
                     </div>
                   </div>
 
-                  <!-- Boss ATTACK -->
-                  <div v-else-if="currentPhase === 'boss-attack'" style="width:100%">
-                    <div class="text-red-400 text-center font-bold" style="font-size:0.62em;margin-bottom:0.2em">
+                  <!-- BOSS ATTACK -->
+                  <div v-else-if="currentPhase==='boss-attack'"
+                       style="width:100%;position:relative;z-index:1">
+                    <div class="text-accent text-center font-bold" style="font-size:0.6em;margin-bottom:0.2em">
                       攻擊：{{ bossTargets.map(function(t){return t.name}).join(' / ') }}
                     </div>
-                    <div class="text-slate-400 text-center" style="font-size:0.6em;margin-bottom:0.25em">傷害骰子點數</div>
+                    <div class="text-center" style="font-size:0.58em;margin-bottom:0.25em;color:#6a5a50">傷害骰子點數</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
-                      <button v-for="n in 6" :key="n" @click="bossAttack(n)"
-                              class="dice-btn dice-btn-boss">
-                        {{ n }}
-                      </button>
+                      <button v-for="n in 6" :key="n" @click="bossAttack(n)" class="dice-btn dice-btn-boss">{{ n }}</button>
                     </div>
                   </div>
 
-                  <!-- Boss NEXT -->
-                  <div v-else-if="currentPhase === 'boss-next'" style="width:100%">
-                    <button @click="endBossTurn" class="btn w-full"
-                            style="font-size:0.75em;padding:0.5em">
-                      換下一位 →
-                    </button>
+                  <!-- BOSS NEXT -->
+                  <div v-else-if="currentPhase==='boss-next'"
+                       style="width:100%;position:relative;z-index:1">
+                    <button @click="endBossTurn" class="btn w-full" style="font-size:0.72em;padding:0.5em">換下一位 →</button>
                   </div>
 
                 </div>
 
-                <!-- Skip interior cells (not control panel origin) -->
-                <div v-else-if="row >= 2 && row <= 4 && col >= 2 && col <= 4" style="display:none"></div>
+                <!-- skip interior -->
+                <div v-else-if="row>=2&&row<=4&&col>=2&&col<=4" style="display:none"></div>
 
-                <!-- Board cell -->
+                <!-- board cell -->
                 <div v-else
                      class="board-cell flex flex-col"
-                     :class="cellClass(row, col)"
-                     style="padding:0.25em;min-width:0;border:1px solid rgba(255,255,255,0.05)">
-                  <template v-if="squareAt(row, col)">
-                    <div class="text-center" style="font-size:0.4em;letter-spacing:0.04em;color:#333;line-height:1;font-family:'Bebas Neue',sans-serif">{{ squareAt(row, col).id }}</div>
-                    <div class="text-center leading-tight" style="font-size:0.5em;opacity:0.6" :style="{color: squareAt(row, col).type==='start' ? '#fbbf24' : squareAt(row, col).type==='card' ? '#a78bfa' : '#60a5fa'}">{{ squareAt(row, col).type === 'start' ? '★' : squareAt(row, col).type === 'card' ? '◈' : '×' }}</div>
+                     :class="cellClass(row,col)"
+                     style="padding:0.25em;min-width:0">
+                  <template v-if="squareAt(row,col)">
+                    <div class="text-center"
+                         style="font-size:0.38em;letter-spacing:0.04em;line-height:1;font-family:'Bebas Neue',sans-serif;color:rgba(194,59,43,0.25)">
+                      {{ squareAt(row,col).id }}
+                    </div>
+                    <div class="text-center leading-tight" style="font-size:0.5em;opacity:0.55"
+                         :style="{color: squareAt(row,col).type==='start'?'#b89040':squareAt(row,col).type==='card'?'#9060c0':'rgba(194,59,43,0.5)'}">
+                      {{ squareAt(row,col).type==='start'?'★':squareAt(row,col).type==='card'?'◈':'×' }}
+                    </div>
                     <div class="token-row">
                       <template v-for="team in teams" :key="team.id">
-                        <div v-if="team.position === squareAt(row, col).id && team.hp > 0"
-                             class="token" :style="{background: team.color}">
-                          {{ team.id }}
-                        </div>
+                        <div v-if="team.position===squareAt(row,col).id&&team.hp>0"
+                             class="token" :style="{background:team.color}">{{ team.id }}</div>
                       </template>
-                      <div v-if="bossPosition === squareAt(row, col).id" class="token boss-token">鬼</div>
+                      <div v-if="bossPosition===squareAt(row,col).id" class="token boss-token">鬼</div>
                     </div>
                   </template>
                 </div>
 
               </template>
             </template>
-
           </div>
         </div>
       </div>
 
-      <!-- RIGHT COLUMN — ③ SCAN LINE (offset timing) -->
-      <div class="flex flex-col scan-panel" style="width:22%;background:#0a0a0a;border-left:1px solid rgba(255,255,255,0.06);--scan-delay:3.5s">
-
-
-        <!-- Announcement panel -->
-        <div class="announcement-card flex-shrink-0" style="margin:0.5em;min-height:35%">
-          <div class="section-label">任務公告</div>
-          <div v-if="announcement.title" style="font-size:0.82em;font-weight:600;margin-bottom:0.3em;color:#e8e2d5">{{ announcement.title }}</div>
-          <div v-if="announcement.desc" style="font-size:0.68em;line-height:1.5;color:#555">{{ announcement.desc }}</div>
-          <div v-if="announcement.cardType" class="rounded font-bold" style="font-size:0.65em;padding:0.2em 0.5em;margin-top:0.4em;display:inline-block"
-               :style="announcement.cardType === '機會卡' ? 'background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#86efac;border-radius:2px' : 'background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);color:#d8b4fe;border-radius:2px'"
-            {{ announcement.cardType }}
-          </div>
-          <div v-if="announcement.cardName" class="font-display text-cream" style="font-size:1.1em;margin-top:0.2em">{{ announcement.cardName }}</div>
-          <div v-if="announcement.cardEffect" class="text-muted" style="font-size:0.62em;margin-top:0.2em">{{ announcement.cardEffect }}</div>
-          <div v-if="announcement.result" style="font-size:0.88em;margin-top:0.4em;font-weight:600"
-               :class="announcement.resultColor || 'text-cream'">{{ announcement.result }}</div>
-        </div>
-
-        <!-- Log panel -->
-        <div class="flex-1 overflow-y-auto log-container" style="padding:0 0.5em 0.5em 0.5em">
+      <!-- ── RIGHT ── -->
+      <div class="flex flex-col"
+           style="width:22%;background:#0d0b11;border-left:1px solid rgba(194,59,43,0.1)">
+        <!-- Log — full height now that announcement is a popup -->
+        <div class="flex-1 overflow-y-auto log-container" style="padding:0.5em 0.5em 0.5em 0.6em">
           <div class="section-label">事件日誌</div>
-          <div v-for="(entry, idx) in gameLog" :key="idx"
-               class="rounded"
+          <div v-for="(entry,idx) in gameLog" :key="idx"
                :class="logEntryClass(entry.type)"
-               style="font-size:0.6em;padding:0.2em 0.4em;margin-bottom:0.1em;border-radius:2px">
-            <span class="text-slate-500" style="margin-right:0.3em">{{ entry.time }}</span>
+               style="font-size:0.58em;padding:0.2em 0.4em;margin-bottom:0.1em;border-radius:2px">
+            <span style="color:#3a2a24;margin-right:0.3em">{{ entry.time }}</span>
             <span>{{ entry.msg }}</span>
           </div>
         </div>
-
       </div>
     </div>
 
     <!-- SAVE/LOAD MODAL -->
-    <div v-if="showSaveModal" class="modal-overlay" @click.self="showSaveModal = false">
-      <div style="padding:1.4em;width:min(90%,380px);background:#111;border:1px solid rgba(255,255,255,0.1)">
-        <div class="text-white font-bold" style="font-size:1em;margin-bottom:0.6em">💾 存檔 / 讀檔</div>
+    <div v-if="showSaveModal" class="modal-overlay" @click.self="showSaveModal=false">
+      <div style="padding:1.4em;width:min(90%,380px);background:#120f18;border:1px solid rgba(194,59,43,0.18);box-shadow:0 8px 48px rgba(0,0,0,0.6)">
+        <div class="font-display text-cream" style="font-size:1em;margin-bottom:0.7em;letter-spacing:0.05em">💾 存檔 / 讀檔</div>
         <textarea v-model="saveJsonStr"
-                  class="w-full bg-slate-800 text-green-300 font-mono rounded border border-slate-600 resize-none"
-                  style="height:10em;font-size:0.6em;padding:0.5em;margin-bottom:0.5em"
+                  class="w-full font-mono resize-none"
+                  style="height:10em;font-size:0.6em;padding:0.5em;margin-bottom:0.5em;background:#0a0810;color:#5ab88a;border:1px solid rgba(194,59,43,0.15);outline:none;border-radius:2px"
                   placeholder="存檔 JSON 會顯示在這裡..."></textarea>
         <div class="flex gap-2">
-          <button @click="generateSave" class="btn btn-ghost flex-1" style="font-size:0.72em;padding:0.5em">產生存檔</button>
-          <button @click="loadSave" class="btn flex-1" style="font-size:0.72em;padding:0.5em;border-color:rgba(34,197,94,0.3);color:#86efac">讀取存檔</button>
-          <button @click="showSaveModal = false" class="btn btn-ghost" style="font-size:0.72em;padding:0.4em 0.8em">✕</button>
+          <button @click="generateSave" class="btn btn-ghost flex-1" style="font-size:0.7em;padding:0.5em">產生存檔</button>
+          <button @click="loadSave" class="btn flex-1" style="font-size:0.7em;padding:0.5em;border-color:rgba(90,184,138,0.3);color:#5ab88a">讀取存檔</button>
+          <button @click="showSaveModal=false" class="btn btn-ghost" style="font-size:0.7em;padding:0.4em 0.8em">✕</button>
         </div>
       </div>
     </div>
 
-    <!-- REVIVE SELECTION MODAL -->
+    <!-- REVIVE MODAL -->
     <div v-if="showReviveModal" class="modal-overlay">
-      <div style="padding:1.4em;min-width:200px;background:#111;border:1px solid rgba(255,255,255,0.1)">
-        <div class="text-white font-bold" style="font-size:1em;margin-bottom:0.8em">死者甦醒：選擇復活隊伍</div>
+      <div style="padding:1.4em;min-width:200px;background:#120f18;border:1px solid rgba(194,59,43,0.18);box-shadow:0 8px 48px rgba(0,0,0,0.6)">
+        <div class="font-display text-cream" style="font-size:1em;margin-bottom:0.8em;letter-spacing:0.05em">死者甦醒：選擇復活隊伍</div>
         <div class="flex flex-col gap-2">
           <button v-for="team in deadTeams" :key="team.id" @click="reviveTeam(team.id)"
                   class="btn btn-ghost flex items-center gap-3"
                   style="padding:0.5em 0.8em;font-size:0.82em;width:100%">
-            <div class="rounded-full flex-shrink-0" style="width:0.7em;height:0.7em" :style="{background: team.color}"></div>
+            <div class="rounded-full flex-shrink-0" style="width:0.7em;height:0.7em" :style="{background:team.color}"></div>
             <span class="font-semibold">{{ team.name }}</span>
           </button>
         </div>
       </div>
     </div>
 
-  </template>
+    <!-- ══ CROW MESSENGER MODAL — 鎹烏送信 ══ -->
+    <div v-if="showCrowModal" class="crow-overlay" @click="closeCrowModal">
+      <div class="crow-modal" @click.stop>
+        <div class="crow-corner crow-corner-tl"></div>
+        <div class="crow-corner crow-corner-tr"></div>
+        <div class="crow-corner crow-corner-bl"></div>
+        <div class="crow-corner crow-corner-br"></div>
+        <div class="crow-seal">任務</div>
 
+        <div class="crow-figure" aria-hidden="true">
+          <svg width="130" height="86" viewBox="0 0 140 92" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="72" cy="50" rx="32" ry="14" fill="#0d0d0d" transform="rotate(-8 72 50)"/>
+            <ellipse cx="98" cy="38" rx="12" ry="10" fill="#0d0d0d"/>
+            <circle cx="104" cy="30" r="14" fill="#0d0d0d"/>
+            <path d="M114 26 L134 19 L117 30 Z" fill="#111"/>
+            <path d="M114 28 L130 24 L116 34 Z" fill="#1c1c1c"/>
+            <circle cx="109" cy="26" r="4" class="crow-eye-glow" fill="#c23b2b"/>
+            <circle cx="110" cy="25" r="1.5" class="crow-eyeshine" fill="#e87060"/>
+            <path d="M72 48 C52 26 26 10 4 15 C22 30 48 42 66 52 Z" fill="#111"/>
+            <path d="M72 48 C55 30 34 18 14 22 C30 34 52 44 68 52 Z" fill="#161616"/>
+            <path d="M72 48 C58 32 40 22 22 25 C36 36 56 45 69 52 Z" fill="#1a1a1a"/>
+            <path d="M82 48 C102 26 118 10 136 15 C120 30 96 42 84 52 Z" fill="#111"/>
+            <path d="M82 48 C100 30 114 18 132 22 C118 34 98 44 85 52 Z" fill="#161616"/>
+            <path d="M46 56 L20 72 L32 59 L10 65 L36 54 L16 47 L42 52 Z" fill="#0d0d0d"/>
+            <path d="M72 48 L48 35 M72 48 L38 26 M72 48 L28 19" stroke="#252525" stroke-width="0.8" opacity="0.7"/>
+            <path d="M82 48 L104 35 M82 48 L112 26 M82 48 L122 19" stroke="#252525" stroke-width="0.8" opacity="0.7"/>
+            <rect x="58" y="65" width="12" height="9" rx="1" fill="#c8a97a" opacity="0.7"/>
+            <line x1="60" y1="68" x2="68" y2="68" stroke="#a08050" stroke-width="0.8" opacity="0.6"/>
+            <line x1="60" y1="70" x2="68" y2="70" stroke="#a08050" stroke-width="0.8" opacity="0.5"/>
+          </svg>
+        </div>
+
+        <span class="crow-tagline">— 鎹烏送信 · Mission Dispatched —</span>
+        <div class="crow-mission-name" v-if="crowMission">{{ crowMission.name }}</div>
+        <div class="crow-hr"></div>
+        <div class="crow-mission-desc" v-if="crowMission">{{ crowMission.desc }}</div>
+        <div class="crow-damage-badge" v-if="crowMission&&crowMission.damage">成功擊傷 ▸ -{{ crowMission.damage }} HP</div>
+        <span class="crow-dismiss">點擊任意處繼續</span>
+      </div>
+    </div>
+
+  </template>
 </div>
 
 <script>
 var Vue3 = Vue;
 var createApp = Vue3.createApp;
 
-// ---- Game Data ----
 var SQUARES = [
   { id:1,  type:'start', name:'START',         desc:'衝到牧師館，吃掉愛玉',               damage:10 },
-  { id:2,  type:'task', name:'拍大合照',       desc:'衝到牧師館，拍一張大合照',           damage:10 },
-  { id:3,  type:'task', name:'繩子接球',       desc:'衝到主日學教室，繩子接球',           damage:10 },
-  { id:4,  type:'task', name:'找到特定物品',   desc:'衝到主日學教室，找到特定物品',       damage:10 },
-  { id:5,  type:'task', name:'巧拼拼圖案',     desc:'衝到主日學教室，用巧拼拼圖案',       damage:10 },
-  { id:6,  type:'task', name:'會議室背金句',   desc:'衝到會議室，背金句',                 damage:10 },
-  { id:7,  type:'task', name:'會議室寫考卷',   desc:'衝到會議室，寫考卷',                 damage:10 },
-  { id:8,  type:'task', name:'原地唱歌',       desc:'原地唱歌',                           damage:5  },
-  { id:9,  type:'task', name:'金雞獨立',       desc:'原地金雞獨立',                       damage:5  },
-  { id:10, type:'card', name:'猜拳抽卡',       desc:'原地跟鬼王猜拳，抽取隨機卡片'                },
-  { id:11, type:'task', name:'骰子比大小',     desc:'原地跟鬼王骰子比大小',               damage:10 },
-  { id:12, type:'card', name:'丟銅板抽卡',     desc:'原地跟鬼王拼運氣（丟銅板），抽取隨機卡片'   },
-  { id:13, type:'task', name:'車棚揮刀50下',   desc:'衝到車棚，揮刀 50 下',               damage:10 },
-  { id:14, type:'task', name:'車棚開合跳',     desc:'衝到車棚，開合跳',                   damage:10 },
-  { id:15, type:'task', name:'飲料喝完',       desc:'衝到備課教室，把飲料喝完',           damage:10 },
-  { id:16, type:'card', name:'特殊抽卡格',     desc:'特殊任務格子：抽取隨機卡片'                 },
+  { id:2,  type:'task',  name:'拍大合照',       desc:'衝到牧師館，拍一張大合照',           damage:10 },
+  { id:3,  type:'task',  name:'繩子接球',       desc:'衝到主日學教室，繩子接球',           damage:10 },
+  { id:4,  type:'task',  name:'找到特定物品',   desc:'衝到主日學教室，找到特定物品',       damage:10 },
+  { id:5,  type:'task',  name:'巧拼拼圖案',     desc:'衝到主日學教室，用巧拼拼圖案',       damage:10 },
+  { id:6,  type:'task',  name:'會議室背金句',   desc:'衝到會議室，背金句',                 damage:10 },
+  { id:7,  type:'task',  name:'會議室寫考卷',   desc:'衝到會議室，寫考卷',                 damage:10 },
+  { id:8,  type:'task',  name:'原地唱歌',       desc:'原地唱歌',                           damage:5  },
+  { id:9,  type:'task',  name:'金雞獨立',       desc:'原地金雞獨立',                       damage:5  },
+  { id:10, type:'card',  name:'猜拳抽卡',       desc:'原地跟鬼王猜拳，抽取隨機卡片'               },
+  { id:11, type:'task',  name:'骰子比大小',     desc:'原地跟鬼王骰子比大小',               damage:10 },
+  { id:12, type:'card',  name:'丟銅板抽卡',     desc:'原地跟鬼王拼運氣（丟銅板），抽取隨機卡片'  },
+  { id:13, type:'task',  name:'車棚揮刀50下',   desc:'衝到車棚，揮刀 50 下',               damage:10 },
+  { id:14, type:'task',  name:'車棚開合跳',     desc:'衝到車棚，開合跳',                   damage:10 },
+  { id:15, type:'task',  name:'飲料喝完',       desc:'衝到備課教室，把飲料喝完',           damage:10 },
+  { id:16, type:'card',  name:'特殊抽卡格',     desc:'特殊任務格子：抽取隨機卡片'                },
 ];
 
-// row,col -> squareId (1-indexed)
 var BOARD_LAYOUT = {
-  '1-1': 1,  '1-2': 2,  '1-3': 3,  '1-4': 4,  '1-5': 5,
-  '2-5': 6,  '3-5': 7,  '4-5': 8,
-  '5-5': 9,  '5-4': 10, '5-3': 11, '5-2': 12, '5-1': 13,
-  '4-1': 14, '3-1': 15, '2-1': 16,
+  '1-1':1, '1-2':2, '1-3':3, '1-4':4, '1-5':5,
+  '2-5':6, '3-5':7, '4-5':8,
+  '5-5':9, '5-4':10,'5-3':11,'5-2':12,'5-1':13,
+  '4-1':14,'3-1':15,'2-1':16,
 };
 
 var CHANCE_CARDS = [
@@ -798,599 +763,289 @@ var CHANCE_CARDS = [
 ];
 
 var FATE_CARDS = [
-  { id:'night',  name:'夜晚來臨',          effect:'鬼王下一回合攻擊傷害 ×2' },
-  { id:'day',    name:'白天來了',           effect:'鬼王下一回合暫停行動' },
-  { id:'blast',  name:'鬼放大招',           effect:'無慘立即對所有存活隊伍造成 3 點傷害' },
-  { id:'peace',  name:'真是個平安的一天',  effect:'無事發生' },
+  { id:'night', name:'夜晚來臨',         effect:'鬼王下一回合攻擊傷害 ×2' },
+  { id:'day',   name:'白天來了',          effect:'鬼王下一回合暫停行動' },
+  { id:'blast', name:'鬼放大招',          effect:'無慘立即對所有存活隊伍造成 3 點傷害' },
+  { id:'peace', name:'真是個平安的一天', effect:'無事發生' },
 ];
 
 var MUZAN_AVATAR = 'assets/muzan.png';
 
 function defaultTeams() {
   return [
-    { id:1, name:'霞柱 ‧ 時透',   color:'#14b8a6', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team1.png', pendingTask:null },
-    { id:2, name:'水柱 ‧ 義勇',   color:'#3b82f6', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team2.png', pendingTask:null },
-    { id:3, name:'炎柱 ‧ 杏壽郎', color:'#f97316', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team3.png', pendingTask:null },
-    { id:4, name:'蛇柱 ‧ 伊黑',   color:'#a855f7', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team4.png', pendingTask:null },
-    { id:5, name:'蟲柱 ‧ 忍',     color:'#ec4899', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team5.png', pendingTask:null },
-    { id:6, name:'風柱 ‧ 實彌',   color:'#22c55e', position:1, hp:10, damageDealt:0, status:{ shieldActive:false, doubleDamage:false }, avatar:'assets/team6.png', pendingTask:null },
+    { id:1, name:'霞柱 ‧ 時透',   color:'#14b8a6', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/team1.png', pendingTask:null },
+    { id:2, name:'水柱 ‧ 義勇',   color:'#3b82f6', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/team2.png', pendingTask:null },
+    { id:3, name:'炎柱 ‧ 杏壽郎', color:'#f97316', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/team3.png', pendingTask:null },
+    { id:4, name:'蛇柱 ‧ 伊黑',   color:'#a855f7', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/team4.png', pendingTask:null },
+    { id:5, name:'蟲柱 ‧ 忍',     color:'#ec4899', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/team5.png', pendingTask:null },
+    { id:6, name:'風柱 ‧ 實彌',   color:'#22c55e', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/team6.png', pendingTask:null },
   ];
 }
 
-function ringDistance(a, b) {
-  var diff = Math.abs(a - b);
-  return Math.min(diff, 16 - diff);
-}
+function ringDistance(a,b) { var d=Math.abs(a-b); return Math.min(d,16-d); }
 
 function nowStr() {
-  var d = new Date();
-  var hh = d.getHours().toString().padStart(2,'0');
-  var mm = d.getMinutes().toString().padStart(2,'0');
-  var ss = d.getSeconds().toString().padStart(2,'0');
-  return hh + ':' + mm + ':' + ss;
+  var d=new Date();
+  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0');
 }
 
 createApp({
   data: function() {
     return {
-      screen: 'splash',
-      currentTurnType: 'player',
-      currentTeamIndex: 0,
-      currentPhase: 'roll',
-      globalRound: 1,
-      ghostKingHP: 100,
-      bossPosition: 1,
-      bossStatus: { nextAttackMultiplier: 1, isBossTurnSkip: false },
-      MUZAN_AVATAR: MUZAN_AVATAR,
-      teams: defaultTeams(),
-      lastSnapshot: null,
-      bossTargets: [],
-      gameLog: [],
-      announcement: { title:'', desc:'', cardType:'', cardName:'', cardEffect:'', result:'', resultColor:'' },
-      showSaveModal: false,
-      showReviveModal: false,
-      deadTeams: [],
-      saveJsonStr: '',
-      cardChoices: [],
-      flippedCardIndex: null,
+      screen:'splash',
+      currentTurnType:'player', currentTeamIndex:0, currentPhase:'roll',
+      globalRound:1, ghostKingHP:100, bossPosition:1,
+      bossStatus:{nextAttackMultiplier:1,isBossTurnSkip:false},
+      MUZAN_AVATAR:MUZAN_AVATAR,
+      teams:defaultTeams(),
+      lastSnapshot:null, bossTargets:[],
+      gameLog:[],
+      announcement:{title:'',desc:'',cardType:'',cardName:'',cardEffect:'',result:'',resultColor:''},
+      showSaveModal:false, showReviveModal:false,
+      deadTeams:[], saveJsonStr:'',
+      cardChoices:[], flippedCardIndex:null,
+      showCrowModal:false, crowMission:null,
     };
   },
 
   computed: {
     nextTurnInfo: function() {
-      if (this.currentTurnType === 'boss') {
-        // After boss, it's the first living team in next round
-        for (var i = 0; i < this.teams.length; i++) {
-          if (this.teams[i].hp > 0) return { name: this.teams[i].name, color: this.teams[i].color };
-        }
+      if (this.currentTurnType==='boss') {
+        for (var i=0;i<this.teams.length;i++) if (this.teams[i].hp>0) return {name:this.teams[i].name,color:this.teams[i].color};
         return null;
       }
-      // Find next living team after current
-      for (var j = this.currentTeamIndex + 1; j < this.teams.length; j++) {
-        if (this.teams[j].hp > 0) return { name: this.teams[j].name, color: this.teams[j].color };
-      }
-      // No more teams → boss is next
-      return { name: '鬼王無慘', color: '#ef4444' };
+      for (var j=this.currentTeamIndex+1;j<this.teams.length;j++) if (this.teams[j].hp>0) return {name:this.teams[j].name,color:this.teams[j].color};
+      return {name:'鬼王無慘',color:'#c23b2b'};
     },
     currentSquare: function() {
-      if (this.currentTurnType !== 'player') return null;
-      var team = this.teams[this.currentTeamIndex];
-      if (!team) return null;
-      var pos = team.position;
-      for (var i = 0; i < SQUARES.length; i++) {
-        if (SQUARES[i].id === pos) return SQUARES[i];
-      }
+      if (this.currentTurnType!=='player') return null;
+      var team=this.teams[this.currentTeamIndex]; if (!team) return null;
+      for (var i=0;i<SQUARES.length;i++) if (SQUARES[i].id===team.position) return SQUARES[i];
       return null;
     },
     phaseLabel: function() {
-      var map = {
-        'settle': '結算上回合任務',
-        'roll': '擲骰中',
-        'action': '行動中',
-        'next': '結算',
-        'boss-roll': '鬼王移動',
-        'boss-attack': '鬼王攻擊',
-        'boss-next': '回合結算',
-      };
-      return map[this.currentPhase] || '';
+      return {'settle':'結算上回合任務','roll':'擲骰中','action':'行動中','next':'結算','boss-roll':'鬼王移動','boss-attack':'鬼王攻擊','boss-next':'回合結算'}[this.currentPhase]||'';
     },
     rankedTeams: function() {
-      return this.teams.slice().sort(function(a,b){ return b.damageDealt - a.damageDealt; });
+      return this.teams.slice().sort(function(a,b){return b.damageDealt-a.damageDealt;});
     },
   },
 
   methods: {
     saveSnapshot: function() {
-      this.lastSnapshot = {
-        ghostKingHP: this.ghostKingHP,
-        bossPosition: this.bossPosition,
-        currentTurnType: this.currentTurnType,
-        currentTeamIndex: this.currentTeamIndex,
-        currentPhase: this.currentPhase,
-        globalRound: this.globalRound,
-        bossStatus: { nextAttackMultiplier: this.bossStatus.nextAttackMultiplier, isBossTurnSkip: this.bossStatus.isBossTurnSkip },
-        bossTargets: this.bossTargets.slice(),
-        cardChoices: this.cardChoices.slice(),
-        flippedCardIndex: this.flippedCardIndex,
-        announcement: Object.assign({}, this.announcement),
-        teams: this.teams.map(function(t) {
-          return { id:t.id, position:t.position, hp:t.hp, damageDealt:t.damageDealt, status:{ shieldActive:t.status.shieldActive, doubleDamage:t.status.doubleDamage }, pendingTask: t.pendingTask ? { name:t.pendingTask.name, damage:t.pendingTask.damage } : null };
-        }),
+      this.lastSnapshot={
+        ghostKingHP:this.ghostKingHP, bossPosition:this.bossPosition,
+        currentTurnType:this.currentTurnType, currentTeamIndex:this.currentTeamIndex,
+        currentPhase:this.currentPhase, globalRound:this.globalRound,
+        bossStatus:{nextAttackMultiplier:this.bossStatus.nextAttackMultiplier,isBossTurnSkip:this.bossStatus.isBossTurnSkip},
+        bossTargets:this.bossTargets.slice(), cardChoices:this.cardChoices.slice(),
+        flippedCardIndex:this.flippedCardIndex, announcement:Object.assign({},this.announcement),
+        teams:this.teams.map(function(t){return{id:t.id,position:t.position,hp:t.hp,damageDealt:t.damageDealt,status:{shieldActive:t.status.shieldActive,doubleDamage:t.status.doubleDamage},pendingTask:t.pendingTask?{name:t.pendingTask.name,damage:t.pendingTask.damage}:null};}),
       };
     },
-
     undoLastAction: function() {
       if (!this.lastSnapshot) return;
-      var s = this.lastSnapshot;
-      this.ghostKingHP = s.ghostKingHP;
-      this.bossPosition = s.bossPosition;
-      this.currentTurnType = s.currentTurnType;
-      this.currentTeamIndex = s.currentTeamIndex;
-      this.currentPhase = s.currentPhase;
-      this.globalRound = s.globalRound;
-      this.bossStatus = { nextAttackMultiplier: s.bossStatus.nextAttackMultiplier, isBossTurnSkip: s.bossStatus.isBossTurnSkip };
-      this.bossTargets = s.bossTargets.slice();
-      this.cardChoices = s.cardChoices.slice();
-      this.flippedCardIndex = s.flippedCardIndex;
-      this.announcement = Object.assign({}, s.announcement);
-      var self = this;
-      s.teams.forEach(function(saved) {
-        var team = self.teams.find(function(t){ return t.id === saved.id; });
-        if (team) {
-          team.position = saved.position;
-          team.hp = saved.hp;
-          team.damageDealt = saved.damageDealt;
-          team.status.shieldActive = saved.status.shieldActive;
-          team.status.doubleDamage = saved.status.doubleDamage;
-          team.pendingTask = saved.pendingTask || null;
-        }
+      var s=this.lastSnapshot;
+      this.ghostKingHP=s.ghostKingHP; this.bossPosition=s.bossPosition;
+      this.currentTurnType=s.currentTurnType; this.currentTeamIndex=s.currentTeamIndex;
+      this.currentPhase=s.currentPhase; this.globalRound=s.globalRound;
+      this.bossStatus={nextAttackMultiplier:s.bossStatus.nextAttackMultiplier,isBossTurnSkip:s.bossStatus.isBossTurnSkip};
+      this.bossTargets=s.bossTargets.slice(); this.cardChoices=s.cardChoices.slice();
+      this.flippedCardIndex=s.flippedCardIndex; this.announcement=Object.assign({},s.announcement);
+      var self=this;
+      s.teams.forEach(function(saved){
+        var team=self.teams.find(function(t){return t.id===saved.id;});
+        if (team){team.position=saved.position;team.hp=saved.hp;team.damageDealt=saved.damageDealt;team.status.shieldActive=saved.status.shieldActive;team.status.doubleDamage=saved.status.doubleDamage;team.pendingTask=saved.pendingTask||null;}
       });
-      this.addLog('system', '↩ 已還原上一步');
-      this.lastSnapshot = null;
+      this.addLog('system','↩ 已還原上一步'); this.lastSnapshot=null;
     },
-
     startGame: function() {
-      this.screen = 'game';
-      this.addLog('system', '遊戲開始！第 1 輪，從 ' + this.teams[0].name + ' 開始！');
+      this.screen='game';
+      this.addLog('system','遊戲開始！第 1 輪，從 '+this.teams[0].name+' 開始！');
       this.refreshAnnouncement();
     },
-
-    addLog: function(type, msg) {
-      this.gameLog.unshift({ type: type, msg: msg, time: nowStr() });
-    },
-
+    addLog: function(type,msg) { this.gameLog.unshift({type:type,msg:msg,time:nowStr()}); },
     logEntryClass: function(type) {
-      var map = {
-        damage: 'text-red-400',
-        success: 'text-green-400',
-        card: 'text-yellow-400',
-        system: 'text-slate-400',
-        fail: 'text-orange-400',
-        heal: 'text-teal-400',
-        shield: 'text-cyan-400',
-      };
-      return map[type] || 'text-slate-400';
+      return {damage:'text-red-400',success:'text-green-400',card:'text-yellow-400',system:'text-slate-400',fail:'text-orange-400',heal:'text-teal-400',shield:'text-cyan-400'}[type]||'text-slate-400';
     },
-
-    rankBadge: function(idx) {
-      return ['🥇','🥈','🥉','4','5','6'][idx];
-    },
-
-    victoryRowClass: function(idx) {
-      return '';
-    },
-
     teamRowClass: function(team) {
-      if (team.hp <= 0) return 'opacity-40';
-      var activeTeam = this.teams[this.currentTeamIndex];
-      if (this.currentTurnType === 'player' && activeTeam && activeTeam.id === team.id) {
-        return 'ring-1 ring-yellow-400/30';
-      }
+      if (team.hp<=0) return 'opacity-40';
+      var a=this.teams[this.currentTeamIndex];
+      if (this.currentTurnType==='player'&&a&&a.id===team.id) return 'ring-1 ring-yellow-400/20';
       return '';
     },
-
-    squareAt: function(row, col) {
-      var id = BOARD_LAYOUT[row + '-' + col];
-      if (!id) return null;
-      for (var i = 0; i < SQUARES.length; i++) {
-        if (SQUARES[i].id === id) return SQUARES[i];
-      }
+    squareAt: function(row,col) {
+      var id=BOARD_LAYOUT[row+'-'+col]; if (!id) return null;
+      for (var i=0;i<SQUARES.length;i++) if (SQUARES[i].id===id) return SQUARES[i];
       return null;
     },
-
-    cellClass: function(row, col) {
-      var sq = this.squareAt(row, col);
-      if (!sq) return '';
-      if (sq.type === 'start') return 'cell-trace';
-      if (sq.type === 'card')  return 'cell-trace-purple';
+    cellClass: function(row,col) {
+      var sq=this.squareAt(row,col); if (!sq) return '';
+      if (sq.type==='start') return 'cell-trace-red';
+      if (sq.type==='card')  return 'cell-trace-purple';
       return 'cell-trace';
     },
-
     refreshAnnouncement: function() {
-      var sq = this.currentSquare;
-      if (sq) {
-        this.announcement.title = '格 ' + sq.id + '：' + sq.name;
-        this.announcement.desc = sq.desc;
-      } else if (this.currentTurnType === 'boss') {
-        this.announcement.title = '鬼王無慘';
-        this.announcement.desc = '鬼王行動中...';
-      }
+      var sq=this.currentSquare;
+      if (sq){this.announcement.title='格 '+sq.id+'：'+sq.name;this.announcement.desc=sq.desc;}
+      else if (this.currentTurnType==='boss'){this.announcement.title='鬼王無慘';this.announcement.desc='鬼王行動中...';}
     },
-
     clearAnnouncementResult: function() {
-      this.announcement.cardType = '';
-      this.announcement.cardName = '';
-      this.announcement.cardEffect = '';
-      this.announcement.result = '';
-      this.announcement.resultColor = '';
+      this.announcement.cardType='';this.announcement.cardName='';this.announcement.cardEffect='';this.announcement.result='';this.announcement.resultColor='';
     },
+    movePosition: function(pos,steps) { return ((pos-1+steps)%16)+1; },
 
-    movePosition: function(pos, steps) {
-      return ((pos - 1 + steps) % 16) + 1;
-    },
-
-    // ---- Player Turn ----
     playerRoll: function(n) {
       this.saveSnapshot();
-      var team = this.teams[this.currentTeamIndex];
-      var newPos = this.movePosition(team.position, n);
-      team.position = newPos;
-      var sq = null;
-      for (var i = 0; i < SQUARES.length; i++) {
-        if (SQUARES[i].id === newPos) { sq = SQUARES[i]; break; }
-      }
-      this.addLog('system', team.name + ' 擲出 ' + n + '，移動到格 ' + newPos + '「' + (sq ? sq.name : '') + '」');
-      this.currentPhase = 'action';
+      var team=this.teams[this.currentTeamIndex];
+      var newPos=this.movePosition(team.position,n);
+      team.position=newPos;
+      var sq=null;
+      for (var i=0;i<SQUARES.length;i++) if (SQUARES[i].id===newPos){sq=SQUARES[i];break;}
+      this.addLog('system',team.name+' 擲出 '+n+'，移動到格 '+newPos+'「'+(sq?sq.name:'')+'」');
+      this.currentPhase='action';
       this.clearAnnouncementResult();
       this.refreshAnnouncement();
+      if (sq&&(sq.type==='task'||sq.type==='start')){this.crowMission=sq;this.showCrowModal=true;}
     },
+    closeCrowModal: function() { this.showCrowModal=false; },
 
     startTask: function() {
       this.saveSnapshot();
-      var team = this.teams[this.currentTeamIndex];
-      var sq = this.currentSquare;
-      team.pendingTask = { name: sq.name, damage: sq.damage };
-      this.addLog('system', team.name + ' 出發執行任務：「' + sq.name + '」（結果下輪揭曉）');
-      this.announcement.result = '🏃 執行中，下輪結算';
-      this.announcement.resultColor = 'text-yellow-400';
-      this.currentPhase = 'next';
+      var team=this.teams[this.currentTeamIndex]; var sq=this.currentSquare;
+      team.pendingTask={name:sq.name,damage:sq.damage};
+      this.addLog('system',team.name+' 出發執行任務：「'+sq.name+'」（結果下輪揭曉）');
+      this.announcement.result='🏃 執行中，下輪結算'; this.announcement.resultColor='text-yellow-400';
+      this.currentPhase='next';
     },
-
     settleTaskSuccess: function() {
       this.saveSnapshot();
-      var team = this.teams[this.currentTeamIndex];
-      var task = team.pendingTask;
-      var dmg = task.damage;
-      var doubled = false;
-      if (team.status.doubleDamage) {
-        dmg = dmg * 2;
-        doubled = true;
-        team.status.doubleDamage = false;
-      }
-      team.damageDealt += dmg;
-      this.ghostKingHP = Math.max(0, this.ghostKingHP - dmg);
-      var msg = team.name + ' 任務「' + task.name + '」成功！造成 ' + dmg + ' 傷害' + (doubled ? '（雙倍！）' : '') + '。鬼王剩 ' + this.ghostKingHP + ' HP';
-      this.addLog('success', msg);
-      this.announcement.result = '✅ 任務成功！-' + dmg + ' HP' + (doubled ? ' 雙倍！' : '');
-      this.announcement.resultColor = 'text-green-400';
-      team.pendingTask = null;
-      this.currentPhase = 'roll';
-      if (this.ghostKingHP <= 0) {
-        this.screen = 'finalStrike';
-      }
+      var team=this.teams[this.currentTeamIndex]; var task=team.pendingTask;
+      var dmg=task.damage; var doubled=false;
+      if (team.status.doubleDamage){dmg=dmg*2;doubled=true;team.status.doubleDamage=false;}
+      team.damageDealt+=dmg; this.ghostKingHP=Math.max(0,this.ghostKingHP-dmg);
+      this.addLog('success',team.name+' 任務「'+task.name+'」成功！造成 '+dmg+' 傷害'+(doubled?'（雙倍！）':'')+'。鬼王剩 '+this.ghostKingHP+' HP');
+      this.announcement.result='✅ 任務成功！-'+dmg+' HP'+(doubled?' 雙倍！':''); this.announcement.resultColor='text-green-400';
+      team.pendingTask=null; this.currentPhase='roll';
+      if (this.ghostKingHP<=0) this.screen='finalStrike';
     },
-
     settleTaskFail: function() {
       this.saveSnapshot();
-      var team = this.teams[this.currentTeamIndex];
-      var task = team.pendingTask;
-      this.addLog('fail', team.name + ' 任務「' + task.name + '」失敗。');
-      this.announcement.result = '❌ 任務失敗';
-      this.announcement.resultColor = 'text-orange-400';
-      team.pendingTask = null;
-      this.currentPhase = 'roll';
+      var team=this.teams[this.currentTeamIndex]; var task=team.pendingTask;
+      this.addLog('fail',team.name+' 任務「'+task.name+'」失敗。');
+      this.announcement.result='❌ 任務失敗'; this.announcement.resultColor='text-orange-400';
+      team.pendingTask=null; this.currentPhase='roll';
     },
-
     prepareCards: function() {
-      // Generate 4 shuffled card choices (pre-determined but hidden)
-      var choices = [];
-      for (var i = 0; i < 4; i++) {
-        var isChance = Math.random() < 0.5;
-        var pool = isChance ? CHANCE_CARDS : FATE_CARDS;
-        var card = pool[Math.floor(Math.random() * pool.length)];
-        choices.push({ isChance: isChance, card: card });
-      }
-      this.cardChoices = choices;
-      this.flippedCardIndex = null;
-      this.announcement.title = '選一張牌翻開';
-      this.announcement.desc = '';
+      var choices=[];
+      for (var i=0;i<4;i++){var isChance=Math.random()<0.5;var pool=isChance?CHANCE_CARDS:FATE_CARDS;choices.push({isChance:isChance,card:pool[Math.floor(Math.random()*pool.length)]});}
+      this.cardChoices=choices; this.flippedCardIndex=null;
+      this.announcement.title='選一張牌翻開'; this.announcement.desc='';
     },
-
     flipCard: function(index) {
-      this.saveSnapshot();
-      this.flippedCardIndex = index;
-      var choice = this.cardChoices[index];
-      var team = this.teams[this.currentTeamIndex];
-      var cardType = choice.isChance ? '機會卡' : '命運卡';
-
-      this.announcement.cardType = cardType;
-      this.announcement.cardName = choice.card.name;
-      this.announcement.cardEffect = choice.card.effect;
-      this.announcement.result = '';
-
-      this.addLog('card', team.name + ' 抽到' + cardType + '：' + choice.card.name);
-      this.applyCard(choice.card, choice.isChance, team);
-      this.currentPhase = 'next';
+      this.saveSnapshot(); this.flippedCardIndex=index;
+      var choice=this.cardChoices[index]; var team=this.teams[this.currentTeamIndex];
+      var cardType=choice.isChance?'機會卡':'命運卡';
+      this.announcement.cardType=cardType; this.announcement.cardName=choice.card.name;
+      this.announcement.cardEffect=choice.card.effect; this.announcement.result='';
+      this.addLog('card',team.name+' 抽到'+cardType+'：'+choice.card.name);
+      this.applyCard(choice.card,choice.isChance,team); this.currentPhase='next';
     },
-
-    applyCard: function(card, isChance, team) {
+    applyCard: function(card,isChance,team) {
       if (isChance) {
-        if (card.id === 'revive') {
-          var dead = this.teams.filter(function(t){ return t.hp <= 0; });
-          if (dead.length === 0) {
-            this.addLog('system', '死者甦醒：目前沒有陣亡隊伍，無效果。');
-          } else if (dead.length === 1) {
-            dead[0].hp = 5;
-            this.addLog('heal', '死者甦醒：' + dead[0].name + ' 復活，HP 恢復為 5！');
-          } else {
-            this.deadTeams = dead;
-            this.showReviveModal = true;
-          }
-        } else if (card.id === 'heal') {
-          var prev = team.hp;
-          team.hp = Math.min(10, team.hp + 5);
-          this.addLog('heal', '生命藥水：' + team.name + ' 回復 ' + (team.hp - prev) + ' HP（現在 ' + team.hp + ' HP）');
-        } else if (card.id === 'shield') {
-          team.status.shieldActive = true;
-          this.addLog('shield', '防護盾：' + team.name + ' 獲得護盾標記！');
-        } else if (card.id === 'double') {
-          team.status.doubleDamage = true;
-          this.addLog('system', '強化攻擊：' + team.name + ' 獲得雙倍攻擊標記！');
-        }
+        if (card.id==='revive'){var dead=this.teams.filter(function(t){return t.hp<=0;});if(dead.length===0){this.addLog('system','死者甦醒：目前沒有陣亡隊伍，無效果。');}else if(dead.length===1){dead[0].hp=5;this.addLog('heal','死者甦醒：'+dead[0].name+' 復活，HP 恢復為 5！');}else{this.deadTeams=dead;this.showReviveModal=true;}}
+        else if (card.id==='heal'){var prev=team.hp;team.hp=Math.min(10,team.hp+5);this.addLog('heal','生命藥水：'+team.name+' 回復 '+(team.hp-prev)+' HP（現在 '+team.hp+' HP）');}
+        else if (card.id==='shield'){team.status.shieldActive=true;this.addLog('shield','防護盾：'+team.name+' 獲得護盾標記！');}
+        else if (card.id==='double'){team.status.doubleDamage=true;this.addLog('system','強化攻擊：'+team.name+' 獲得雙倍攻擊標記！');}
       } else {
-        if (card.id === 'night') {
-          this.bossStatus.nextAttackMultiplier = 2;
-          this.addLog('system', '夜晚來臨：鬼王下一次攻擊傷害 ×2！');
-        } else if (card.id === 'day') {
-          this.bossStatus.isBossTurnSkip = true;
-          this.addLog('system', '白天來了：鬼王下一回合將跳過行動！');
-        } else if (card.id === 'blast') {
-          this.addLog('damage', '鬼放大招：無慘對所有存活隊伍造成 3 點傷害！');
-          for (var i = 0; i < this.teams.length; i++) {
-            var t = this.teams[i];
-            if (t.hp > 0) {
-              if (t.status.shieldActive) {
-                t.status.shieldActive = false;
-                this.addLog('shield', t.name + ' 護盾抵擋了大招！');
-              } else {
-                t.hp = Math.max(0, t.hp - 3);
-                this.addLog('damage', t.name + ' 受到 3 點傷害，剩餘 ' + t.hp + ' HP' + (t.hp <= 0 ? '（已陣亡！）' : ''));
-              }
-            }
-          }
+        if (card.id==='night'){this.bossStatus.nextAttackMultiplier=2;this.addLog('system','夜晚來臨：鬼王下一次攻擊傷害 ×2！');}
+        else if (card.id==='day'){this.bossStatus.isBossTurnSkip=true;this.addLog('system','白天來了：鬼王下一回合將跳過行動！');}
+        else if (card.id==='blast'){
+          this.addLog('damage','鬼放大招：無慘對所有存活隊伍造成 3 點傷害！');
+          for (var i=0;i<this.teams.length;i++){var t=this.teams[i];if(t.hp>0){if(t.status.shieldActive){t.status.shieldActive=false;this.addLog('shield',t.name+' 護盾抵擋了大招！');}else{t.hp=Math.max(0,t.hp-3);this.addLog('damage',t.name+' 受到 3 點傷害，剩餘 '+t.hp+' HP'+(t.hp<=0?'（已陣亡！）':''));}}}
           this.checkAllDead();
-        } else if (card.id === 'peace') {
-          this.addLog('system', '真是個平安的一天：無事發生。');
-        }
+        } else if (card.id==='peace'){this.addLog('system','真是個平安的一天：無事發生。');}
       }
     },
-
     reviveTeam: function(teamId) {
-      for (var i = 0; i < this.teams.length; i++) {
-        if (this.teams[i].id === teamId) {
-          this.teams[i].hp = 5;
-          this.addLog('heal', '死者甦醒：' + this.teams[i].name + ' 復活，HP 恢復為 5！');
-          break;
-        }
-      }
-      this.showReviveModal = false;
-      this.deadTeams = [];
+      for (var i=0;i<this.teams.length;i++) if(this.teams[i].id===teamId){this.teams[i].hp=5;this.addLog('heal','死者甦醒：'+this.teams[i].name+' 復活，HP 恢復為 5！');break;}
+      this.showReviveModal=false; this.deadTeams=[];
     },
-
     nextPlayerTurn: function() {
-      this.saveSnapshot();
-      this.cardChoices = [];
-      this.flippedCardIndex = null;
-      var currentIdx = this.currentTeamIndex;
-      var nextIdx = -1;
-      for (var i = currentIdx + 1; i < 6; i++) {
-        if (this.teams[i].hp > 0) {
-          nextIdx = i;
-          break;
-        }
-      }
-
-      if (nextIdx !== -1) {
-        this.currentTeamIndex = nextIdx;
-        this.currentTurnType = 'player';
-        this.clearAnnouncementResult();
-        var nextTeam = this.teams[nextIdx];
-        if (nextTeam.pendingTask) {
-          this.currentPhase = 'settle';
-          this.announcement.title = '⏳ 結算上回合任務';
-          this.announcement.desc = nextTeam.name + ' 的任務：' + nextTeam.pendingTask.name;
-        } else {
-          this.currentPhase = 'roll';
-          this.announcement.title = '';
-          this.announcement.desc = '';
-          this.refreshAnnouncement();
-        }
+      this.saveSnapshot(); this.cardChoices=[]; this.flippedCardIndex=null;
+      var nextIdx=-1;
+      for (var i=this.currentTeamIndex+1;i<6;i++) if(this.teams[i].hp>0){nextIdx=i;break;}
+      if (nextIdx!==-1){
+        this.currentTeamIndex=nextIdx; this.currentTurnType='player'; this.clearAnnouncementResult();
+        var nextTeam=this.teams[nextIdx];
+        if(nextTeam.pendingTask){this.currentPhase='settle';this.announcement.title='⏳ 結算上回合任務';this.announcement.desc=nextTeam.name+' 的任務：'+nextTeam.pendingTask.name;}
+        else{this.currentPhase='roll';this.announcement.title='';this.announcement.desc='';this.refreshAnnouncement();}
       } else {
-        // All player teams done → boss turn
-        this.currentTurnType = 'boss';
-        this.announcement.title = '鬼王無慘回合';
-        this.announcement.desc = '';
-        this.clearAnnouncementResult();
-
-        if (this.bossStatus.isBossTurnSkip) {
-          this.bossStatus.isBossTurnSkip = false;
-          this.addLog('system', '白天來了：鬼王跳過本回合行動！');
-          this.announcement.result = '☀️ 白天來了：鬼王跳過！';
-          this.announcement.resultColor = 'text-yellow-400';
-          this.currentPhase = 'boss-next';
-        } else {
-          this.currentPhase = 'boss-roll';
-        }
+        this.currentTurnType='boss'; this.announcement.title='鬼王無慘回合'; this.announcement.desc=''; this.clearAnnouncementResult();
+        if(this.bossStatus.isBossTurnSkip){this.bossStatus.isBossTurnSkip=false;this.addLog('system','白天來了：鬼王跳過本回合行動！');this.announcement.result='☀️ 白天來了：鬼王跳過！';this.announcement.resultColor='text-yellow-400';this.currentPhase='boss-next';}
+        else{this.currentPhase='boss-roll';}
       }
     },
-
-    // ---- Boss Turn ----
     calcBossTargets: function() {
-      var living = this.teams.filter(function(t){ return t.hp > 0; });
-      if (living.length <= 2) return living.slice();
-      var bossPos = this.bossPosition;
-      var withDist = living.map(function(t) {
-        return { team: t, dist: ringDistance(bossPos, t.position) };
-      });
-      withDist.sort(function(a, b) {
-        if (a.dist !== b.dist) return a.dist - b.dist;
-        return a.team.id - b.team.id;
-      });
-      return [withDist[0].team, withDist[1].team];
+      var living=this.teams.filter(function(t){return t.hp>0;});
+      if(living.length<=2) return living.slice();
+      var bossPos=this.bossPosition;
+      var withDist=living.map(function(t){return{team:t,dist:ringDistance(bossPos,t.position)};});
+      withDist.sort(function(a,b){return a.dist!==b.dist?a.dist-b.dist:a.team.id-b.team.id;});
+      return [withDist[0].team,withDist[1].team];
     },
-
     bossRoll: function(n) {
-      this.saveSnapshot();
-      this.bossPosition = this.movePosition(this.bossPosition, n);
-      this.addLog('system', '鬼王無慘擲出 ' + n + '，移動到格 ' + this.bossPosition);
-      this.bossTargets = this.calcBossTargets();
-      this.currentPhase = 'boss-attack';
-      this.announcement.title = '鬼王在格 ' + this.bossPosition;
-      this.announcement.desc = '攻擊目標：' + this.bossTargets.map(function(t){ return t.name; }).join(' 和 ');
-      this.announcement.result = '';
+      this.saveSnapshot(); this.bossPosition=this.movePosition(this.bossPosition,n);
+      this.addLog('system','鬼王無慘擲出 '+n+'，移動到格 '+this.bossPosition);
+      this.bossTargets=this.calcBossTargets(); this.currentPhase='boss-attack';
+      this.announcement.title='鬼王在格 '+this.bossPosition;
+      this.announcement.desc='攻擊目標：'+this.bossTargets.map(function(t){return t.name;}).join(' 和 ');
+      this.announcement.result='';
     },
-
     bossAttack: function(n) {
       this.saveSnapshot();
-      var mult = this.bossStatus.nextAttackMultiplier;
-      var baseDmg = n * mult;
-      this.bossStatus.nextAttackMultiplier = 1;
-
-      this.addLog('damage', '鬼王無慘發動攻擊！骰子 ' + n + (mult > 1 ? ' ×' + mult : '') + ' = ' + baseDmg + ' 傷害');
-
-      for (var i = 0; i < this.bossTargets.length; i++) {
-        var targetRef = this.bossTargets[i];
-        var team = null;
-        for (var j = 0; j < this.teams.length; j++) {
-          if (this.teams[j].id === targetRef.id) { team = this.teams[j]; break; }
-        }
-        if (!team || team.hp <= 0) continue;
-        if (team.status.shieldActive) {
-          team.status.shieldActive = false;
-          this.addLog('shield', team.name + ' 的護盾擋下了攻擊！');
-        } else {
-          team.hp = Math.max(0, team.hp - baseDmg);
-          this.addLog('damage', team.name + ' 受到 ' + baseDmg + ' 點傷害，剩餘 ' + team.hp + ' HP' + (team.hp <= 0 ? '（已陣亡！）' : ''));
-        }
+      var mult=this.bossStatus.nextAttackMultiplier; var baseDmg=n*mult; this.bossStatus.nextAttackMultiplier=1;
+      this.addLog('damage','鬼王無慘發動攻擊！骰子 '+n+(mult>1?' ×'+mult:'')+' = '+baseDmg+' 傷害');
+      for (var i=0;i<this.bossTargets.length;i++){
+        var targetRef=this.bossTargets[i]; var team=null;
+        for (var j=0;j<this.teams.length;j++) if(this.teams[j].id===targetRef.id){team=this.teams[j];break;}
+        if(!team||team.hp<=0) continue;
+        if(team.status.shieldActive){team.status.shieldActive=false;this.addLog('shield',team.name+' 的護盾擋下了攻擊！');}
+        else{team.hp=Math.max(0,team.hp-baseDmg);this.addLog('damage',team.name+' 受到 '+baseDmg+' 點傷害，剩餘 '+team.hp+' HP'+(team.hp<=0?'（已陣亡！）':''));}
       }
-
-      this.announcement.result = '💥 鬼王造成 ' + baseDmg + ' 傷害！';
-      this.announcement.resultColor = 'text-red-400';
-      this.currentPhase = 'boss-next';
-      this.checkAllDead();
+      this.announcement.result='💥 鬼王造成 '+baseDmg+' 傷害！'; this.announcement.resultColor='text-red-400';
+      this.currentPhase='boss-next'; this.checkAllDead();
     },
-
     endBossTurn: function() {
-      this.saveSnapshot();
-      this.globalRound++;
-      var firstIdx = -1;
-      for (var i = 0; i < this.teams.length; i++) {
-        if (this.teams[i].hp > 0) { firstIdx = i; break; }
-      }
-      if (firstIdx === -1) {
-        this.screen = 'bossVictory';
-        return;
-      }
-      this.currentTeamIndex = firstIdx;
-      this.currentTurnType = 'player';
-      this.bossTargets = [];
-      this.addLog('system', '第 ' + this.globalRound + ' 輪開始！');
-      this.clearAnnouncementResult();
-      var firstTeam = this.teams[firstIdx];
-      if (firstTeam.pendingTask) {
-        this.currentPhase = 'settle';
-        this.announcement.title = '⏳ 結算上回合任務';
-        this.announcement.desc = firstTeam.name + ' 的任務：' + firstTeam.pendingTask.name;
-      } else {
-        this.currentPhase = 'roll';
-        this.announcement.title = '';
-        this.announcement.desc = '';
-        this.refreshAnnouncement();
-      }
+      this.saveSnapshot(); this.globalRound++;
+      var firstIdx=-1;
+      for (var i=0;i<this.teams.length;i++) if(this.teams[i].hp>0){firstIdx=i;break;}
+      if(firstIdx===-1){this.screen='bossVictory';return;}
+      this.currentTeamIndex=firstIdx; this.currentTurnType='player'; this.bossTargets=[];
+      this.addLog('system','第 '+this.globalRound+' 輪開始！'); this.clearAnnouncementResult();
+      var firstTeam=this.teams[firstIdx];
+      if(firstTeam.pendingTask){this.currentPhase='settle';this.announcement.title='⏳ 結算上回合任務';this.announcement.desc=firstTeam.name+' 的任務：'+firstTeam.pendingTask.name;}
+      else{this.currentPhase='roll';this.announcement.title='';this.announcement.desc='';this.refreshAnnouncement();}
     },
-
     checkAllDead: function() {
-      var allDead = true;
-      for (var i = 0; i < this.teams.length; i++) {
-        if (this.teams[i].hp > 0) { allDead = false; break; }
-      }
-      if (allDead) {
-        this.screen = 'bossVictory';
-      }
+      for (var i=0;i<this.teams.length;i++) if(this.teams[i].hp>0) return;
+      this.screen='bossVictory';
     },
-
-    // ---- Save / Load ----
     generateSave: function() {
-      var data = {
-        ghostKingHP: this.ghostKingHP,
-        bossPosition: this.bossPosition,
-        currentTurnType: this.currentTurnType,
-        currentTeamIndex: this.currentTeamIndex,
-        currentPhase: this.currentPhase,
-        globalRound: this.globalRound,
-        bossStatus: { nextAttackMultiplier: this.bossStatus.nextAttackMultiplier, isBossTurnSkip: this.bossStatus.isBossTurnSkip },
-        teams: this.teams.map(function(t) {
-          return {
-            id: t.id,
-            position: t.position,
-            hp: t.hp,
-            damageDealt: t.damageDealt,
-            status: { shieldActive: t.status.shieldActive, doubleDamage: t.status.doubleDamage },
-            pendingTask: t.pendingTask ? { name:t.pendingTask.name, damage:t.pendingTask.damage } : null,
-          };
-        }),
-      };
-      this.saveJsonStr = JSON.stringify(data, null, 2);
+      var data={ghostKingHP:this.ghostKingHP,bossPosition:this.bossPosition,currentTurnType:this.currentTurnType,currentTeamIndex:this.currentTeamIndex,currentPhase:this.currentPhase,globalRound:this.globalRound,bossStatus:{nextAttackMultiplier:this.bossStatus.nextAttackMultiplier,isBossTurnSkip:this.bossStatus.isBossTurnSkip},teams:this.teams.map(function(t){return{id:t.id,position:t.position,hp:t.hp,damageDealt:t.damageDealt,status:{shieldActive:t.status.shieldActive,doubleDamage:t.status.doubleDamage},pendingTask:t.pendingTask?{name:t.pendingTask.name,damage:t.pendingTask.damage}:null};})};
+      this.saveJsonStr=JSON.stringify(data,null,2);
     },
-
     loadSave: function() {
       try {
-        var data = JSON.parse(this.saveJsonStr);
-        this.ghostKingHP = data.ghostKingHP;
-        this.bossPosition = data.bossPosition;
-        this.currentTurnType = data.currentTurnType;
-        this.currentTeamIndex = data.currentTeamIndex;
-        this.currentPhase = data.currentPhase || 'roll';
-        this.globalRound = data.globalRound;
-        this.bossStatus = { nextAttackMultiplier: data.bossStatus.nextAttackMultiplier, isBossTurnSkip: data.bossStatus.isBossTurnSkip };
-        var defaults = defaultTeams();
-        this.teams = data.teams.map(function(saved) {
-          var def = null;
-          for (var i = 0; i < defaults.length; i++) {
-            if (defaults[i].id === saved.id) { def = defaults[i]; break; }
-          }
-          return {
-            id: def.id,
-            name: def.name,
-            color: def.color,
-            avatar: def.avatar,
-            position: saved.position,
-            hp: saved.hp,
-            damageDealt: saved.damageDealt,
-            status: { shieldActive: saved.status.shieldActive, doubleDamage: saved.status.doubleDamage },
-            pendingTask: saved.pendingTask || null,
-          };
-        });
-        this.bossTargets = [];
-        this.showSaveModal = false;
-        this.screen = 'game';
-        this.gameLog = [];
-        this.addLog('system', '已從存檔還原，第 ' + this.globalRound + ' 輪');
-        this.clearAnnouncementResult();
-        this.refreshAnnouncement();
-      } catch(e) {
-        alert('讀取失敗，JSON 格式錯誤：' + e.message);
-      }
+        var data=JSON.parse(this.saveJsonStr);
+        this.ghostKingHP=data.ghostKingHP;this.bossPosition=data.bossPosition;this.currentTurnType=data.currentTurnType;this.currentTeamIndex=data.currentTeamIndex;this.currentPhase=data.currentPhase||'roll';this.globalRound=data.globalRound;
+        this.bossStatus={nextAttackMultiplier:data.bossStatus.nextAttackMultiplier,isBossTurnSkip:data.bossStatus.isBossTurnSkip};
+        var defaults=defaultTeams();
+        this.teams=data.teams.map(function(saved){var def=null;for(var i=0;i<defaults.length;i++)if(defaults[i].id===saved.id){def=defaults[i];break;}return{id:def.id,name:def.name,color:def.color,avatar:def.avatar,position:saved.position,hp:saved.hp,damageDealt:saved.damageDealt,status:{shieldActive:saved.status.shieldActive,doubleDamage:saved.status.doubleDamage},pendingTask:saved.pendingTask||null};});
+        this.bossTargets=[];this.showSaveModal=false;this.screen='game';this.gameLog=[];
+        this.addLog('system','已從存檔還原，第 '+this.globalRound+' 輪');
+        this.clearAnnouncementResult();this.refreshAnnouncement();
+      } catch(e) { alert('讀取失敗，JSON 格式錯誤：'+e.message); }
     },
   },
 }).mount('#app');
