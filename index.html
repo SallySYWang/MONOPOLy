@@ -336,6 +336,11 @@ html, body {
       <button @click="startGame" class="btn btn-red" style="font-size:0.72em;padding:0.55em 2.2em;letter-spacing:0.12em">
         開始遊戲
       </button>
+      <button v-if="hasSavedGame" @click="restoreAutoSave"
+              class="btn btn-ghost"
+              style="font-size:0.62em;padding:0.45em 2em;letter-spacing:0.1em;margin-top:0.7em;display:block;width:100%">
+        ↩ 繼續上次遊戲
+      </button>
     </div>
 
     <!-- RIGHT: team roster -->
@@ -414,6 +419,7 @@ html, body {
       <div class="text-muted" style="font-size:0.5em;letter-spacing:0.14em;text-transform:uppercase;flex-shrink:0">
         RND <span class="font-display text-cream" style="font-size:1.35em">{{ globalRound }}</span>
       </div>
+      <span v-if="autoSaveMsg" style="font-size:0.42em;color:rgba(184,144,64,0.5);letter-spacing:0.08em;flex-shrink:0">{{ autoSaveMsg }}</span>
       <div class="flex gap-2" style="flex-shrink:0">
         <button @click="undoLastAction" :disabled="!lastSnapshot" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em">↩ 上一步</button>
         <button @click="showSaveModal=true" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em">存檔</button>
@@ -805,7 +811,15 @@ createApp({
       deadTeams:[], saveJsonStr:'',
       cardChoices:[], flippedCardIndex:null,
       showCrowModal:false, crowMission:null,
+      hasSavedGame:false, autoSaveMsg:'',
     };
+  },
+
+  mounted: function() {
+    try {
+      var raw = localStorage.getItem('ds_monopoly_save');
+      if (raw) { var d = JSON.parse(raw); if (d && d.screen === 'game') this.hasSavedGame = true; }
+    } catch(e) {}
   },
 
   computed: {
@@ -860,11 +874,51 @@ createApp({
       this.addLog('system','↩ 已還原上一步'); this.lastSnapshot=null;
     },
     startGame: function() {
+      localStorage.removeItem('ds_monopoly_save');
+      this.hasSavedGame=false;
       this.screen='game';
       this.addLog('system','遊戲開始！第 1 輪，從 '+this.teams[0].name+' 開始！');
       this.refreshAnnouncement();
     },
-    addLog: function(type,msg) { this.gameLog.unshift({type:type,msg:msg,time:nowStr()}); },
+    addLog: function(type,msg) {
+      this.gameLog.unshift({type:type,msg:msg,time:nowStr()});
+      if (this.screen==='game') this.autoSave();
+    },
+
+    autoSave: function() {
+      try {
+        localStorage.setItem('ds_monopoly_save', JSON.stringify({
+          screen:'game',
+          ghostKingHP:this.ghostKingHP, bossPosition:this.bossPosition,
+          currentTurnType:this.currentTurnType, currentTeamIndex:this.currentTeamIndex,
+          currentPhase:this.currentPhase, globalRound:this.globalRound,
+          bossStatus:{nextAttackMultiplier:this.bossStatus.nextAttackMultiplier,isBossTurnSkip:this.bossStatus.isBossTurnSkip},
+          teams:this.teams.map(function(t){return{id:t.id,position:t.position,hp:t.hp,damageDealt:t.damageDealt,status:{shieldActive:t.status.shieldActive,doubleDamage:t.status.doubleDamage},pendingTask:t.pendingTask?{name:t.pendingTask.name,damage:t.pendingTask.damage}:null};}),
+        }));
+        var self=this;
+        self.autoSaveMsg='● 已儲存';
+        clearTimeout(self._saveTimer);
+        self._saveTimer=setTimeout(function(){self.autoSaveMsg='';},1800);
+      } catch(e) {}
+    },
+
+    restoreAutoSave: function() {
+      try {
+        var data=JSON.parse(localStorage.getItem('ds_monopoly_save'));
+        this.ghostKingHP=data.ghostKingHP; this.bossPosition=data.bossPosition;
+        this.currentTurnType=data.currentTurnType; this.currentTeamIndex=data.currentTeamIndex;
+        this.currentPhase=data.currentPhase||'roll'; this.globalRound=data.globalRound;
+        this.bossStatus={nextAttackMultiplier:data.bossStatus.nextAttackMultiplier,isBossTurnSkip:data.bossStatus.isBossTurnSkip};
+        var defaults=defaultTeams();
+        this.teams=data.teams.map(function(saved){
+          var def=null; for(var i=0;i<defaults.length;i++)if(defaults[i].id===saved.id){def=defaults[i];break;}
+          return{id:def.id,name:def.name,color:def.color,avatar:def.avatar,position:saved.position,hp:saved.hp,damageDealt:saved.damageDealt,status:{shieldActive:saved.status.shieldActive,doubleDamage:saved.status.doubleDamage},pendingTask:saved.pendingTask||null};
+        });
+        this.bossTargets=[]; this.screen='game'; this.gameLog=[];
+        this.addLog('system','↩ 已從自動儲存還原，第 '+this.globalRound+' 輪');
+        this.clearAnnouncementResult(); this.refreshAnnouncement();
+      } catch(e) { alert('還原失敗：'+e.message); }
+    },
     logEntryClass: function(type) {
       return {damage:'text-red-400',success:'text-green-400',card:'text-yellow-400',system:'text-slate-400',fail:'text-orange-400',heal:'text-teal-400',shield:'text-cyan-400'}[type]||'text-slate-400';
     },
