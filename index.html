@@ -7,45 +7,46 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
   width: 100%; height: 100%;
-  background: #020617;
+  background: #0a0a0a;
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
+  font-family: 'Noto Sans TC', system-ui, sans-serif;
 }
 #app {
   width: min(100vw, 177.78vh);
   height: min(100vh, 56.25vw);
   font-size: min(1.8vw, 3.2vh);
   position: relative;
-  background: #020617;
+  background: #0a0a0a;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  color: #e8e2d5;
 }
-.red-glow {
-  text-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444, 0 0 40px #ef4444;
-  color: #ef4444;
+/* ── typography ── */
+.font-display { font-family: 'Bebas Neue', system-ui, sans-serif; letter-spacing: 0.03em; }
+.text-cream  { color: #e8e2d5; }
+.text-dim    { color: #555; }
+.text-muted  { color: #888; }
+.text-accent { color: #ef4444; }
+
+/* ── pulse for slash screen ── */
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
 }
-.gold-glow {
-  text-shadow: 0 0 10px #fbbf24, 0 0 20px #fbbf24;
-  color: #fbbf24;
-}
-@keyframes pulse-glow {
-  0%, 100% { text-shadow: 0 0 10px #ef4444, 0 0 30px #ef4444, 0 0 60px #ef4444; opacity: 1; }
-  50% { text-shadow: 0 0 20px #ef4444, 0 0 60px #ef4444, 0 0 100px #ef4444; opacity: 0.85; }
-}
-.slash-text {
-  animation: pulse-glow 1.5s ease-in-out infinite;
-  color: #ef4444;
-}
+.slash-text { animation: pulse-opacity 1.4s ease-in-out infinite; color: #ef4444; }
+
+/* ── board ── */
 .board-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   gap: 2px;
 }
 .board-cell {
@@ -56,186 +57,464 @@ html, body {
 .control-panel {
   grid-column: 2 / 5;
   grid-row: 2 / 5;
-  background: #020617;
-  border: 1px solid #334155;
-  border-radius: 8px;
+  background: #111;
+  border: 1px solid rgba(255,255,255,0.06);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.5em;
+  padding: 0.6em;
   overflow: hidden;
 }
-.log-container {
-  scrollbar-width: thin;
-  scrollbar-color: #334155 #0f172a;
-}
-.log-container::-webkit-scrollbar { width: 4px; }
-.log-container::-webkit-scrollbar-track { background: #0f172a; }
-.log-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+
+/* ── tokens ── */
 .token-row {
-  display: flex; flex-wrap: wrap; gap: 1px; margin-top: 2px; justify-content: center;
+  display: flex; flex-wrap: wrap; gap: 2px; margin-top: 3px; justify-content: center;
 }
 .token {
   width: 1.3em; height: 1.3em;
-  border-radius: 50%;
+  border-radius: 2px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.5em; font-weight: bold;
+  font-size: 0.46em; font-weight: 700;
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.4);
   flex-shrink: 0;
 }
 .boss-token {
-  background: #7f1d1d;
-  border: 1px solid #ef4444;
+  background: #ef4444;
+  border-radius: 2px;
 }
-.hp-bar-inner {
-  transition: width 0.5s ease;
+
+/* ── bars ── */
+.hp-bar-inner { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+
+/* ── scrollbar ── */
+.log-container { scrollbar-width: thin; scrollbar-color: #333 #111; }
+.log-container::-webkit-scrollbar { width: 3px; }
+.log-container::-webkit-scrollbar-track { background: #111; }
+.log-container::-webkit-scrollbar-thumb { background: #333; }
+
+/* ── section label ── */
+.section-label {
+  font-size: 0.48em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #444;
+  font-weight: 500;
+  margin-bottom: 0.5em;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
+
+/* ── announcement card ── */
+.announcement-card {
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 0.7em;
+}
+
+/* ── modal ── */
 .modal-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.78);
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(8px);
   display: flex; align-items: center; justify-content: center;
   z-index: 100;
 }
-.announcement-card {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  border: 1px solid #334155;
-  border-radius: 8px;
-  padding: 0.7em;
+
+/* ── flat buttons ── */
+.btn {
+  font-family: 'Noto Sans TC', system-ui, sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: #e8e2d5;
+  border-radius: 2px;
+  letter-spacing: 0.06em;
+  transition: background 0.15s, color 0.15s;
+  outline: none;
 }
+.btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.btn-red  { background: #ef4444; border-color: #ef4444; color: #fff; }
+.btn-red:hover { background: #f87171; border-color: #f87171; }
+.btn-ghost { background: transparent; border-color: rgba(255,255,255,0.18); }
+.btn-ghost:hover { background: rgba(255,255,255,0.06); }
+.btn:disabled, .btn[disabled] { opacity: 0.25; cursor: not-allowed; }
+
+/* ── dice buttons ── */
+.dice-btn {
+  font-family: 'Bebas Neue', system-ui, sans-serif;
+  font-size: 1em;
+  padding: 0.3em 0;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.12s, color 0.12s;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.dice-btn:hover { filter: brightness(1.3); }
+.dice-btn-player { background: rgba(255,255,255,0.06); color: #e8e2d5; }
+.dice-btn-boss   { background: rgba(239,68,68,0.12); color: #fca5a5; border-color: rgba(239,68,68,0.2); }
+
+/* ═══════════════════════════════════════
+   AMBIENT MOTION SYSTEM
+   Multiple independent animations running
+   simultaneously — like the Shopify
+   "Built to Last" living illustration.
+═══════════════════════════════════════ */
+
+/* 1. Particle float */
+@keyframes float-up {
+  0%   { transform: translateY(0) rotate(0deg);    opacity: 0; }
+  5%   { opacity: 0.13; }
+  95%  { opacity: 0.06; }
+  100% { transform: translateY(-105vh) rotate(18deg); opacity: 0; }
+}
+/* 2. Scan line sweeping down a panel */
+@keyframes scan-down {
+  0%   { top: -1px; opacity: 0; }
+  3%   { opacity: 1; }
+  97%  { opacity: 1; }
+  100% { top: 100%;  opacity: 0; }
+}
+/* 3. HP bar shimmer */
+@keyframes shimmer-sweep {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+/* 4. Node / token pulse ring */
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+/* 5. Ticker conveyor belt */
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+/* 6. Board cell trace flow */
+@keyframes trace-flow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+/* 7. Data node hop (dots moving between cells) */
+@keyframes data-hop {
+  0%   { transform: translateX(-120%); opacity: 0; }
+  8%   { opacity: 0.5; }
+  92%  { opacity: 0.5; }
+  100% { transform: translateX(120%);  opacity: 0; }
+}
+/* 8. Slow spin */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+/* 9. Counter-spin */
+@keyframes spin-rev {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+/* 10. Subtle breathe for active phase label */
+@keyframes breathe {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 1; }
+}
+
+/* ── 1. Ambient particle layer ── */
+.ambient-layer {
+  position: absolute; inset: 0;
+  pointer-events: none; overflow: hidden; z-index: 0;
+}
+.particle {
+  position: absolute; bottom: -2em;
+  font-family: 'Bebas Neue', monospace;
+  font-size: 0.55em;
+  color: rgba(255,255,255,0.06);
+  animation: float-up linear infinite;
+  user-select: none; pointer-events: none;
+}
+.p1  { left:  4%; animation-duration:20s; animation-delay: 0s; }
+.p2  { left: 10%; animation-duration:26s; animation-delay: 3s; }
+.p3  { left: 18%; animation-duration:17s; animation-delay: 7s; }
+.p4  { left: 27%; animation-duration:23s; animation-delay: 1s; }
+.p5  { left: 36%; animation-duration:19s; animation-delay: 9s; }
+.p6  { left: 47%; animation-duration:22s; animation-delay: 4s; }
+.p7  { left: 58%; animation-duration:16s; animation-delay: 11s; }
+.p8  { left: 68%; animation-duration:24s; animation-delay: 6s; }
+.p9  { left: 78%; animation-duration:18s; animation-delay: 2s; }
+.p10 { left: 88%; animation-duration:21s; animation-delay: 8s; }
+.p11 { left: 94%; animation-duration:15s; animation-delay: 5s; }
+.p12 { left: 32%; animation-duration:28s; animation-delay:13s; }
+
+/* ── 2. Scan line panels ── */
+.scan-panel { position: relative; overflow: hidden; }
+.scan-panel::after {
+  content: '';
+  position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.07), transparent);
+  animation: scan-down 7s ease-in-out infinite;
+  animation-delay: var(--scan-delay, 0s);
+  pointer-events: none; z-index: 2;
+}
+.scan-panel-red::after {
+  background: linear-gradient(to right, transparent, rgba(239,68,68,0.12), transparent);
+  animation: scan-down 5s ease-in-out infinite;
+}
+
+/* ── 3. HP bar shimmer overlay ── */
+.hp-shimmer {
+  position: relative; overflow: hidden;
+}
+.hp-shimmer::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer-sweep 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── 4. Pulse ring on active row ── */
+.pulse-wrap { position: relative; }
+.pulse-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  animation: pulse-ring 1.6s ease-out infinite;
+  pointer-events: none;
+}
+
+/* ── 5. Ticker conveyor belt ── */
+.ticker-wrap {
+  flex: 1; overflow: hidden; position: relative;
+  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+.ticker-inner {
+  display: inline-block; white-space: nowrap;
+  animation: ticker-scroll 22s linear infinite;
+  font-size: 0.42em; letter-spacing: 0.14em;
+  color: #252525; text-transform: uppercase;
+  font-family: 'Bebas Neue', sans-serif;
+}
+
+/* ── 6. Board cell trace border ── */
+.cell-trace {
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 100%);
+  background-size: 200% 100%;
+  animation: trace-flow 4s linear infinite;
+}
+.cell-trace-red {
+  background:
+    linear-gradient(90deg, rgba(239,68,68,0.05) 0%, rgba(239,68,68,0.14) 50%, rgba(239,68,68,0.05) 100%);
+  background-size: 200% 100%;
+  animation: trace-flow 3s linear infinite;
+}
+.cell-trace-purple {
+  background:
+    linear-gradient(90deg, rgba(167,139,250,0.05) 0%, rgba(167,139,250,0.14) 50%, rgba(167,139,250,0.05) 100%);
+  background-size: 200% 100%;
+  animation: trace-flow 5s linear infinite;
+}
+
+/* ── 7. Data stream nodes ── */
+.data-stream { position: relative; overflow: hidden; }
+.data-stream::before {
+  content: '● ─ ─ ─ ○ ─ ─ ─ ● ─ ─ ─ ○ ─ ─ ─ ●';
+  position: absolute; top: 50%; left: 0; right: 0;
+  transform: translateY(-50%);
+  font-size: 0.3em; letter-spacing: 0.2em;
+  color: rgba(239,68,68,0.18); white-space: nowrap;
+  animation: data-hop 3.5s linear infinite;
+  pointer-events: none; z-index: 1;
+}
+
+/* ── 8. Spinning decorators ── */
+.spin-cw  { display:inline-block; animation: spin-slow 6s linear infinite; }
+.spin-ccw { display:inline-block; animation: spin-rev  8s linear infinite; }
+
+/* ── 9. Breathing phase label ── */
+.breathe { animation: breathe 2s ease-in-out infinite; }
+
+/* ── 10. Active glow border on control panel ── */
+@keyframes border-glow {
+  0%, 100% { border-color: rgba(255,255,255,0.06); }
+  50%       { border-color: rgba(255,255,255,0.14); }
+}
+.control-panel { animation: border-glow 3s ease-in-out infinite; }
 </style>
 </head>
 <body>
 <div id="app">
 
   <!-- SPLASH SCREEN -->
-  <div v-if="screen === 'splash'" class="flex flex-col items-center justify-center h-full w-full bg-slate-950 px-8">
-    <div class="red-glow font-black mb-2 tracking-widest" style="font-size:2.5em">【擊殺鬼王】大富翁</div>
-    <div class="text-slate-400 mb-8" style="font-size:1em">2026 新生教會主日學製作</div>
-    <div class="grid grid-cols-2 gap-3 mb-8" style="width:min(100%,500px)">
-      <div v-for="team in teams" :key="team.id"
-           class="flex items-center gap-3 bg-slate-900 rounded-lg px-4 py-2 border border-slate-700">
-        <img :src="team.avatar" style="width:2.2em;height:2.2em;border-radius:50%;object-fit:cover;flex-shrink:0;" :style="{border: '2px solid ' + team.color}" onerror="this.style.display='none'">
-        <span class="text-white font-semibold" style="font-size:0.85em">{{ team.name }}</span>
+  <div v-if="screen === 'splash'" class="flex h-full w-full" style="padding:3em 4em;gap:4em;align-items:center">
+
+    <!-- LEFT: title block -->
+    <div style="flex:0 0 auto;max-width:45%">
+      <div class="font-display text-accent" style="font-size:5em;line-height:0.9;margin-bottom:0.12em">擊殺鬼王</div>
+      <div class="font-display text-cream" style="font-size:2.4em;letter-spacing:0.1em;margin-bottom:0.5em">大富翁</div>
+      <div class="text-muted" style="font-size:0.65em;letter-spacing:0.05em;margin-bottom:2em">鬼殺隊 · 2026 新生教會主日學製作</div>
+      <button @click="startGame" class="btn btn-red"
+              style="font-size:0.72em;padding:0.55em 2em;letter-spacing:0.1em">
+        開始遊戲
+      </button>
+    </div>
+
+    <!-- RIGHT: team list (editorial numbered style) -->
+    <div style="flex:1">
+      <div class="section-label">參賽隊伍</div>
+      <div v-for="(team, idx) in teams" :key="team.id"
+           class="flex items-center gap-3"
+           style="padding:0.4em 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <span class="font-display text-dim" style="font-size:0.7em;width:1.6em;flex-shrink:0">0{{ idx+1 }}</span>
+        <img :src="team.avatar" style="width:1.8em;height:1.8em;border-radius:50%;object-fit:cover;flex-shrink:0;opacity:0.9" :style="{outline:'1.5px solid '+team.color, outlineOffset:'1px'}" onerror="this.style.display='none'">
+        <span class="text-cream" style="font-size:0.8em;font-weight:500;flex:1">{{ team.name }}</span>
+        <span style="font-size:0.55em;letter-spacing:0.08em" :style="{color:team.color}">●</span>
       </div>
     </div>
-    <button @click="startGame"
-            class="bg-red-600 hover:bg-red-500 text-white font-bold px-10 py-2 rounded-xl transition-all"
-            style="font-size:1.1em">
-      開始遊戲
-    </button>
+
   </div>
 
   <!-- FINAL STRIKE SCREEN -->
-  <div v-else-if="screen === 'finalStrike'" class="flex flex-col items-center justify-center h-full w-full bg-black">
-    <div class="gold-glow font-black mb-4 tracking-widest" style="font-size:2em">鬼王無慘血量歸零！</div>
-    <div class="text-slate-400 mb-10" style="font-size:1.1em">全員準備好——同時揮刀！</div>
-    <div class="border-4 border-red-600 px-12 py-6 mb-10 rounded-2xl">
-      <div class="slash-text font-black tracking-widest" style="font-size:3.5em">鬼 殺 隊 ―― 斬 ！</div>
+  <div v-else-if="screen === 'finalStrike'" class="flex flex-col items-center justify-center h-full w-full" style="padding:3em">
+    <div class="text-dim" style="font-size:0.55em;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.6em">Final Strike</div>
+    <div class="font-display text-cream" style="font-size:2.2em;margin-bottom:0.1em">鬼王無慘血量歸零</div>
+    <div class="text-muted" style="font-size:0.72em;margin-bottom:2.5em">全員準備好──同時揮刀</div>
+    <div style="border-top:1px solid rgba(239,68,68,0.3);border-bottom:1px solid rgba(239,68,68,0.3);padding:0.8em 3em;margin-bottom:2.5em">
+      <div class="font-display slash-text" style="font-size:4.5em;letter-spacing:0.2em">鬼殺隊――斬！</div>
     </div>
-    <button @click="screen = 'victory'"
-            class="bg-red-700 hover:bg-red-500 text-white font-bold px-10 py-3 rounded-xl transition-all"
-            style="font-size:1.2em">
-      完 成 斬 擊
+    <button @click="screen = 'victory'" class="btn btn-red"
+            style="font-size:0.7em;padding:0.55em 2.2em;letter-spacing:0.1em">
+      完成斬擊
     </button>
   </div>
 
   <!-- VICTORY SCREEN -->
-  <div v-else-if="screen === 'victory'" class="flex flex-col items-center justify-center h-full w-full bg-slate-950">
-    <div class="gold-glow font-black mb-8 tracking-wide text-center" style="font-size:1.5em">鬼王無慘已被消滅！鬼殺隊全員英勇獲勝！</div>
-    <div style="width:min(100%,480px)">
+  <div v-else-if="screen === 'victory'" class="flex h-full w-full" style="padding:3em 5em;gap:4em;align-items:center">
+    <div style="flex:0 0 auto">
+      <div class="text-dim" style="font-size:0.55em;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.4em">Victory</div>
+      <div class="font-display text-accent" style="font-size:4.5em;line-height:0.9;margin-bottom:0.15em">鬼王<br>消滅</div>
+      <div class="text-muted" style="font-size:0.65em;margin-top:0.5em">鬼殺隊全員英勇獲勝</div>
+    </div>
+    <div style="flex:1">
+      <div class="section-label">最終排名</div>
       <div v-for="(team, idx) in rankedTeams" :key="team.id"
-           class="flex items-center gap-4 px-5 py-2 rounded-xl mb-2 border"
-           :class="victoryRowClass(idx)">
-        <span style="font-size:1.4em;width:1.5em;text-align:center">{{ rankBadge(idx) }}</span>
-        <img :src="team.avatar" style="width:2em;height:2em;border-radius:50%;object-fit:cover;flex-shrink:0;" :style="{border: '2px solid ' + team.color}" onerror="this.style.display='none'">
-        <span class="text-white font-bold flex-1" style="font-size:0.9em">{{ team.name }}</span>
-        <span v-if="idx === 0" class="text-yellow-400 font-bold" style="font-size:0.75em">最強鬼殺隊員</span>
-        <span class="text-green-400 font-bold" style="font-size:0.9em">{{ team.damageDealt }} 傷</span>
+           class="flex items-center gap-3"
+           style="padding:0.45em 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <span class="font-display text-dim" style="font-size:0.7em;width:1.6em;flex-shrink:0">0{{ idx+1 }}</span>
+        <img :src="team.avatar" style="width:1.8em;height:1.8em;border-radius:50%;object-fit:cover;flex-shrink:0" :style="{outline:'1.5px solid '+team.color,outlineOffset:'1px'}" onerror="this.style.display='none'">
+        <span class="text-cream" style="font-size:0.82em;font-weight:500;flex:1">{{ team.name }}</span>
+        <span v-if="idx===0" class="text-dim" style="font-size:0.55em;letter-spacing:0.08em;text-transform:uppercase">最強</span>
+        <span style="font-size:0.75em;font-weight:700" :style="{color:team.color}">{{ team.damageDealt }}</span>
       </div>
     </div>
   </div>
 
   <!-- BOSS VICTORY SCREEN -->
-  <div v-else-if="screen === 'bossVictory'" class="flex flex-col items-center justify-center h-full w-full bg-slate-950">
-    <div class="text-red-800 font-black tracking-widest mb-4" style="font-size:2.5em">鬼王勝利！</div>
-    <div class="text-slate-500" style="font-size:1.2em">所有隊伍已被消滅...</div>
+  <div v-else-if="screen === 'bossVictory'" class="flex flex-col items-center justify-center h-full w-full">
+    <div class="text-dim" style="font-size:0.55em;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.6em">Game Over</div>
+    <div class="font-display text-accent" style="font-size:5em;line-height:0.9;margin-bottom:0.2em">鬼王<br>勝利</div>
+    <div class="text-muted" style="font-size:0.7em;margin-top:0.5em">所有隊伍已被消滅</div>
   </div>
 
   <!-- MAIN GAME SCREEN -->
   <template v-else-if="screen === 'game'">
 
-    <!-- Top bar -->
-    <div class="flex items-center justify-between px-4 bg-slate-900 border-b border-slate-700 flex-shrink-0" style="height:7%;min-height:0">
-      <div class="text-yellow-400 font-bold" style="font-size:0.9em">大會第 {{ globalRound }} 輪</div>
-      <div class="red-glow font-black tracking-widest" style="font-size:1em">【擊殺鬼王】大富翁</div>
-      <div class="flex gap-2">
-        <button @click="undoLastAction" :disabled="!lastSnapshot"
-                class="px-3 py-1 rounded transition-all font-bold"
-                :class="lastSnapshot ? 'bg-amber-700 hover:bg-amber-600 text-white' : 'bg-slate-800 text-slate-600 cursor-not-allowed'"
-                style="font-size:0.8em">
-          ↩ 上一步
-        </button>
-        <button @click="showSaveModal = true"
-                class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded transition-all"
-                style="font-size:0.8em">
-          💾 存檔/讀檔
-        </button>
+    <!-- ① AMBIENT PARTICLE LAYER — always on, behind everything -->
+    <div class="ambient-layer" aria-hidden="true">
+      <span class="particle p1">刃</span>
+      <span class="particle p2">×</span>
+      <span class="particle p3">◆</span>
+      <span class="particle p4">●</span>
+      <span class="particle p5">—</span>
+      <span class="particle p6">刃</span>
+      <span class="particle p7">◈</span>
+      <span class="particle p8">×</span>
+      <span class="particle p9">◆</span>
+      <span class="particle p10">●</span>
+      <span class="particle p11">斬</span>
+      <span class="particle p12">○</span>
+    </div>
+
+    <!-- Top bar — ② CONVEYOR BELT TICKER in center -->
+    <div class="flex items-center gap-3 flex-shrink-0" style="height:7%;min-height:0;padding:0 1.2em;background:#0a0a0a;border-bottom:1px solid rgba(255,255,255,0.07)">
+      <div class="font-display text-cream" style="font-size:1.1em;letter-spacing:0.05em;flex-shrink:0">擊殺鬼王大富翁</div>
+
+      <!-- ② Ticker belt -->
+      <div class="ticker-wrap" style="flex:1">
+        <div class="ticker-inner">
+          KILL THE DEMON KING &nbsp;⸺&nbsp; 擊殺鬼王 &nbsp;⸺&nbsp; SLAYERS UNITE &nbsp;⸺&nbsp; 鬼殺隊集結 &nbsp;⸺&nbsp; ROUND {{ globalRound }} &nbsp;⸺&nbsp; DEMON HP {{ ghostKingHP }} &nbsp;⸺&nbsp; KILL THE DEMON KING &nbsp;⸺&nbsp; 擊殺鬼王 &nbsp;⸺&nbsp; SLAYERS UNITE &nbsp;⸺&nbsp; 鬼殺隊集結 &nbsp;⸺&nbsp; ROUND {{ globalRound }} &nbsp;⸺&nbsp; DEMON HP {{ ghostKingHP }} &nbsp;⸺&nbsp;
+        </div>
+      </div>
+
+      <div class="text-dim" style="font-size:0.52em;letter-spacing:0.12em;text-transform:uppercase;flex-shrink:0">RND <span class="text-cream font-display" style="font-size:1.3em">{{ globalRound }}</span></div>
+      <div class="flex gap-2" style="flex-shrink:0">
+        <button @click="undoLastAction" :disabled="!lastSnapshot" class="btn btn-ghost"
+                style="font-size:0.55em;padding:0.3em 0.8em">↩ 上一步</button>
+        <button @click="showSaveModal = true" class="btn btn-ghost"
+                style="font-size:0.55em;padding:0.3em 0.8em">存檔</button>
       </div>
     </div>
 
     <!-- Main 3-column layout -->
     <div class="flex flex-1 overflow-hidden">
 
-      <!-- LEFT COLUMN -->
-      <div class="flex flex-col bg-slate-950 border-r border-slate-800 overflow-y-auto log-container" style="width:30%;padding:0.5em">
+      <!-- LEFT COLUMN — ③ SCAN LINE -->
+      <div class="flex flex-col overflow-y-auto log-container scan-panel" style="width:22%;padding:0.5em 0.6em;background:#0a0a0a;border-right:1px solid rgba(255,255,255,0.06)">
 
-        <!-- Boss Card -->
-        <div class="bg-slate-900 rounded-xl border border-red-900 mb-3 flex-shrink-0" style="padding:0.6em">
+        <!-- Boss Card — ⑦ DATA STREAM + scan-red -->
+        <div class="flex-shrink-0 mb-3 data-stream scan-panel scan-panel-red" style="padding:0.5em 0;border-bottom:1px solid rgba(255,255,255,0.06)">
           <div class="flex items-center gap-2 mb-1">
-            <img :src="MUZAN_AVATAR" style="width:2.2em;height:2.2em;border-radius:50%;object-fit:cover;border:2px solid #ef4444;flex-shrink:0" onerror="this.style.display='none'">
+            <img :src="MUZAN_AVATAR" style="width:2em;height:2em;border-radius:50%;object-fit:cover;flex-shrink:0;opacity:0.9;outline:1.5px solid #ef4444;outline-offset:1px" onerror="this.style.display='none'">
             <div class="flex-1">
               <div class="flex items-center justify-between">
-                <span class="text-red-400 font-black" style="font-size:0.9em">鬼王無慘</span>
-                <span class="text-red-300 font-bold" style="font-size:0.8em">{{ ghostKingHP }}/100 HP</span>
+                <span class="text-accent" style="font-size:0.78em;font-weight:700">鬼王無慘</span>
+                <span class="font-display text-accent" style="font-size:0.9em">{{ ghostKingHP }}<span class="text-dim" style="font-size:0.7em">/100</span></span>
               </div>
             </div>
           </div>
-          <div class="w-full bg-slate-700 rounded-full mb-2" style="height:0.5em">
-            <div class="hp-bar-inner rounded-full h-full"
-                 :style="{width: Math.max(0, ghostKingHP) + '%', background: 'linear-gradient(to right, #dc2626, #ef4444)'}"></div>
+          <!-- ③ HP shimmer -->
+          <div class="w-full mb-1 hp-shimmer" style="height:2px;background:rgba(255,255,255,0.06)">
+            <div class="hp-bar-inner h-full" :style="{width:Math.max(0,ghostKingHP)+'%',background:'#ef4444'}"></div>
           </div>
           <div class="flex gap-2 flex-wrap items-center">
-            <span v-if="bossStatus.nextAttackMultiplier > 1" class="bg-indigo-900 text-indigo-300 rounded-full" style="font-size:0.65em;padding:0.2em 0.5em">🌙 夜晚 ×{{ bossStatus.nextAttackMultiplier }}</span>
-            <span v-if="bossStatus.isBossTurnSkip" class="bg-yellow-900 text-yellow-300 rounded-full" style="font-size:0.65em;padding:0.2em 0.5em">☀️ 白天跳過</span>
-            <span class="text-slate-500" style="font-size:0.65em">格 {{ bossPosition }}</span>
+            <span v-if="bossStatus.nextAttackMultiplier > 1" class="text-dim" style="font-size:0.55em;letter-spacing:0.06em">夜晚 ×{{ bossStatus.nextAttackMultiplier }}</span>
+            <span v-if="bossStatus.isBossTurnSkip" class="text-dim" style="font-size:0.55em;letter-spacing:0.06em">白天跳過</span>
+            <span class="text-dim" style="font-size:0.52em">格 {{ bossPosition }}</span>
           </div>
         </div>
 
         <!-- Teams List -->
-        <div class="flex flex-col gap-2">
-          <div v-for="team in teams" :key="team.id"
-               class="rounded-lg border transition-all"
+        <div class="flex flex-col">
+          <div v-for="(team, idx) in teams" :key="team.id"
                :class="teamRowClass(team)"
-               style="padding:0.4em">
+               style="padding:0.35em 0;border-bottom:1px solid rgba(255,255,255,0.04)">
             <div class="flex items-center gap-2 mb-1">
-              <img :src="team.avatar" style="width:1.8em;height:1.8em;border-radius:50%;object-fit:cover;flex-shrink:0;" :style="{border: '2px solid ' + team.color}" onerror="this.style.display='none'">
-              <span class="text-white font-semibold flex-1" style="font-size:0.7em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">{{ team.name }}</span>
-              <span v-if="team.hp <= 0" class="text-slate-500" style="font-size:0.6em">(已陣亡)</span>
-              <span class="font-bold" :style="{color: team.color, fontSize:'0.7em'}">{{ team.hp }}/10</span>
-            </div>
-            <div class="w-full bg-slate-700 rounded-full mb-1" style="height:0.35em">
-              <div class="hp-bar-inner rounded-full h-full"
-                   :style="{width: Math.max(0, team.hp * 10) + '%', background: team.color}"></div>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex gap-1" style="font-size:0.8em">
-                <span v-if="team.status.shieldActive" title="護盾">🛡️</span>
-                <span v-if="team.status.doubleDamage" title="雙倍攻擊">⚔️</span>
+              <span class="font-display text-dim" style="font-size:0.58em;width:1.4em;flex-shrink:0">0{{ idx+1 }}</span>
+              <!-- ④ pulse ring on active team avatar -->
+              <div style="position:relative;flex-shrink:0;width:1.6em;height:1.6em">
+                <img :src="team.avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block" :style="{opacity: team.hp>0?0.9:0.3, outline:'1.5px solid '+(team.hp>0?team.color:'#333'), outlineOffset:'1px'}" onerror="this.style.display='none'">
+                <div v-if="currentTurnType==='player' && teams[currentTeamIndex] && teams[currentTeamIndex].id===team.id && team.hp>0"
+                     style="position:absolute;inset:-3px;border-radius:50%;border:1.5px solid currentColor;animation:pulse-ring 1.6s ease-out infinite;pointer-events:none"
+                     :style="{color:team.color}"></div>
               </div>
-              <span class="text-green-400" style="font-size:0.62em">傷害: {{ team.damageDealt }}</span>
+              <span class="text-cream" style="font-size:0.7em;font-weight:500;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" :style="{opacity:team.hp>0?1:0.35}">{{ team.name }}</span>
+              <span class="font-display" style="font-size:0.75em" :style="{color:team.hp>0?team.color:'#333'}">{{ team.hp }}</span>
+            </div>
+            <div style="display:flex;gap:0.3em;align-items:center">
+              <div class="hp-shimmer" style="flex:1;height:2px;background:rgba(255,255,255,0.05)">
+                <div class="hp-bar-inner h-full" :style="{width:Math.max(0,team.hp*10)+'%',background:team.color,opacity:team.hp>0?1:0.2}"></div>
+              </div>
+              <span v-if="team.status.shieldActive" class="text-dim" style="font-size:0.5em">盾</span>
+              <span v-if="team.status.doubleDamage" class="text-accent" style="font-size:0.5em">×2</span>
+              <span class="text-dim" style="font-size:0.5em;margin-left:0.3em">{{ team.damageDealt }}</span>
             </div>
           </div>
         </div>
@@ -243,7 +522,7 @@ html, body {
       </div>
 
       <!-- CENTER COLUMN -->
-      <div class="flex flex-col items-center justify-center bg-slate-950" style="width:40%;padding:0.4em">
+      <div class="flex flex-col items-center justify-center" style="width:56%;padding:0.4em;background:#0e0e0e">
         <div style="width:100%;aspect-ratio:1/1;max-height:100%;position:relative">
           <div class="board-grid" style="height:100%;width:100%">
 
@@ -253,18 +532,19 @@ html, body {
                 <!-- Control panel: only rendered at (2,2) but spans 3x3 via CSS grid -->
                 <div v-if="row === 2 && col === 2" class="control-panel">
 
-                  <div class="text-center" style="margin-bottom:0.4em">
-                    <div class="text-slate-500" style="font-size:0.55em;letter-spacing:0.05em;margin-bottom:0.1em">現在輪到</div>
+                  <div class="text-center" style="margin-bottom:0.5em">
+                    <div class="text-dim" style="font-size:0.44em;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.2em">現在輪到</div>
                     <div v-if="currentTurnType === 'player' && teams[currentTeamIndex]"
-                         class="font-black" style="font-size:0.9em"
+                         class="font-display" style="font-size:1.4em;line-height:1"
                          :style="{color: teams[currentTeamIndex].color}">
                       {{ teams[currentTeamIndex].name }}
                     </div>
-                    <div v-else-if="currentTurnType === 'boss'" class="text-red-400 font-black" style="font-size:0.9em">👹 鬼王無慘</div>
-                    <div class="text-slate-400" style="font-size:0.65em;margin-top:0.1em">{{ phaseLabel }}</div>
-                    <div v-if="nextTurnInfo" style="margin-top:0.35em;padding-top:0.35em;border-top:1px solid #334155;">
-                      <span class="text-slate-500" style="font-size:0.55em;">下一位：</span>
-                      <span class="font-semibold" style="font-size:0.6em;" :style="{color: nextTurnInfo.color}">{{ nextTurnInfo.name }}</span>
+                    <div v-else-if="currentTurnType === 'boss'" class="font-display text-accent" style="font-size:1.4em;line-height:1">鬼王無慘</div>
+                    <div class="text-dim breathe" style="margin-top:0.3em;font-size:0.48em;letter-spacing:0.1em;text-transform:uppercase">
+                      <span class="spin-cw" style="opacity:0.4;margin-right:0.3em">◎</span>{{ phaseLabel }}<span class="spin-ccw" style="opacity:0.4;margin-left:0.3em">◎</span>
+                    </div>
+                    <div v-if="nextTurnInfo" class="text-dim" style="margin-top:0.4em;padding-top:0.3em;border-top:1px solid rgba(255,255,255,0.05);font-size:0.48em">
+                      下一位 <span style="font-weight:500" :style="{color:nextTurnInfo.color}">{{ nextTurnInfo.name }}</span>
                     </div>
                   </div>
 
@@ -273,15 +553,13 @@ html, body {
                        style="width:100%;display:flex;flex-direction:column;gap:0.3em">
                     <div class="text-yellow-300 text-center font-bold" style="font-size:0.6em;margin-bottom:0.1em">⏳ 結算上回合任務</div>
                     <div class="text-slate-300 text-center" style="font-size:0.62em;margin-bottom:0.25em">{{ teams[currentTeamIndex].pendingTask.name }}</div>
-                    <button @click="settleTaskSuccess"
-                            class="bg-green-700 hover:bg-green-500 text-white font-bold rounded transition-all w-full"
-                            style="font-size:0.8em;padding:0.4em">
-                      ✅ 任務成功
+                    <button @click="settleTaskSuccess" class="btn"
+                            style="font-size:0.72em;padding:0.45em;width:100%;border-color:rgba(34,197,94,0.3);color:#86efac">
+                      任務成功
                     </button>
-                    <button @click="settleTaskFail"
-                            class="bg-red-800 hover:bg-red-600 text-white font-bold rounded transition-all w-full"
-                            style="font-size:0.8em;padding:0.4em">
-                      ❌ 任務失敗
+                    <button @click="settleTaskFail" class="btn btn-red"
+                            style="font-size:0.72em;padding:0.45em;width:100%">
+                      任務失敗
                     </button>
                   </div>
 
@@ -290,8 +568,7 @@ html, body {
                     <div class="text-slate-400 text-center" style="font-size:0.65em;margin-bottom:0.3em">選擇骰子點數</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
                       <button v-for="n in 6" :key="n" @click="playerRoll(n)"
-                              class="bg-blue-700 hover:bg-blue-500 text-white font-bold rounded transition-all"
-                              style="font-size:0.85em;padding:0.3em 0">
+                              class="dice-btn dice-btn-player">
                         {{ n }}
                       </button>
                     </div>
@@ -301,10 +578,9 @@ html, body {
                   <div v-else-if="currentPhase === 'action' && currentTurnType === 'player' && currentSquare && (currentSquare.type === 'task' || currentSquare.type === 'start')"
                        style="width:100%;display:flex;flex-direction:column;gap:0.3em">
                     <div class="text-slate-300 text-center" style="font-size:0.6em;margin-bottom:0.25em">{{ currentSquare.desc }}</div>
-                    <button @click="startTask"
-                            class="bg-amber-600 hover:bg-amber-500 text-white font-bold rounded transition-all w-full"
-                            style="font-size:0.8em;padding:0.4em">
-                      🏃 出發執行任務！
+                    <button @click="startTask" class="btn"
+                            style="font-size:0.75em;padding:0.45em;width:100%;border-color:rgba(245,158,11,0.3);color:#fbbf24">
+                      出發執行任務
                     </button>
                   </div>
 
@@ -314,10 +590,9 @@ html, body {
                     <!-- Before cards are shown -->
                     <div v-if="cardChoices.length === 0">
                       <div class="text-purple-300 text-center" style="font-size:0.62em;margin-bottom:0.3em">{{ currentSquare.name }}</div>
-                      <button @click="prepareCards"
-                              class="bg-purple-700 hover:bg-purple-500 text-white font-bold rounded transition-all w-full"
-                              style="font-size:0.8em;padding:0.5em">
-                        🎴 翻牌
+                      <button @click="prepareCards" class="btn w-full"
+                              style="font-size:0.75em;padding:0.5em;border-color:rgba(168,85,247,0.3);color:#d8b4fe">
+                        翻牌
                       </button>
                     </div>
                     <!-- Cards face-down, pick one -->
@@ -326,15 +601,15 @@ html, body {
                       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.25em">
                         <div v-for="(c, i) in cardChoices" :key="i"
                              @click="flipCard(i)"
-                             style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;border-radius:0.375em;cursor:pointer;background:#3b0764;border:1px solid #7c3aed;font-size:1.2em;transition:transform 0.15s"
-                             onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-                          🎴
+                             style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);font-size:1.1em;transition:border-color 0.12s,background 0.12s"
+                             onmouseover="this.style.background='#222';this.style.borderColor='rgba(255,255,255,0.25)'" onmouseout="this.style.background='#1a1a1a';this.style.borderColor='rgba(255,255,255,0.1)'">
+                          ?
                         </div>
                       </div>
                     </div>
                     <!-- Card revealed -->
                     <div v-else style="text-align:center">
-                      <div :class="cardChoices[flippedCardIndex].isChance ? 'text-green-300' : 'text-purple-300'" style="font-size:0.6em;font-weight:bold;">
+                      <div :style="cardChoices[flippedCardIndex].isChance ? 'font-size:0.55em;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#86efac' : 'font-size:0.55em;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#d8b4fe'">
                         {{ cardChoices[flippedCardIndex].isChance ? '✨ 機會卡' : '⚠️ 命運卡' }}
                       </div>
                       <div class="text-white font-black" style="font-size:0.75em;margin:0.15em 0">{{ cardChoices[flippedCardIndex].card.name }}</div>
@@ -343,9 +618,8 @@ html, body {
 
                   <!-- Player NEXT -->
                   <div v-else-if="currentPhase === 'next' && currentTurnType === 'player'" style="width:100%">
-                    <button @click="nextPlayerTurn"
-                            class="bg-slate-600 hover:bg-slate-400 text-white font-bold rounded transition-all w-full"
-                            style="font-size:0.8em;padding:0.5em">
+                    <button @click="nextPlayerTurn" class="btn w-full"
+                            style="font-size:0.75em;padding:0.5em">
                       換下一位 →
                     </button>
                   </div>
@@ -355,8 +629,7 @@ html, body {
                     <div class="text-slate-400 text-center" style="font-size:0.65em;margin-bottom:0.3em">鬼王移動點數</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
                       <button v-for="n in 6" :key="n" @click="bossRoll(n)"
-                              class="bg-red-900 hover:bg-red-700 text-white font-bold rounded transition-all"
-                              style="font-size:0.85em;padding:0.3em 0">
+                              class="dice-btn dice-btn-boss">
                         {{ n }}
                       </button>
                     </div>
@@ -370,8 +643,7 @@ html, body {
                     <div class="text-slate-400 text-center" style="font-size:0.6em;margin-bottom:0.25em">傷害骰子點數</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
                       <button v-for="n in 6" :key="n" @click="bossAttack(n)"
-                              class="bg-red-900 hover:bg-red-700 text-white font-bold rounded transition-all"
-                              style="font-size:0.85em;padding:0.3em 0">
+                              class="dice-btn dice-btn-boss">
                         {{ n }}
                       </button>
                     </div>
@@ -379,9 +651,8 @@ html, body {
 
                   <!-- Boss NEXT -->
                   <div v-else-if="currentPhase === 'boss-next'" style="width:100%">
-                    <button @click="endBossTurn"
-                            class="bg-slate-600 hover:bg-slate-400 text-white font-bold rounded transition-all w-full"
-                            style="font-size:0.8em;padding:0.5em">
+                    <button @click="endBossTurn" class="btn w-full"
+                            style="font-size:0.75em;padding:0.5em">
                       換下一位 →
                     </button>
                   </div>
@@ -393,12 +664,12 @@ html, body {
 
                 <!-- Board cell -->
                 <div v-else
-                     class="board-cell rounded flex flex-col border"
+                     class="board-cell flex flex-col"
                      :class="cellClass(row, col)"
-                     style="padding:0.25em;min-width:0">
+                     style="padding:0.25em;min-width:0;border:1px solid rgba(255,255,255,0.05)">
                   <template v-if="squareAt(row, col)">
-                    <div class="text-slate-400 text-center" style="font-size:0.5em;line-height:1">格{{ squareAt(row, col).id }}</div>
-                    <div class="text-center leading-tight" style="font-size:0.48em;" :class="squareAt(row, col).type === 'start' ? 'text-yellow-400' : squareAt(row, col).type === 'card' ? 'text-purple-400' : 'text-slate-500'">{{ squareAt(row, col).type === 'start' ? '🏁' : squareAt(row, col).type === 'card' ? '🎴' : '⚔️' }}</div>
+                    <div class="text-center" style="font-size:0.4em;letter-spacing:0.04em;color:#333;line-height:1;font-family:'Bebas Neue',sans-serif">{{ squareAt(row, col).id }}</div>
+                    <div class="text-center leading-tight" style="font-size:0.5em;opacity:0.6" :style="{color: squareAt(row, col).type==='start' ? '#fbbf24' : squareAt(row, col).type==='card' ? '#a78bfa' : '#60a5fa'}">{{ squareAt(row, col).type === 'start' ? '★' : squareAt(row, col).type === 'card' ? '◈' : '×' }}</div>
                     <div class="token-row">
                       <template v-for="team in teams" :key="team.id">
                         <div v-if="team.position === squareAt(row, col).id && team.hp > 0"
@@ -418,31 +689,32 @@ html, body {
         </div>
       </div>
 
-      <!-- RIGHT COLUMN -->
-      <div class="flex flex-col bg-slate-950 border-l border-slate-800" style="width:30%">
+      <!-- RIGHT COLUMN — ③ SCAN LINE (offset timing) -->
+      <div class="flex flex-col scan-panel" style="width:22%;background:#0a0a0a;border-left:1px solid rgba(255,255,255,0.06);--scan-delay:3.5s">
+
 
         <!-- Announcement panel -->
         <div class="announcement-card flex-shrink-0" style="margin:0.5em;min-height:35%">
-          <div class="text-slate-400 font-semibold" style="font-size:0.6em;margin-bottom:0.4em;letter-spacing:0.05em;text-transform:uppercase">當前任務公告</div>
-          <div v-if="announcement.title" class="text-white font-bold" style="font-size:0.75em;margin-bottom:0.3em">{{ announcement.title }}</div>
-          <div v-if="announcement.desc" class="text-yellow-300 font-semibold" style="font-size:0.72em;line-height:1.4">{{ announcement.desc }}</div>
+          <div class="section-label">任務公告</div>
+          <div v-if="announcement.title" style="font-size:0.82em;font-weight:600;margin-bottom:0.3em;color:#e8e2d5">{{ announcement.title }}</div>
+          <div v-if="announcement.desc" style="font-size:0.68em;line-height:1.5;color:#555">{{ announcement.desc }}</div>
           <div v-if="announcement.cardType" class="rounded font-bold" style="font-size:0.65em;padding:0.2em 0.5em;margin-top:0.4em;display:inline-block"
-               :class="announcement.cardType === '機會卡' ? 'bg-green-900 text-green-300' : 'bg-purple-900 text-purple-300'">
+               :style="announcement.cardType === '機會卡' ? 'background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#86efac;border-radius:2px' : 'background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);color:#d8b4fe;border-radius:2px'"
             {{ announcement.cardType }}
           </div>
-          <div v-if="announcement.cardName" class="text-white font-black" style="font-size:1.1em;margin-top:0.2em">{{ announcement.cardName }}</div>
-          <div v-if="announcement.cardEffect" class="text-slate-300" style="font-size:0.65em;margin-top:0.2em">{{ announcement.cardEffect }}</div>
-          <div v-if="announcement.result" class="font-bold" style="font-size:0.85em;margin-top:0.4em"
-               :class="announcement.resultColor || 'text-white'">{{ announcement.result }}</div>
+          <div v-if="announcement.cardName" class="font-display text-cream" style="font-size:1.1em;margin-top:0.2em">{{ announcement.cardName }}</div>
+          <div v-if="announcement.cardEffect" class="text-muted" style="font-size:0.62em;margin-top:0.2em">{{ announcement.cardEffect }}</div>
+          <div v-if="announcement.result" style="font-size:0.88em;margin-top:0.4em;font-weight:600"
+               :class="announcement.resultColor || 'text-cream'">{{ announcement.result }}</div>
         </div>
 
         <!-- Log panel -->
         <div class="flex-1 overflow-y-auto log-container" style="padding:0 0.5em 0.5em 0.5em">
-          <div class="text-slate-500 font-semibold" style="font-size:0.58em;margin-bottom:0.3em;letter-spacing:0.05em;text-transform:uppercase">事件日誌</div>
+          <div class="section-label">事件日誌</div>
           <div v-for="(entry, idx) in gameLog" :key="idx"
                class="rounded"
                :class="logEntryClass(entry.type)"
-               style="font-size:0.62em;padding:0.15em 0.3em;margin-bottom:0.15em">
+               style="font-size:0.6em;padding:0.2em 0.4em;margin-bottom:0.1em;border-radius:2px">
             <span class="text-slate-500" style="margin-right:0.3em">{{ entry.time }}</span>
             <span>{{ entry.msg }}</span>
           </div>
@@ -453,28 +725,28 @@ html, body {
 
     <!-- SAVE/LOAD MODAL -->
     <div v-if="showSaveModal" class="modal-overlay" @click.self="showSaveModal = false">
-      <div class="bg-slate-900 border border-slate-600 rounded-2xl" style="padding:1.2em;width:min(90%,380px)">
+      <div style="padding:1.4em;width:min(90%,380px);background:#111;border:1px solid rgba(255,255,255,0.1)">
         <div class="text-white font-bold" style="font-size:1em;margin-bottom:0.6em">💾 存檔 / 讀檔</div>
         <textarea v-model="saveJsonStr"
                   class="w-full bg-slate-800 text-green-300 font-mono rounded border border-slate-600 resize-none"
                   style="height:10em;font-size:0.6em;padding:0.5em;margin-bottom:0.5em"
                   placeholder="存檔 JSON 會顯示在這裡..."></textarea>
         <div class="flex gap-2">
-          <button @click="generateSave" class="flex-1 bg-blue-700 hover:bg-blue-500 text-white font-bold py-2 rounded transition-all" style="font-size:0.78em">產生存檔</button>
-          <button @click="loadSave" class="flex-1 bg-green-700 hover:bg-green-500 text-white font-bold py-2 rounded transition-all" style="font-size:0.78em">讀取存檔</button>
-          <button @click="showSaveModal = false" class="bg-slate-700 hover:bg-slate-500 text-white rounded transition-all" style="font-size:0.78em;padding:0.3em 0.6em">✕</button>
+          <button @click="generateSave" class="btn btn-ghost flex-1" style="font-size:0.72em;padding:0.5em">產生存檔</button>
+          <button @click="loadSave" class="btn flex-1" style="font-size:0.72em;padding:0.5em;border-color:rgba(34,197,94,0.3);color:#86efac">讀取存檔</button>
+          <button @click="showSaveModal = false" class="btn btn-ghost" style="font-size:0.72em;padding:0.4em 0.8em">✕</button>
         </div>
       </div>
     </div>
 
     <!-- REVIVE SELECTION MODAL -->
     <div v-if="showReviveModal" class="modal-overlay">
-      <div class="bg-slate-900 border border-purple-600 rounded-2xl" style="padding:1.2em;min-width:200px">
+      <div style="padding:1.4em;min-width:200px;background:#111;border:1px solid rgba(255,255,255,0.1)">
         <div class="text-white font-bold" style="font-size:1em;margin-bottom:0.8em">死者甦醒：選擇復活隊伍</div>
         <div class="flex flex-col gap-2">
           <button v-for="team in deadTeams" :key="team.id" @click="reviveTeam(team.id)"
-                  class="flex items-center gap-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg border border-slate-600 transition-all"
-                  style="padding:0.5em 0.8em;font-size:0.85em">
+                  class="btn btn-ghost flex items-center gap-3"
+                  style="padding:0.5em 0.8em;font-size:0.82em;width:100%">
             <div class="rounded-full flex-shrink-0" style="width:0.7em;height:0.7em" :style="{background: team.color}"></div>
             <span class="font-semibold">{{ team.name }}</span>
           </button>
@@ -705,19 +977,16 @@ createApp({
     },
 
     victoryRowClass: function(idx) {
-      if (idx === 0) return 'bg-yellow-900 border-yellow-400';
-      if (idx === 1) return 'bg-slate-800 border-slate-500';
-      if (idx === 2) return 'bg-amber-950 border-amber-700';
-      return 'bg-slate-900 border-slate-700';
+      return '';
     },
 
     teamRowClass: function(team) {
-      if (team.hp <= 0) return 'bg-slate-900 border-slate-800 opacity-50';
+      if (team.hp <= 0) return 'opacity-40';
       var activeTeam = this.teams[this.currentTeamIndex];
       if (this.currentTurnType === 'player' && activeTeam && activeTeam.id === team.id) {
-        return 'border-yellow-400 bg-slate-800';
+        return 'ring-1 ring-yellow-400/30';
       }
-      return 'bg-slate-900 border-slate-700';
+      return '';
     },
 
     squareAt: function(row, col) {
@@ -731,10 +1000,10 @@ createApp({
 
     cellClass: function(row, col) {
       var sq = this.squareAt(row, col);
-      if (!sq) return 'bg-slate-950 border-slate-950';
-      if (sq.type === 'start') return 'bg-yellow-950 border-yellow-600';
-      if (sq.type === 'card') return 'bg-purple-950 border-purple-800';
-      return 'bg-slate-900 border-slate-700';
+      if (!sq) return '';
+      if (sq.type === 'start') return 'cell-trace';
+      if (sq.type === 'card')  return 'cell-trace-purple';
+      return 'cell-trace';
     },
 
     refreshAnnouncement: function() {
