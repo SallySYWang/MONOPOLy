@@ -644,59 +644,61 @@ html, body {
     <div class="flex flex-1 overflow-hidden">
 
       <!-- ── LEFT ── -->
-      <div class="flex flex-col overflow-y-auto log-container"
-           style="width:22%;padding:0.5em 0.6em;background:#0d0b11;border-right:1px solid rgba(194,59,43,0.1)">
+      <div class="flex flex-col"
+           style="width:22%;background:#0d0b11;border-right:1px solid rgba(194,59,43,0.1)">
 
-        <!-- Boss card -->
-        <div class="flex-shrink-0 mb-3" style="padding:0.5em 0;border-bottom:1px solid rgba(194,59,43,0.1)">
-          <div class="flex items-center gap-2 mb-1">
-            <img :src="MUZAN_AVATAR"
-                 style="width:2em;height:2em;border-radius:50%;object-fit:cover;flex-shrink:0;opacity:0.9;outline:1.5px solid #c23b2b;outline-offset:1px"
-                 onerror="this.style.display='none'">
-            <div class="flex-1">
-              <div class="flex items-center justify-between">
-                <span class="text-accent" style="font-size:0.78em;font-weight:700">鬼王無慘</span>
-                <span class="font-display text-accent" style="font-size:0.9em">{{ ghostKingHP }}<span class="text-dim" style="font-size:0.7em">/100</span></span>
-              </div>
+        <!-- Boss row -->
+        <div class="flex items-center flex-shrink-0"
+             style="padding:0.65em 0.8em;gap:0.65em;transition:background 0.2s;border-bottom:1px solid rgba(194,59,43,0.12)"
+             :style="{background:currentTurnType==='boss'?'rgba(194,59,43,0.07)':'transparent',
+                      borderLeft:currentTurnType==='boss'?'2.5px solid #c23b2b':'2.5px solid transparent'}">
+          <img :src="MUZAN_AVATAR"
+               style="width:2.6em;height:2.6em;border-radius:50%;object-fit:cover;flex-shrink:0;opacity:0.9;outline:1.5px solid #c23b2b;outline-offset:2px"
+               onerror="this.style.display='none'">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:0.76em;font-weight:700;color:#e8908a">鬼王無慘</div>
+            <div style="height:2px;background:rgba(194,59,43,0.15);margin-top:0.35em;border-radius:1px">
+              <div class="hp-bar-inner h-full" style="border-radius:1px"
+                   :style="{width:Math.max(0,ghostKingHP)+'%',background:'#c23b2b'}"></div>
+            </div>
+            <div style="margin-top:0.2em;display:flex;gap:0.4em">
+              <span v-if="bossStatus.nextAttackMultiplier>1" style="font-size:0.42em;color:rgba(194,59,43,0.6)">夜晚 ×{{ bossStatus.nextAttackMultiplier }}</span>
+              <span v-if="bossStatus.isBossTurnSkip" style="font-size:0.42em;color:rgba(184,144,64,0.5)">白天跳過</span>
             </div>
           </div>
-          <div style="height:2px;background:rgba(194,59,43,0.12);margin-bottom:0.3em">
-            <div class="hp-bar-inner h-full" :style="{width:Math.max(0,ghostKingHP)+'%',background:'#c23b2b'}"></div>
-          </div>
-          <div class="flex gap-2 flex-wrap items-center">
-            <span v-if="bossStatus.nextAttackMultiplier>1" class="text-dim" style="font-size:0.52em;letter-spacing:0.06em">夜晚 ×{{ bossStatus.nextAttackMultiplier }}</span>
-            <span v-if="bossStatus.isBossTurnSkip" class="text-dim" style="font-size:0.52em;letter-spacing:0.06em">白天跳過</span>
-            <span class="text-dim" style="font-size:0.5em">格 {{ bossPosition }}</span>
+          <div style="flex-shrink:0;text-align:right">
+            <div class="font-display text-accent" style="font-size:1.1em;line-height:1">{{ ghostKingHP }}</div>
+            <div style="font-size:0.34em;color:rgba(194,59,43,0.38);letter-spacing:0.08em;margin-top:0.1em">HP</div>
           </div>
         </div>
 
-        <!-- Teams -->
-        <div class="flex flex-col">
+        <!-- Team rows -->
+        <div class="flex flex-col overflow-y-auto log-container" style="flex:1">
           <div v-for="(team,idx) in teams" :key="team.id"
-               :class="[teamRowClass(team), flashingTeams[team.id]?'team-row-hit':'']"
-               style="padding:0.35em 0;border-bottom:1px solid rgba(194,59,43,0.05)">
-            <div class="flex items-center gap-2 mb-1">
-              <span class="font-display text-dim" style="font-size:0.58em;width:1.4em;flex-shrink:0">0{{ idx+1 }}</span>
-              <div style="position:relative;flex-shrink:0;width:1.6em;height:1.6em">
-                <img :src="team.avatar"
-                     style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block"
-                     :style="{opacity:team.hp>0?0.9:0.3,outline:'1.5px solid '+(team.hp>0?team.color:'#2a1a14'),outlineOffset:'1px'}"
-                     onerror="this.style.display='none'">
-                <div v-if="currentTurnType==='player'&&teams[currentTeamIndex]&&teams[currentTeamIndex].id===team.id&&team.hp>0"
-                     style="position:absolute;inset:-3px;border-radius:50%;border:1.5px solid currentColor;pointer-events:none"
-                     :style="{color:team.color}"></div>
+               :class="[flashingTeams[team.id]?'team-row-hit':'']"
+               style="display:flex;align-items:center;gap:0.65em;padding:0.6em 0.8em;border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.18s,border-left-color 0.18s"
+               :style="{
+                 background: currentTurnType==='player'&&teams[currentTeamIndex]&&teams[currentTeamIndex].id===team.id&&team.hp>0 ? 'rgba(255,255,255,0.055)' : 'transparent',
+                 borderLeft: currentTurnType==='player'&&teams[currentTeamIndex]&&teams[currentTeamIndex].id===team.id&&team.hp>0 ? '2.5px solid '+team.color : '2.5px solid transparent',
+                 opacity: team.hp<=0 ? 0.32 : 1
+               }">
+            <img :src="team.avatar"
+                 style="width:2.6em;height:2.6em;border-radius:50%;object-fit:cover;flex-shrink:0;display:block"
+                 :style="{outline:'1.5px solid '+(team.hp>0?team.color:'#2a1a14'),outlineOffset:'2px'}"
+                 onerror="this.style.display='none'">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:0.76em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+                   :style="{color:team.hp>0?'#e0d4c0':'#5a4a40'}">{{ team.name }}</div>
+              <div style="display:flex;align-items:center;gap:0.35em;margin-top:0.12em">
+                <span v-if="team.status.shieldActive" style="font-size:0.42em;color:#5090c8">盾</span>
+                <span v-if="team.status.doubleDamage" style="font-size:0.42em;color:#c23b2b">×2</span>
+                <span style="font-size:0.42em;color:rgba(184,144,64,0.38)">傷 {{ team.damageDealt }}</span>
               </div>
-              <span class="text-cream" style="font-size:0.7em;font-weight:500;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"
-                    :style="{opacity:team.hp>0?1:0.3}">{{ team.name }}</span>
-              <span class="font-display" style="font-size:0.75em" :style="{color:team.hp>0?team.color:'#2a1a14'}">{{ team.hp }}</span>
             </div>
-            <div style="display:flex;gap:0.3em;align-items:center">
-              <div style="flex:1;height:2px;background:rgba(194,59,43,0.08)">
-                <div class="hp-bar-inner h-full" :style="{width:Math.max(0,team.hp*10)+'%',background:team.color,opacity:team.hp>0?1:0.2}"></div>
-              </div>
-              <span v-if="team.status.shieldActive" class="text-dim" style="font-size:0.5em">盾</span>
-              <span v-if="team.status.doubleDamage" class="text-accent" style="font-size:0.5em">×2</span>
-              <span class="text-dim" style="font-size:0.5em;margin-left:0.3em">{{ team.damageDealt }}</span>
+            <div style="flex-shrink:0;text-align:right">
+              <div class="font-display" style="font-size:1.1em;line-height:1"
+                   :style="{color:team.hp>0?team.color:'#3a2a24'}">{{ team.hp }}</div>
+              <div style="font-size:0.34em;color:rgba(224,212,192,0.2);letter-spacing:0.08em;margin-top:0.1em">HP</div>
             </div>
           </div>
         </div>
