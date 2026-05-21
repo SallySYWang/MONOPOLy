@@ -451,6 +451,44 @@ html, body {
   pointer-events:none; z-index:10;
 }
 
+/* ══ C：回合過場 TURN TRANSITION ══ */
+@keyframes turn-banner-show {
+  0%   { opacity:0; transform:translateY(-0.6em) scale(0.96); }
+  18%  { opacity:1; transform:translateY(0) scale(1); }
+  80%  { opacity:1; transform:translateY(0) scale(1); }
+  100% { opacity:0; transform:translateY(0.3em) scale(0.98); }
+}
+.turn-transition-overlay {
+  position:absolute !important; inset:0;
+  background:rgba(4,2,8,0.78); backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:300; pointer-events:none;
+}
+.turn-transition-banner {
+  text-align:center;
+  animation: turn-banner-show 1.4s cubic-bezier(0.2,0.8,0.3,1) forwards;
+}
+
+/* ══ D：翻牌動畫 CARD FLIP ══ */
+@keyframes card-flip-select {
+  0%   { transform:scaleX(1) scaleY(1); }
+  35%  { transform:scaleX(0.04) scaleY(1.08); }
+  65%  { transform:scaleX(0.04) scaleY(1.08); }
+  100% { transform:scaleX(1) scaleY(1); }
+}
+.card-flipping-anim {
+  animation: card-flip-select 0.42s ease-in-out forwards;
+  pointer-events:none;
+}
+
+/* ══ E：玩家受傷閃爍 TEAM ROW HIT ══ */
+@keyframes team-row-flash {
+  0%   { box-shadow:inset 0 0 0 100vw rgba(194,59,43,0.35); }
+  100% { box-shadow:inset 0 0 0 100vw rgba(194,59,43,0); }
+}
+.team-row-hit { animation: team-row-flash 0.65s ease-out; }
+
+
 </style>
 </head>
 <body>
@@ -635,7 +673,7 @@ html, body {
         <!-- Teams -->
         <div class="flex flex-col">
           <div v-for="(team,idx) in teams" :key="team.id"
-               :class="teamRowClass(team)"
+               :class="[teamRowClass(team), flashingTeams[team.id]?'team-row-hit':'']"
                style="padding:0.35em 0;border-bottom:1px solid rgba(194,59,43,0.05)">
             <div class="flex items-center gap-2 mb-1">
               <span class="font-display text-dim" style="font-size:0.58em;width:1.4em;flex-shrink:0">0{{ idx+1 }}</span>
@@ -746,7 +784,8 @@ html, body {
                     <div v-else-if="flippedCardIndex===null">
                       <div class="text-center" style="font-size:0.58em;margin-bottom:0.3em;color:#9878c8">選一張翻開</div>
                       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.25em">
-                        <div v-for="(c,i) in cardChoices" :key="i" @click="flipCard(i)"
+                        <div v-for="(c,i) in cardChoices" :key="i" @click="startFlipCard(i)"
+                             :class="{'card-flipping-anim': flippingCardIndex===i}"
                              style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#0e0b12;border:1px solid rgba(194,59,43,0.12);font-size:1.1em;transition:border-color 0.12s,background 0.12s"
                              onmouseover="this.style.background='#1a1018';this.style.borderColor='rgba(194,59,43,0.3)'"
                              onmouseout="this.style.background='#0e0b12';this.style.borderColor='rgba(194,59,43,0.12)'">?</div>
@@ -773,7 +812,7 @@ html, body {
                        style="width:100%;position:relative;z-index:1">
                     <div class="text-center" style="font-size:0.62em;margin-bottom:0.3em;color:#6a5a50">鬼王移動點數</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
-                      <button v-for="n in 6" :key="n" @click="bossRoll(n)" class="dice-btn dice-btn-boss">{{ n }}</button>
+                      <button v-for="n in 6" :key="n" @click="bossRoll(n)" :disabled="isAnimating" class="dice-btn dice-btn-boss">{{ n }}</button>
                     </div>
                   </div>
 
@@ -826,8 +865,9 @@ html, body {
                           <img :src="team.avatar" onerror="this.style.display='none'">
                         </div>
                       </template>
-                      <div v-if="bossPosition===squareAt(row,col).id"
+                      <div v-if="bossDisplayPos===squareAt(row,col).id"
                            class="token-avatar"
+                           :class="{'token-hop':hoppingBoss}"
                            style="outline:2px solid #c23b2b;outline-offset:1px">
                         <img :src="MUZAN_AVATAR" onerror="this.style.display='none'">
                       </div>
@@ -953,6 +993,18 @@ html, body {
       </div>
     </div>
 
+    <!-- ══ C：TURN TRANSITION OVERLAY ══ -->
+    <div v-if="showTurnTransition" class="turn-transition-overlay">
+      <div class="turn-transition-banner">
+        <div style="font-size:0.4em;letter-spacing:0.24em;text-transform:uppercase;color:rgba(184,144,64,0.55);margin-bottom:0.4em">
+          {{ turnTransitionIsBoss ? 'Boss Turn' : 'Player Turn' }}
+        </div>
+        <div class="font-display" style="font-size:3.2em;line-height:1;letter-spacing:0.06em"
+             :style="{color:turnTransitionColor}">{{ turnTransitionName }}</div>
+        <div style="font-size:0.46em;letter-spacing:0.18em;color:rgba(224,212,192,0.25);margin-top:0.5em">の 回 合</div>
+      </div>
+    </div>
+
   </template>
 </div>
 
@@ -1041,6 +1093,10 @@ createApp({
       taskSuccessRolling:false,
       showCardModal:false, cardModalData:null,
       flashingCells:{}, floatingDamages:[],
+      showTurnTransition:false, turnTransitionName:'', turnTransitionColor:'#e0d4c0', turnTransitionIsBoss:false,
+      flippingCardIndex:null,
+      flashingTeams:{},
+      bossAnimatingPosition:null, hoppingBoss:false,
     };
   },
 
@@ -1071,6 +1127,9 @@ createApp({
     },
     rankedTeams: function() {
       return this.teams.slice().sort(function(a,b){return b.damageDealt-a.damageDealt;});
+    },
+    bossDisplayPos: function() {
+      return this.bossAnimatingPosition!==null ? this.bossAnimatingPosition : this.bossPosition;
     },
   },
 
@@ -1223,6 +1282,18 @@ createApp({
       }
       setTimeout(moveStep, 80);
     },
+    showTurnCard: function(name, color, isBoss) {
+      this.turnTransitionName=name; this.turnTransitionColor=color; this.turnTransitionIsBoss=isBoss;
+      this.showTurnTransition=true;
+      var self=this; if(self._turnTimer) clearTimeout(self._turnTimer);
+      self._turnTimer=setTimeout(function(){self.showTurnTransition=false;},1400);
+    },
+    startFlipCard: function(index) {
+      if(this.flippingCardIndex!==null) return;
+      this.flippingCardIndex=index;
+      var self=this;
+      setTimeout(function(){self.flippingCardIndex=null; self.flipCard(index);},420);
+    },
     closeCrowModal: function() { this.showCrowModal=false; },
     closeCardModal: function() { this.showCardModal=false; },
 
@@ -1231,13 +1302,16 @@ createApp({
       for (var i=0;i<this.teams.length;i++) if(this.teams[i].id===teamId){team=this.teams[i];break;}
       if (!team) return;
       var sqId=this.teamDisplayPos(team);
-      // flash
+      // flash cell
       var nf=Object.assign({},this.flashingCells); nf[sqId]=true; this.flashingCells=nf;
+      // flash team row (E)
+      var nt=Object.assign({},this.flashingTeams); nt[teamId]=true; this.flashingTeams=nt;
       // floating number
       var entry={id:Date.now()+Math.random(),squareId:sqId,damage:damage};
       this.floatingDamages=this.floatingDamages.concat([entry]);
       var self=this;
       setTimeout(function(){var nf2=Object.assign({},self.flashingCells);delete nf2[sqId];self.flashingCells=nf2;},650);
+      setTimeout(function(){var nt2=Object.assign({},self.flashingTeams);delete nt2[teamId];self.flashingTeams=nt2;},650);
       setTimeout(function(){self.floatingDamages=self.floatingDamages.filter(function(d){return d.id!==entry.id;});},950);
     },
 
@@ -1317,10 +1391,12 @@ createApp({
         var nextTeam=this.teams[nextIdx];
         if(nextTeam.pendingTask){this.currentPhase='settle';this.announcement.title='⏳ 結算上回合任務';this.announcement.desc=nextTeam.name+' 的任務：'+nextTeam.pendingTask.name;}
         else{this.currentPhase='roll';this.announcement.title='';this.announcement.desc='';this.refreshAnnouncement();}
+        this.showTurnCard(nextTeam.name, nextTeam.color, false);
       } else {
         this.currentTurnType='boss'; this.announcement.title='鬼王無慘回合'; this.announcement.desc=''; this.clearAnnouncementResult();
         if(this.bossStatus.isBossTurnSkip){this.bossStatus.isBossTurnSkip=false;this.addLog('system','白天來了：鬼王跳過本回合行動！');this.announcement.result='☀️ 白天來了：鬼王跳過！';this.announcement.resultColor='text-yellow-400';this.currentPhase='boss-next';}
         else{this.currentPhase='boss-roll';}
+        this.showTurnCard('鬼王無慘', '#c23b2b', true);
       }
     },
     calcBossTargets: function() {
@@ -1334,12 +1410,29 @@ createApp({
       return withDist.filter(function(x){return x.dist<=threshold;}).map(function(x){return x.team;});
     },
     bossRoll: function(n) {
-      this.saveSnapshot(); this.bossPosition=this.movePosition(this.bossPosition,n);
-      this.addLog('system','鬼王無慘擲出 '+n+'，移動到格 '+this.bossPosition);
-      this.bossTargets=this.calcBossTargets(); this.currentPhase='boss-attack';
-      this.announcement.title='鬼王在格 '+this.bossPosition;
-      this.announcement.desc='攻擊目標：'+this.bossTargets.map(function(t){return t.name;}).join(' 和 ');
-      this.announcement.result='';
+      this.saveSnapshot();
+      var startPos=this.bossPosition; var step=0; var self=this;
+      this.isAnimating=true;
+      function moveBossStep(){
+        step++;
+        var midPos=self.movePosition(startPos,step);
+        self.bossAnimatingPosition=midPos;
+        self.hoppingBoss=true;
+        setTimeout(function(){self.hoppingBoss=false;},220);
+        if(step<n){
+          setTimeout(moveBossStep,280);
+        } else {
+          setTimeout(function(){
+            self.bossPosition=midPos; self.bossAnimatingPosition=null; self.isAnimating=false;
+            self.addLog('system','鬼王無慘擲出 '+n+'，移動到格 '+midPos);
+            self.bossTargets=self.calcBossTargets(); self.currentPhase='boss-attack';
+            self.announcement.title='鬼王在格 '+midPos;
+            self.announcement.desc='攻擊目標：'+self.bossTargets.map(function(t){return t.name;}).join(' 和 ');
+            self.announcement.result='';
+          },280);
+        }
+      }
+      setTimeout(moveBossStep,80);
     },
     bossAttack: function(n) {
       this.saveSnapshot();
@@ -1365,6 +1458,7 @@ createApp({
       var firstTeam=this.teams[firstIdx];
       if(firstTeam.pendingTask){this.currentPhase='settle';this.announcement.title='⏳ 結算上回合任務';this.announcement.desc=firstTeam.name+' 的任務：'+firstTeam.pendingTask.name;}
       else{this.currentPhase='roll';this.announcement.title='';this.announcement.desc='';this.refreshAnnouncement();}
+      this.showTurnCard(firstTeam.name, firstTeam.color, false);
     },
     checkAllDead: function() {
       for (var i=0;i<this.teams.length;i++) if(this.teams[i].hp>0) return;
