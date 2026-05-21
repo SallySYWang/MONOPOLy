@@ -1091,7 +1091,7 @@ createApp({
       hasSavedGame:false, autoSaveMsg:'',
       animatingPositions:{}, hoppingTeam:null, isAnimating:false,
       taskSuccessRolling:false,
-      showCardModal:false, cardModalData:null,
+      showCardModal:false, cardModalData:null, pendingCardChoice:null,
       flashingCells:{}, floatingDamages:[],
       showTurnTransition:false, turnTransitionName:'', turnTransitionColor:'#e0d4c0', turnTransitionIsBoss:false,
       flippingCardIndex:null,
@@ -1295,7 +1295,15 @@ createApp({
       setTimeout(function(){self.flippingCardIndex=null; self.flipCard(index);},420);
     },
     closeCrowModal: function() { this.showCrowModal=false; },
-    closeCardModal: function() { this.showCardModal=false; },
+    closeCardModal: function() {
+      this.showCardModal=false;
+      if(this.pendingCardChoice){
+        var team=this.teams[this.currentTeamIndex];
+        this.applyCard(this.pendingCardChoice.card,this.pendingCardChoice.isChance,team);
+        this.pendingCardChoice=null;
+        this.currentPhase='next';
+      }
+    },
 
     triggerDamageEffect: function(teamId, damage) {
       var team=null;
@@ -1357,8 +1365,8 @@ createApp({
       this.announcement.cardType=cardType; this.announcement.cardName=choice.card.name;
       this.announcement.cardEffect=choice.card.effect; this.announcement.result='';
       this.addLog('card',team.name+' 抽到'+cardType+'：'+choice.card.name);
-      this.applyCard(choice.card,choice.isChance,team); this.currentPhase='next';
-      // show card reveal modal
+      // 先讓大家看到牌的內容，關掉 modal 後才套用效果
+      this.pendingCardChoice={card:choice.card,isChance:choice.isChance};
       this.cardModalData={isChance:choice.isChance,type:cardType,name:choice.card.name,effect:choice.card.effect};
       this.showCardModal=true;
     },
