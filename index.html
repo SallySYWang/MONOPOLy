@@ -613,17 +613,25 @@ html, body {
     </div>
     <div style="flex:1;border-left:1px solid rgba(194,59,43,0.12);padding-left:2.5em">
       <div class="section-label">最終排名</div>
+      <div style="display:grid;grid-template-columns:1.6em 1.8em 1fr auto auto auto;gap:0 0.6em;align-items:center;font-size:0.44em;letter-spacing:0.08em;text-transform:uppercase;color:rgba(184,144,64,0.4);padding:0 0 0.4em 0;margin-bottom:0.2em">
+        <span></span><span></span><span></span>
+        <span>傷害</span><span>步數</span><span style="width:2.5em;text-align:right"></span>
+      </div>
       <div v-for="(team, idx) in rankedTeams" :key="team.id"
            class="flex items-center gap-3"
-           style="padding:0.45em 0;border-bottom:1px solid rgba(194,59,43,0.06)">
+           style="padding:0.4em 0;border-bottom:1px solid rgba(194,59,43,0.06)">
         <span class="font-display text-dim" style="font-size:0.7em;width:1.6em;flex-shrink:0">0{{ idx+1 }}</span>
         <img :src="team.avatar"
              style="width:1.8em;height:1.8em;border-radius:50%;object-fit:cover;flex-shrink:0"
              :style="{outline:'1.5px solid '+team.color,outlineOffset:'1px'}"
              onerror="this.style.display='none'">
         <span class="text-cream" style="font-size:0.82em;font-weight:500;flex:1">{{ team.name }}</span>
-        <span v-if="idx===0" style="font-size:0.5em;letter-spacing:0.1em;text-transform:uppercase;color:rgba(184,144,64,0.6)">最強</span>
-        <span class="font-display" style="font-size:0.8em" :style="{color:team.color}">{{ team.damageDealt }}</span>
+        <span class="font-display" style="font-size:0.78em;width:2.2em;text-align:right" :style="{color:team.color}">{{ team.damageDealt }}</span>
+        <span class="font-display" style="font-size:0.78em;width:2.2em;text-align:right;color:rgba(184,144,64,0.7)">{{ team.totalSteps||0 }}</span>
+        <span style="font-size:0.44em;letter-spacing:0.08em;width:3.5em;text-align:right">
+          <span v-if="idx===0" style="color:rgba(184,144,64,0.7)">最強</span>
+          <span v-if="team.id===mostTraveledId" style="color:rgba(90,184,138,0.8)">最遠</span>
+        </span>
       </div>
     </div>
   </div>
@@ -654,6 +662,7 @@ html, body {
       <span v-if="autoSaveMsg" style="font-size:0.42em;color:rgba(184,144,64,0.5);letter-spacing:0.08em;flex-shrink:0">{{ autoSaveMsg }}</span>
       <div class="flex gap-2" style="flex-shrink:0">
         <button @click="undoLastAction" :disabled="!lastSnapshot" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em">↩ 上一步</button>
+        <button @click="switchLap" class="btn btn-ghost" :style="currentLap===2?'font-size:0.52em;padding:0.3em 0.8em;border-color:rgba(90,184,138,0.5);color:#5ab88a':'font-size:0.52em;padding:0.3em 0.8em'">{{ currentLap===1?'切換第二圈':'● 第二圈' }}</button>
         <button @click="showSaveModal=true" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em">存檔</button>
       </div>
     </div>
@@ -681,7 +690,9 @@ html, body {
             </div>
             <div style="margin-top:0.2em;display:flex;gap:0.4em">
               <span v-if="bossStatus.nextAttackMultiplier>1" style="font-size:0.42em;color:rgba(194,59,43,0.6)">夜晚 ×{{ bossStatus.nextAttackMultiplier }}</span>
-              <span v-if="bossStatus.isBossTurnSkip" style="font-size:0.42em;color:rgba(184,144,64,0.5)">白天跳過</span>
+              <span v-if="bossStatus.isBossTurnSkip"   style="font-size:0.42em;color:rgba(184,144,64,0.5)">白天跳過</span>
+              <span v-if="bossStatus.sealedMovement"   style="font-size:0.42em;color:rgba(90,184,138,0.6)">封印</span>
+              <span v-if="bossStatus.targetHighest"    style="font-size:0.42em;color:rgba(180,80,200,0.7)">黑死牟</span>
             </div>
           </div>
           <div style="flex-shrink:0;text-align:right">
@@ -713,8 +724,10 @@ html, body {
               <div style="font-size:0.76em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
                    :style="{color:team.hp>0?'#e0d4c0':'#5a4a40'}">{{ team.name }}</div>
               <div style="display:flex;align-items:center;gap:0.35em;margin-top:0.12em">
-                <span v-if="team.status.shieldActive" style="font-size:0.42em;color:#5090c8">盾</span>
-                <span v-if="team.status.doubleDamage" style="font-size:0.42em;color:#c23b2b">×2</span>
+                <span v-if="team.status.shieldActive"  style="font-size:0.42em;color:#5090c8">盾</span>
+                <span v-if="team.status.doubleDamage"  style="font-size:0.42em;color:#c23b2b">×2</span>
+                <span v-if="team.status.breathEnhanced" style="font-size:0.42em;color:#5ab88a">呼</span>
+                <span v-if="team.status.revengeBlade"   style="font-size:0.42em;color:#e8a84a">刃</span>
                 <span style="font-size:0.42em;color:rgba(184,144,64,0.38)">傷 {{ team.damageDealt }}</span>
               </div>
             </div>
@@ -791,9 +804,9 @@ html, body {
                   </div>
 
                   <!-- ACTION: task -->
-                  <div v-else-if="currentPhase==='action'&&currentTurnType==='player'&&currentSquare&&(currentSquare.type==='task'||currentSquare.type==='start')"
+                  <div v-else-if="currentPhase==='action'&&currentTurnType==='player'&&lapSquare&&(lapSquare.type==='task'||lapSquare.type==='start')"
                        style="width:100%;display:flex;flex-direction:column;gap:0.3em;position:relative;z-index:1">
-                    <div class="text-center" style="font-size:0.6em;margin-bottom:0.25em;color:#9a8a78">{{ currentSquare.desc }}</div>
+                    <div class="text-center" style="font-size:0.6em;margin-bottom:0.25em;color:#9a8a78">{{ lapSquare.desc }}</div>
                     <button @click="startTask" class="btn"
                             style="font-size:0.72em;padding:0.45em;width:100%;border-color:rgba(184,144,64,0.3);color:#b89040">出發執行任務</button>
                   </div>
@@ -1036,21 +1049,21 @@ var Vue3 = Vue;
 var createApp = Vue3.createApp;
 
 var SQUARES = [
-  { id:1,  type:'start', name:'START',         desc:'衝到牧師館，吃掉愛玉',               damage:10 },
-  { id:2,  type:'task',  name:'拍大合照',       desc:'衝到牧師館，拍一張大合照',           damage:10 },
-  { id:3,  type:'task',  name:'繩子接球',       desc:'衝到主日學教室，繩子接球',           damage:10 },
-  { id:4,  type:'task',  name:'找到特定物品',   desc:'衝到主日學教室，找到特定物品',       damage:10 },
-  { id:5,  type:'task',  name:'巧拼拼圖案',     desc:'衝到主日學教室，用巧拼拼圖案',       damage:10 },
-  { id:6,  type:'task',  name:'會議室背金句',   desc:'衝到會議室，背金句',                 damage:10 },
-  { id:7,  type:'task',  name:'會議室寫考卷',   desc:'衝到會議室，寫考卷',                 damage:10 },
-  { id:8,  type:'task',  name:'原地唱歌',       desc:'原地唱歌',                           damage:5  },
-  { id:9,  type:'task',  name:'金雞獨立',       desc:'原地金雞獨立',                       damage:5  },
-  { id:10, type:'card',  name:'猜拳抽卡',       desc:'原地跟鬼王猜拳，抽取隨機卡片'               },
-  { id:11, type:'task',  name:'骰子比大小',     desc:'原地跟鬼王骰子比大小',               damage:10 },
-  { id:12, type:'card',  name:'丟銅板抽卡',     desc:'原地跟鬼王拼運氣（丟銅板），抽取隨機卡片'  },
-  { id:13, type:'task',  name:'車棚揮刀50下',   desc:'衝到車棚，揮刀 50 下',               damage:10 },
-  { id:14, type:'task',  name:'車棚開合跳',     desc:'衝到車棚，開合跳',                   damage:10 },
-  { id:15, type:'task',  name:'飲料喝完',       desc:'衝到備課教室，把飲料喝完',           damage:10 },
+  { id:1,  type:'start', name:'START',         desc:'衝到牧師館，吃掉愛玉',                             name2:'START',          desc2:'衝到牧師館，帶一位工作人員回來自拍',               damage:10 },
+  { id:2,  type:'task',  name:'拍大合照',       desc:'衝到牧師館，拍一張大合照',                         name2:'創意合照',       desc2:'衝到牧師館，全隊人手一樣東西擺出創意合照',         damage:10 },
+  { id:3,  type:'task',  name:'繩子接球',       desc:'衝到主日學教室，繩子接球',                         name2:'接力搬物',       desc2:'衝到主日學教室，全隊接力每人搬一樣東西回原位',     damage:10 },
+  { id:4,  type:'task',  name:'找到特定物品',   desc:'衝到主日學教室，找到特定物品',                     name2:'找紙條',         desc2:'衝到主日學教室，找到工作人員藏的紙條並唸出來',     damage:10 },
+  { id:5,  type:'task',  name:'巧拼拼圖案',     desc:'衝到主日學教室，用巧拼拼圖案',                     name2:'自創圖案',       desc2:'衝到主日學教室，用巧拼拼出隊伍自創圖案，拍照給工作人員看', damage:10 },
+  { id:6,  type:'task',  name:'會議室背金句',   desc:'衝到會議室，背金句',                               name2:'合唱詩歌',       desc2:'衝到會議室，全隊合唱一段詩歌',                     damage:10 },
+  { id:7,  type:'task',  name:'會議室寫考卷',   desc:'衝到會議室，寫考卷',                               name2:'白板接龍',       desc2:'衝到會議室，接力白板每人寫一個鬼滅角色名',         damage:10 },
+  { id:8,  type:'task',  name:'原地唱歌',       desc:'原地唱歌',                                         name2:'隊伍舞蹈',       desc2:'原地全隊做同一個舞蹈動作 10 秒',                   damage:5  },
+  { id:9,  type:'task',  name:'金雞獨立',       desc:'原地金雞獨立',                                     name2:'全隊伏地挺身',   desc2:'原地全隊同時做伏地挺身 5 下',                      damage:5  },
+  { id:10, type:'card',  name:'猜拳抽卡',       desc:'原地跟鬼王猜拳，抽取隨機卡片'                                                                                                         },
+  { id:11, type:'task',  name:'骰子比大小',     desc:'原地跟鬼王骰子比大小',                             name2:'猜拳淘汰賽',     desc2:'原地猜拳淘汰賽，最後留下的人代表全隊',             damage:10 },
+  { id:12, type:'card',  name:'丟銅板抽卡',     desc:'原地跟鬼王拼運氣（丟銅板），抽取隨機卡片'                                                                                              },
+  { id:13, type:'task',  name:'車棚揮刀50下',   desc:'衝到車棚，揮刀 50 下',                             name2:'喊隊伍口號',     desc2:'衝到車棚，全隊一起喊隊伍口號 10 秒',               damage:10 },
+  { id:14, type:'task',  name:'車棚開合跳',     desc:'衝到車棚，開合跳',                                 name2:'最快排列',       desc2:'衝到車棚，全隊最快排成一列',                       damage:10 },
+  { id:15, type:'task',  name:'飲料喝完',       desc:'衝到備課教室，把飲料喝完',                         name2:'蓋章任務',       desc2:'衝到備課教室，找到工作人員蓋章',                   damage:10 },
   { id:16, type:'card',  name:'特殊抽卡格',     desc:'特殊任務格子：抽取隨機卡片'                },
 ];
 
@@ -1062,29 +1075,35 @@ var BOARD_LAYOUT = {
 };
 
 var CHANCE_CARDS = [
-  { id:'revive', name:'死者甦醒', effect:'復活一隊已陣亡的小組，HP 重置為 5' },
-  { id:'heal',   name:'生命藥水', effect:'本組回復 5 HP（上限 10）' },
-  { id:'shield', name:'防護盾',   effect:'獲得護盾標記，下次鬼王攻擊無效' },
-  { id:'double', name:'強化攻擊', effect:'獲得雙倍標記，任務成功時傷害加倍' },
+  { id:'revive',  name:'死者甦醒',   effect:'復活一隊已陣亡的小組，HP 重置為 5' },
+  { id:'heal',    name:'生命藥水',   effect:'本組回復 5 HP（上限 10）' },
+  { id:'shield',  name:'防護盾',     effect:'獲得護盾標記，下次鬼王攻擊無效' },
+  { id:'double',  name:'強化攻擊',   effect:'獲得雙倍標記，任務成功時傷害加倍' },
+  { id:'breath',  name:'呼吸法強化', effect:'下一次任務成功，傷害固定為 6（不受骰子影響）' },
+  { id:'revenge', name:'復仇之刃',   effect:'若本組 HP ≤ 3，下一次任務傷害 ×3；HP 較高則無效' },
+  { id:'seal',    name:'鬼王封印',   effect:'鬼王下一回合移動步數固定為 1' },
+  { id:'pillars', name:'柱的支持',   effect:'場上所有存活隊伍各立即回復 2 HP' },
 ];
 
 var FATE_CARDS = [
-  { id:'night', name:'夜晚來臨',         effect:'鬼王下一回合攻擊傷害 ×2' },
-  { id:'day',   name:'白天來了',          effect:'鬼王下一回合暫停行動' },
-  { id:'blast', name:'鬼放大招',          effect:'無慘立即對所有存活隊伍造成 3 點傷害' },
-  { id:'peace', name:'真是個平安的一天', effect:'無事發生' },
+  { id:'night',     name:'夜晚來臨',         effect:'鬼王下一回合攻擊傷害 ×2' },
+  { id:'day',       name:'白天來了',          effect:'鬼王下一回合暫停行動' },
+  { id:'blast',     name:'鬼放大招',          effect:'無慘立即對所有存活隊伍造成 3 點傷害' },
+  { id:'peace',     name:'真是個平安的一天', effect:'無事發生' },
+  { id:'regen',     name:'無慘再生',          effect:'鬼王立即回復 5 HP（上限 100）' },
+  { id:'kokushibo', name:'黑死牟降臨',        effect:'鬼王本回合攻擊目標改為血量最多的隊伍' },
 ];
 
 var MUZAN_AVATAR = 'assets/avatar-muzan.png';
 
 function defaultTeams() {
   return [
-    { id:1, name:'霞柱 ‧ 時透',   color:'#14b8a6', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/avatar-tokito.png',  pendingTask:null },
-    { id:2, name:'水柱 ‧ 義勇',   color:'#3b82f6', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/avatar-tomioka.png', pendingTask:null },
-    { id:3, name:'炎柱 ‧ 杏壽郎', color:'#f97316', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/avatar-rengoku.png', pendingTask:null },
-    { id:4, name:'蛇柱 ‧ 伊黑',   color:'#a855f7', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/avatar-iguro.png',   pendingTask:null },
-    { id:5, name:'蟲柱 ‧ 忍',     color:'#ec4899', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/avatar-shinobu.png', pendingTask:null },
-    { id:6, name:'風柱 ‧ 實彌',   color:'#22c55e', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false}, avatar:'assets/avatar-sanemi.png',  pendingTask:null },
+    { id:1, name:'霞柱 ‧ 時透',   color:'#14b8a6', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false,breathEnhanced:false,revengeBlade:false}, totalSteps:0, avatar:'assets/avatar-tokito.png',  pendingTask:null },
+    { id:2, name:'水柱 ‧ 義勇',   color:'#3b82f6', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false,breathEnhanced:false,revengeBlade:false}, totalSteps:0, avatar:'assets/avatar-tomioka.png', pendingTask:null },
+    { id:3, name:'炎柱 ‧ 杏壽郎', color:'#f97316', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false,breathEnhanced:false,revengeBlade:false}, totalSteps:0, avatar:'assets/avatar-rengoku.png', pendingTask:null },
+    { id:4, name:'蛇柱 ‧ 伊黑',   color:'#a855f7', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false,breathEnhanced:false,revengeBlade:false}, totalSteps:0, avatar:'assets/avatar-iguro.png',   pendingTask:null },
+    { id:5, name:'蟲柱 ‧ 忍',     color:'#ec4899', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false,breathEnhanced:false,revengeBlade:false}, totalSteps:0, avatar:'assets/avatar-shinobu.png', pendingTask:null },
+    { id:6, name:'風柱 ‧ 實彌',   color:'#22c55e', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false,breathEnhanced:false,revengeBlade:false}, totalSteps:0, avatar:'assets/avatar-sanemi.png',  pendingTask:null },
   ];
 }
 
@@ -1100,8 +1119,8 @@ createApp({
     return {
       screen:'splash',
       currentTurnType:'player', currentTeamIndex:0, currentPhase:'roll',
-      globalRound:1, ghostKingHP:100, bossPosition:1,
-      bossStatus:{nextAttackMultiplier:1,isBossTurnSkip:false},
+      globalRound:1, ghostKingHP:100, bossPosition:1, currentLap:1,
+      bossStatus:{nextAttackMultiplier:1,isBossTurnSkip:false,sealedMovement:false,targetHighest:false},
       MUZAN_AVATAR:MUZAN_AVATAR,
       teams:defaultTeams(),
       lastSnapshot:null, bossTargets:[],
@@ -1145,11 +1164,21 @@ createApp({
       for (var i=0;i<SQUARES.length;i++) if (SQUARES[i].id===team.position) return SQUARES[i];
       return null;
     },
+    lapSquare: function() {
+      var sq=this.currentSquare; if (!sq) return null;
+      if (sq.type==='card'||this.currentLap===1||!sq.name2) return sq;
+      return Object.assign({},sq,{name:sq.name2,desc:sq.desc2});
+    },
     phaseLabel: function() {
       return {'settle':'結算上回合任務','roll':'擲骰中','action':'行動中','next':'結算','boss-roll':'鬼王移動','boss-attack':'鬼王攻擊','boss-next':'回合結算'}[this.currentPhase]||'';
     },
     rankedTeams: function() {
       return this.teams.slice().sort(function(a,b){return b.damageDealt-a.damageDealt;});
+    },
+    mostTraveledId: function() {
+      var max=-1; var id=-1;
+      for (var i=0;i<this.teams.length;i++) if (this.teams[i].totalSteps>max){max=this.teams[i].totalSteps;id=this.teams[i].id;}
+      return id;
     },
     bossDisplayPos: function() {
       return this.bossAnimatingPosition!==null ? this.bossAnimatingPosition : this.bossPosition;
@@ -1161,11 +1190,11 @@ createApp({
       this.lastSnapshot={
         ghostKingHP:this.ghostKingHP, bossPosition:this.bossPosition,
         currentTurnType:this.currentTurnType, currentTeamIndex:this.currentTeamIndex,
-        currentPhase:this.currentPhase, globalRound:this.globalRound,
-        bossStatus:{nextAttackMultiplier:this.bossStatus.nextAttackMultiplier,isBossTurnSkip:this.bossStatus.isBossTurnSkip},
+        currentPhase:this.currentPhase, globalRound:this.globalRound, currentLap:this.currentLap,
+        bossStatus:{nextAttackMultiplier:this.bossStatus.nextAttackMultiplier,isBossTurnSkip:this.bossStatus.isBossTurnSkip,sealedMovement:this.bossStatus.sealedMovement,targetHighest:this.bossStatus.targetHighest},
         bossTargets:this.bossTargets.slice(), cardChoices:this.cardChoices.slice(),
         flippedCardIndex:this.flippedCardIndex, announcement:Object.assign({},this.announcement),
-        teams:this.teams.map(function(t){return{id:t.id,position:t.position,hp:t.hp,damageDealt:t.damageDealt,status:{shieldActive:t.status.shieldActive,doubleDamage:t.status.doubleDamage},pendingTask:t.pendingTask?{name:t.pendingTask.name,damage:t.pendingTask.damage}:null};}),
+        teams:this.teams.map(function(t){return{id:t.id,position:t.position,hp:t.hp,damageDealt:t.damageDealt,totalSteps:t.totalSteps||0,status:{shieldActive:t.status.shieldActive,doubleDamage:t.status.doubleDamage,breathEnhanced:t.status.breathEnhanced,revengeBlade:t.status.revengeBlade},pendingTask:t.pendingTask?{name:t.pendingTask.name,damage:t.pendingTask.damage}:null};}),
       };
     },
     undoLastAction: function() {
@@ -1174,13 +1203,14 @@ createApp({
       this.ghostKingHP=s.ghostKingHP; this.bossPosition=s.bossPosition;
       this.currentTurnType=s.currentTurnType; this.currentTeamIndex=s.currentTeamIndex;
       this.currentPhase=s.currentPhase; this.globalRound=s.globalRound;
-      this.bossStatus={nextAttackMultiplier:s.bossStatus.nextAttackMultiplier,isBossTurnSkip:s.bossStatus.isBossTurnSkip};
+      this.bossStatus={nextAttackMultiplier:s.bossStatus.nextAttackMultiplier,isBossTurnSkip:s.bossStatus.isBossTurnSkip,sealedMovement:s.bossStatus.sealedMovement,targetHighest:s.bossStatus.targetHighest};
+      this.currentLap=s.currentLap||1;
       this.bossTargets=s.bossTargets.slice(); this.cardChoices=s.cardChoices.slice();
       this.flippedCardIndex=s.flippedCardIndex; this.announcement=Object.assign({},s.announcement);
       var self=this;
       s.teams.forEach(function(saved){
         var team=self.teams.find(function(t){return t.id===saved.id;});
-        if (team){team.position=saved.position;team.hp=saved.hp;team.damageDealt=saved.damageDealt;team.status.shieldActive=saved.status.shieldActive;team.status.doubleDamage=saved.status.doubleDamage;team.pendingTask=saved.pendingTask||null;}
+        if (team){team.position=saved.position;team.hp=saved.hp;team.damageDealt=saved.damageDealt;team.totalSteps=saved.totalSteps||0;team.status.shieldActive=saved.status.shieldActive;team.status.doubleDamage=saved.status.doubleDamage;team.status.breathEnhanced=saved.status.breathEnhanced||false;team.status.revengeBlade=saved.status.revengeBlade||false;team.pendingTask=saved.pendingTask||null;}
       });
       this.addLog('system','↩ 已還原上一步'); this.lastSnapshot=null;
     },
@@ -1203,8 +1233,9 @@ createApp({
           ghostKingHP:this.ghostKingHP, bossPosition:this.bossPosition,
           currentTurnType:this.currentTurnType, currentTeamIndex:this.currentTeamIndex,
           currentPhase:this.currentPhase, globalRound:this.globalRound,
-          bossStatus:{nextAttackMultiplier:this.bossStatus.nextAttackMultiplier,isBossTurnSkip:this.bossStatus.isBossTurnSkip},
-          teams:this.teams.map(function(t){return{id:t.id,position:t.position,hp:t.hp,damageDealt:t.damageDealt,status:{shieldActive:t.status.shieldActive,doubleDamage:t.status.doubleDamage},pendingTask:t.pendingTask?{name:t.pendingTask.name,damage:t.pendingTask.damage}:null};}),
+          currentLap:this.currentLap,
+          bossStatus:{nextAttackMultiplier:this.bossStatus.nextAttackMultiplier,isBossTurnSkip:this.bossStatus.isBossTurnSkip,sealedMovement:this.bossStatus.sealedMovement,targetHighest:this.bossStatus.targetHighest},
+          teams:this.teams.map(function(t){return{id:t.id,position:t.position,hp:t.hp,damageDealt:t.damageDealt,totalSteps:t.totalSteps||0,status:{shieldActive:t.status.shieldActive,doubleDamage:t.status.doubleDamage,breathEnhanced:t.status.breathEnhanced,revengeBlade:t.status.revengeBlade},pendingTask:t.pendingTask?{name:t.pendingTask.name,damage:t.pendingTask.damage}:null};}),
         }));
         var self=this;
         self.autoSaveMsg='● 已儲存';
@@ -1219,11 +1250,12 @@ createApp({
         this.ghostKingHP=data.ghostKingHP; this.bossPosition=data.bossPosition;
         this.currentTurnType=data.currentTurnType; this.currentTeamIndex=data.currentTeamIndex;
         this.currentPhase=data.currentPhase||'roll'; this.globalRound=data.globalRound;
-        this.bossStatus={nextAttackMultiplier:data.bossStatus.nextAttackMultiplier,isBossTurnSkip:data.bossStatus.isBossTurnSkip};
+        this.bossStatus={nextAttackMultiplier:data.bossStatus.nextAttackMultiplier,isBossTurnSkip:data.bossStatus.isBossTurnSkip,sealedMovement:data.bossStatus.sealedMovement||false,targetHighest:data.bossStatus.targetHighest||false};
+        this.currentLap=data.currentLap||1;
         var defaults=defaultTeams();
         this.teams=data.teams.map(function(saved){
           var def=null; for(var i=0;i<defaults.length;i++)if(defaults[i].id===saved.id){def=defaults[i];break;}
-          return{id:def.id,name:def.name,color:def.color,avatar:def.avatar,position:saved.position,hp:saved.hp,damageDealt:saved.damageDealt,status:{shieldActive:saved.status.shieldActive,doubleDamage:saved.status.doubleDamage},pendingTask:saved.pendingTask||null};
+          return{id:def.id,name:def.name,color:def.color,avatar:def.avatar,position:saved.position,hp:saved.hp,damageDealt:saved.damageDealt,totalSteps:saved.totalSteps||0,status:{shieldActive:saved.status.shieldActive,doubleDamage:saved.status.doubleDamage,breathEnhanced:saved.status.breathEnhanced||false,revengeBlade:saved.status.revengeBlade||false},pendingTask:saved.pendingTask||null};
         });
         this.bossTargets=[]; this.screen='game'; this.gameLog=[];
         this.addLog('system','↩ 已從自動儲存還原，第 '+this.globalRound+' 輪');
@@ -1251,7 +1283,7 @@ createApp({
       return 'cell-trace';
     },
     refreshAnnouncement: function() {
-      var sq=this.currentSquare;
+      var sq=this.lapSquare;
       if (sq){this.announcement.title='格 '+sq.id+'：'+sq.name;this.announcement.desc=sq.desc;}
       else if (this.currentTurnType==='boss'){this.announcement.title='鬼王無慘';this.announcement.desc='鬼王行動中...';}
     },
@@ -1290,12 +1322,19 @@ createApp({
         } else {
           // animation done — commit final state
           setTimeout(function() {
+            var wrapped = (startPos - 1 + n) >= 16;
             team.position = midPos;
+            team.totalSteps = (team.totalSteps||0) + n;
             self.animatingPositions = {};
             self.isAnimating = false;
+            if (wrapped) {
+              if (team.status.shieldActive) { self.addLog('shield', team.name + ' 繞完一圈！已有護盾，護盾保留。'); }
+              else { team.status.shieldActive = true; self.addLog('shield', team.name + ' 繞完一圈！自動獲得護盾！'); }
+            }
             var sq = null;
             for (var i = 0; i < SQUARES.length; i++) if (SQUARES[i].id === midPos) { sq = SQUARES[i]; break; }
-            self.addLog('system', team.name + ' 擲出 ' + n + '，移動到格 ' + midPos + '「' + (sq ? sq.name : '') + '」');
+            var sqName = sq ? (self.currentLap===2&&sq.name2 ? sq.name2 : sq.name) : '';
+            self.addLog('system', team.name + ' 擲出 ' + n + '，移動到格 ' + midPos + '「' + sqName + '」');
             self.currentPhase = 'action';
             self.clearAnnouncementResult();
             self.refreshAnnouncement();
@@ -1348,7 +1387,7 @@ createApp({
 
     startTask: function() {
       this.saveSnapshot();
-      var team=this.teams[this.currentTeamIndex]; var sq=this.currentSquare;
+      var team=this.teams[this.currentTeamIndex]; var sq=this.lapSquare;
       team.pendingTask={name:sq.name,damage:sq.damage};
       this.addLog('system',team.name+' 出發執行任務：「'+sq.name+'」（結果下輪揭曉）');
       this.announcement.result='🏃 執行中，下輪結算'; this.announcement.resultColor='text-yellow-400';
@@ -1360,11 +1399,14 @@ createApp({
     applyTaskDamage: function(n) {
       this.saveSnapshot();
       var team=this.teams[this.currentTeamIndex]; var task=team.pendingTask;
-      var dmg=n; var doubled=false;
-      if (team.status.doubleDamage){dmg=dmg*2;doubled=true;team.status.doubleDamage=false;}
+      var dmg=n; var modNote='';
+      if (team.status.breathEnhanced){dmg=6;team.status.breathEnhanced=false;modNote=' 呼吸法強化固定 6';}
+      if (team.status.revengeBlade&&team.hp<=3){dmg=dmg*3;team.status.revengeBlade=false;modNote+=' 復仇之刃 ×3';}
+      else if(team.status.revengeBlade){team.status.revengeBlade=false;}
+      if (team.status.doubleDamage){dmg=dmg*2;team.status.doubleDamage=false;modNote+=' ×2';}
       team.damageDealt+=dmg; this.ghostKingHP=Math.max(0,this.ghostKingHP-dmg);
-      this.addLog('success',team.name+' 任務「'+task.name+'」成功！骰出 '+n+(doubled?' ×2':'')+'，造成 '+dmg+' 傷害。鬼王剩 '+this.ghostKingHP+' HP');
-      this.announcement.result='✅ 任務成功！骰出 '+n+(doubled?' ×2':'')+' → -'+dmg+' HP'; this.announcement.resultColor='text-green-400';
+      this.addLog('success',team.name+' 任務「'+task.name+'」成功！骰出 '+n+(modNote?'（'+modNote.trim()+'）':'')+'，造成 '+dmg+' 傷害。鬼王剩 '+this.ghostKingHP+' HP');
+      this.announcement.result='✅ 任務成功！造成 '+dmg+' 傷害'+(modNote?' （'+modNote.trim()+'）':''); this.announcement.resultColor='text-green-400';
       team.pendingTask=null; this.currentPhase='roll'; this.taskSuccessRolling=false;
       if (this.ghostKingHP<=0) this.screen='finalStrike';
     },
@@ -1399,6 +1441,13 @@ createApp({
         else if (card.id==='heal'){var prev=team.hp;team.hp=Math.min(10,team.hp+5);this.addLog('heal','生命藥水：'+team.name+' 回復 '+(team.hp-prev)+' HP（現在 '+team.hp+' HP）');}
         else if (card.id==='shield'){team.status.shieldActive=true;this.addLog('shield','防護盾：'+team.name+' 獲得護盾標記！');}
         else if (card.id==='double'){team.status.doubleDamage=true;this.addLog('system','強化攻擊：'+team.name+' 獲得雙倍攻擊標記！');}
+        else if (card.id==='breath'){team.status.breathEnhanced=true;this.addLog('system','呼吸法強化：'+team.name+' 下一次任務成功傷害固定為 6！');}
+        else if (card.id==='revenge'){team.status.revengeBlade=true;this.addLog('system','復仇之刃：'+team.name+' 獲得標記，HP ≤ 3 時任務傷害 ×3！');}
+        else if (card.id==='seal'){this.bossStatus.sealedMovement=true;this.addLog('system','鬼王封印：鬼王下一回合移動步數固定為 1！');}
+        else if (card.id==='pillars'){
+          this.addLog('heal','柱的支持：所有存活隊伍各回復 2 HP！');
+          for (var i=0;i<this.teams.length;i++){var t=this.teams[i];if(t.hp>0){var prev=t.hp;t.hp=Math.min(10,t.hp+2);this.addLog('heal',t.name+' 回復 '+(t.hp-prev)+' HP（現在 '+t.hp+'）');}}
+        }
       } else {
         if (card.id==='night'){this.bossStatus.nextAttackMultiplier=2;this.addLog('system','夜晚來臨：鬼王下一次攻擊傷害 ×2！');}
         else if (card.id==='day'){this.bossStatus.isBossTurnSkip=true;this.addLog('system','白天來了：鬼王下一回合將跳過行動！');}
@@ -1407,7 +1456,13 @@ createApp({
           for (var i=0;i<this.teams.length;i++){var t=this.teams[i];if(t.hp>0){if(t.status.shieldActive){t.status.shieldActive=false;this.addLog('shield',t.name+' 護盾抵擋了大招！');}else{t.hp=Math.max(0,t.hp-3);this.addLog('damage',t.name+' 受到 3 點傷害，剩餘 '+t.hp+' HP'+(t.hp<=0?'（已陣亡！）':''));this.triggerDamageEffect(t.id,3);}}}
           this.checkAllDead();
         } else if (card.id==='peace'){this.addLog('system','真是個平安的一天：無事發生。');}
+        else if (card.id==='regen'){var prev=this.ghostKingHP;this.ghostKingHP=Math.min(100,this.ghostKingHP+5);this.addLog('system','無慘再生：鬼王回復 '+(this.ghostKingHP-prev)+' HP（現在 '+this.ghostKingHP+'）！');}
+        else if (card.id==='kokushibo'){this.bossStatus.targetHighest=true;this.addLog('system','黑死牟降臨：鬼王本回合攻擊目標改為血量最多的隊伍！');}
       }
+    },
+    switchLap: function() {
+      if (this.currentLap===1){this.currentLap=2;this.addLog('system','【第二圈開始】任務內容全面更新！');}
+      else{this.currentLap=1;this.addLog('system','【切回第一圈】');}
     },
     reviveTeam: function(teamId) {
       for (var i=0;i<this.teams.length;i++) if(this.teams[i].id===teamId){this.teams[i].hp=5;this.addLog('heal','死者甦醒：'+this.teams[i].name+' 復活，HP 恢復為 5！');break;}
@@ -1432,16 +1487,22 @@ createApp({
     },
     calcBossTargets: function() {
       var living=this.teams.filter(function(t){return t.hp>0;});
-      if(living.length<=2) return living.slice();
+      if(living.length<=2){this.bossStatus.targetHighest=false;return living.slice();}
+      if(this.bossStatus.targetHighest){
+        this.bossStatus.targetHighest=false;
+        var sorted=living.slice().sort(function(a,b){return b.hp!==a.hp?b.hp-a.hp:a.id-b.id;});
+        var threshold=sorted[0].hp;
+        return sorted.filter(function(t){return t.hp>=threshold;}).slice(0,2);
+      }
       var bossPos=this.bossPosition;
       var withDist=living.map(function(t){return{team:t,dist:ringDistance(bossPos,t.position)};});
       withDist.sort(function(a,b){return a.dist!==b.dist?a.dist-b.dist:a.team.id-b.team.id;});
-      // 以最近距離為門檻，同距離的都納入攻擊範圍
       var threshold=withDist[0].dist;
       return withDist.filter(function(x){return x.dist<=threshold;}).map(function(x){return x.team;});
     },
     bossRoll: function(n) {
       this.saveSnapshot();
+      if(this.bossStatus.sealedMovement){n=1;this.bossStatus.sealedMovement=false;this.addLog('system','鬼王封印：移動步數被強制為 1！');}
       var startPos=this.bossPosition; var step=0; var self=this;
       this.isAnimating=true;
       function moveBossStep(){
@@ -1496,16 +1557,17 @@ createApp({
       this.screen='bossVictory';
     },
     generateSave: function() {
-      var data={ghostKingHP:this.ghostKingHP,bossPosition:this.bossPosition,currentTurnType:this.currentTurnType,currentTeamIndex:this.currentTeamIndex,currentPhase:this.currentPhase,globalRound:this.globalRound,bossStatus:{nextAttackMultiplier:this.bossStatus.nextAttackMultiplier,isBossTurnSkip:this.bossStatus.isBossTurnSkip},teams:this.teams.map(function(t){return{id:t.id,position:t.position,hp:t.hp,damageDealt:t.damageDealt,status:{shieldActive:t.status.shieldActive,doubleDamage:t.status.doubleDamage},pendingTask:t.pendingTask?{name:t.pendingTask.name,damage:t.pendingTask.damage}:null};})};
+      var data={ghostKingHP:this.ghostKingHP,bossPosition:this.bossPosition,currentTurnType:this.currentTurnType,currentTeamIndex:this.currentTeamIndex,currentPhase:this.currentPhase,globalRound:this.globalRound,currentLap:this.currentLap,bossStatus:{nextAttackMultiplier:this.bossStatus.nextAttackMultiplier,isBossTurnSkip:this.bossStatus.isBossTurnSkip,sealedMovement:this.bossStatus.sealedMovement,targetHighest:this.bossStatus.targetHighest},teams:this.teams.map(function(t){return{id:t.id,position:t.position,hp:t.hp,damageDealt:t.damageDealt,totalSteps:t.totalSteps||0,status:{shieldActive:t.status.shieldActive,doubleDamage:t.status.doubleDamage,breathEnhanced:t.status.breathEnhanced,revengeBlade:t.status.revengeBlade},pendingTask:t.pendingTask?{name:t.pendingTask.name,damage:t.pendingTask.damage}:null};})};
       this.saveJsonStr=JSON.stringify(data,null,2);
     },
     loadSave: function() {
       try {
         var data=JSON.parse(this.saveJsonStr);
         this.ghostKingHP=data.ghostKingHP;this.bossPosition=data.bossPosition;this.currentTurnType=data.currentTurnType;this.currentTeamIndex=data.currentTeamIndex;this.currentPhase=data.currentPhase||'roll';this.globalRound=data.globalRound;
-        this.bossStatus={nextAttackMultiplier:data.bossStatus.nextAttackMultiplier,isBossTurnSkip:data.bossStatus.isBossTurnSkip};
+        this.bossStatus={nextAttackMultiplier:data.bossStatus.nextAttackMultiplier,isBossTurnSkip:data.bossStatus.isBossTurnSkip,sealedMovement:data.bossStatus.sealedMovement||false,targetHighest:data.bossStatus.targetHighest||false};
+        this.currentLap=data.currentLap||1;
         var defaults=defaultTeams();
-        this.teams=data.teams.map(function(saved){var def=null;for(var i=0;i<defaults.length;i++)if(defaults[i].id===saved.id){def=defaults[i];break;}return{id:def.id,name:def.name,color:def.color,avatar:def.avatar,position:saved.position,hp:saved.hp,damageDealt:saved.damageDealt,status:{shieldActive:saved.status.shieldActive,doubleDamage:saved.status.doubleDamage},pendingTask:saved.pendingTask||null};});
+        this.teams=data.teams.map(function(saved){var def=null;for(var i=0;i<defaults.length;i++)if(defaults[i].id===saved.id){def=defaults[i];break;}return{id:def.id,name:def.name,color:def.color,avatar:def.avatar,position:saved.position,hp:saved.hp,damageDealt:saved.damageDealt,totalSteps:saved.totalSteps||0,status:{shieldActive:saved.status.shieldActive,doubleDamage:saved.status.doubleDamage,breathEnhanced:saved.status.breathEnhanced||false,revengeBlade:saved.status.revengeBlade||false},pendingTask:saved.pendingTask||null};});
         this.bossTargets=[];this.showSaveModal=false;this.screen='game';this.gameLog=[];
         this.addLog('system','已從存檔還原，第 '+this.globalRound+' 輪');
         this.clearAnnouncementResult();this.refreshAnnouncement();
