@@ -686,7 +686,7 @@ html, body {
             <div style="font-size:0.76em;font-weight:700;color:#e8908a">鬼王無慘</div>
             <div style="height:2px;background:rgba(194,59,43,0.15);margin-top:0.35em;border-radius:1px">
               <div class="hp-bar-inner h-full" style="border-radius:1px"
-                   :style="{width:Math.max(0,ghostKingHP)+'%',background:'#c23b2b'}"></div>
+                   :style="{width:Math.max(0,ghostKingHP/60*100)+'%',background:'#c23b2b'}"></div>
             </div>
             <div style="margin-top:0.2em;display:flex;gap:0.4em">
               <span v-if="bossStatus.nextAttackMultiplier>1" style="font-size:0.42em;color:rgba(194,59,43,0.6)">夜晚 ×{{ bossStatus.nextAttackMultiplier }}</span>
@@ -1044,6 +1044,7 @@ html, body {
   </template>
 </div>
 
+<script src="game-logic.js"></script>
 <script>
 var Vue3 = Vue;
 var createApp = Vue3.createApp;
@@ -1107,7 +1108,7 @@ function defaultTeams() {
   ];
 }
 
-function ringDistance(a,b) { var d=Math.abs(a-b); return Math.min(d,16-d); }
+var ringDistance = GameLogic.ringDistance;
 
 function nowStr() {
   var d=new Date();
@@ -1119,7 +1120,7 @@ createApp({
     return {
       screen:'splash',
       currentTurnType:'player', currentTeamIndex:0, currentPhase:'roll',
-      globalRound:1, ghostKingHP:100, bossPosition:1, currentLap:1,
+      globalRound:1, ghostKingHP:60, bossPosition:1, currentLap:1,
       bossStatus:{nextAttackMultiplier:1,isBossTurnSkip:false,sealedMovement:false,targetHighest:false},
       MUZAN_AVATAR:MUZAN_AVATAR,
       teams:defaultTeams(),
@@ -1290,7 +1291,7 @@ createApp({
     clearAnnouncementResult: function() {
       this.announcement.cardType='';this.announcement.cardName='';this.announcement.cardEffect='';this.announcement.result='';this.announcement.resultColor='';
     },
-    movePosition: function(pos,steps) { return ((pos-1+steps)%16)+1; },
+    movePosition: function(pos,steps) { return GameLogic.movePosition(pos,steps); },
 
     teamDisplayPos: function(team) {
       return this.animatingPositions[team.id] !== undefined
@@ -1399,11 +1400,11 @@ createApp({
     applyTaskDamage: function(n) {
       this.saveSnapshot();
       var team=this.teams[this.currentTeamIndex]; var task=team.pendingTask;
-      var dmg=n; var modNote='';
-      if (team.status.breathEnhanced){dmg=6;team.status.breathEnhanced=false;modNote=' 呼吸法強化固定 6';}
-      if (team.status.revengeBlade&&team.hp<=3){dmg=dmg*3;team.status.revengeBlade=false;modNote+=' 復仇之刃 ×3';}
-      else if(team.status.revengeBlade){team.status.revengeBlade=false;}
-      if (team.status.doubleDamage){dmg=dmg*2;team.status.doubleDamage=false;modNote+=' ×2';}
+      var result=GameLogic.calcTaskDamage(n,team.status,team.hp);
+      var dmg=result.damage; var modNote=result.notes.join(' ');
+      team.status.breathEnhanced=result.status.breathEnhanced;
+      team.status.revengeBlade=result.status.revengeBlade;
+      team.status.doubleDamage=result.status.doubleDamage;
       team.damageDealt+=dmg; this.ghostKingHP=Math.max(0,this.ghostKingHP-dmg);
       this.addLog('success',team.name+' 任務「'+task.name+'」成功！骰出 '+n+(modNote?'（'+modNote.trim()+'）':'')+'，造成 '+dmg+' 傷害。鬼王剩 '+this.ghostKingHP+' HP');
       this.announcement.result='✅ 任務成功！造成 '+dmg+' 傷害'+(modNote?' （'+modNote.trim()+'）':''); this.announcement.resultColor='text-green-400';
@@ -1438,7 +1439,7 @@ createApp({
     applyCard: function(card,isChance,team) {
       if (isChance) {
         if (card.id==='revive'){var dead=this.teams.filter(function(t){return t.hp<=0;});if(dead.length===0){this.addLog('system','死者甦醒：目前沒有陣亡隊伍，無效果。');}else if(dead.length===1){dead[0].hp=5;this.addLog('heal','死者甦醒：'+dead[0].name+' 復活，HP 恢復為 5！');}else{this.deadTeams=dead;this.showReviveModal=true;}}
-        else if (card.id==='heal'){var prev=team.hp;team.hp=Math.min(10,team.hp+5);this.addLog('heal','生命藥水：'+team.name+' 回復 '+(team.hp-prev)+' HP（現在 '+team.hp+' HP）');}
+        else if (card.id==='heal'){var prev=team.hp;team.hp=GameLogic.applyHeal(team.hp,5,10);this.addLog('heal','生命藥水：'+team.name+' 回復 '+(team.hp-prev)+' HP（現在 '+team.hp+' HP）');}
         else if (card.id==='shield'){team.status.shieldActive=true;this.addLog('shield','防護盾：'+team.name+' 獲得護盾標記！');}
         else if (card.id==='double'){team.status.doubleDamage=true;this.addLog('system','強化攻擊：'+team.name+' 獲得雙倍攻擊標記！');}
         else if (card.id==='breath'){team.status.breathEnhanced=true;this.addLog('system','呼吸法強化：'+team.name+' 下一次任務成功傷害固定為 6！');}
@@ -1446,17 +1447,19 @@ createApp({
         else if (card.id==='seal'){this.bossStatus.sealedMovement=true;this.addLog('system','鬼王封印：鬼王下一回合移動步數固定為 1！');}
         else if (card.id==='pillars'){
           this.addLog('heal','柱的支持：所有存活隊伍各回復 2 HP！');
-          for (var i=0;i<this.teams.length;i++){var t=this.teams[i];if(t.hp>0){var prev=t.hp;t.hp=Math.min(10,t.hp+2);this.addLog('heal',t.name+' 回復 '+(t.hp-prev)+' HP（現在 '+t.hp+'）');}}
+          var pillarsResults=GameLogic.applyPillars(this.teams);
+          for (var i=0;i<pillarsResults.length;i++){var pr=pillarsResults[i];var t=null;for(var j=0;j<this.teams.length;j++)if(this.teams[j].id===pr.teamId){t=this.teams[j];break;}if(!t)continue;var prev=t.hp;t.hp=pr.newHP;this.addLog('heal',t.name+' 回復 '+(t.hp-prev)+' HP（現在 '+t.hp+'）');}
         }
       } else {
         if (card.id==='night'){this.bossStatus.nextAttackMultiplier=2;this.addLog('system','夜晚來臨：鬼王下一次攻擊傷害 ×2！');}
         else if (card.id==='day'){this.bossStatus.isBossTurnSkip=true;this.addLog('system','白天來了：鬼王下一回合將跳過行動！');}
         else if (card.id==='blast'){
           this.addLog('damage','鬼放大招：無慘對所有存活隊伍造成 3 點傷害！');
-          for (var i=0;i<this.teams.length;i++){var t=this.teams[i];if(t.hp>0){if(t.status.shieldActive){t.status.shieldActive=false;this.addLog('shield',t.name+' 護盾抵擋了大招！');}else{t.hp=Math.max(0,t.hp-3);this.addLog('damage',t.name+' 受到 3 點傷害，剩餘 '+t.hp+' HP'+(t.hp<=0?'（已陣亡！）':''));this.triggerDamageEffect(t.id,3);}}}
+          var blastResults=GameLogic.applyBlast(this.teams);
+          for (var i=0;i<blastResults.length;i++){var br=blastResults[i];var t=null;for(var j=0;j<this.teams.length;j++)if(this.teams[j].id===br.teamId){t=this.teams[j];break;}if(!t)continue;if(br.shieldConsumed){t.status.shieldActive=false;this.addLog('shield',t.name+' 護盾抵擋了大招！');}else{t.hp=br.newHP;this.addLog('damage',t.name+' 受到 3 點傷害，剩餘 '+t.hp+' HP'+(t.hp<=0?'（已陣亡！）':''));this.triggerDamageEffect(t.id,3);}}
           this.checkAllDead();
         } else if (card.id==='peace'){this.addLog('system','真是個平安的一天：無事發生。');}
-        else if (card.id==='regen'){var prev=this.ghostKingHP;this.ghostKingHP=Math.min(100,this.ghostKingHP+5);this.addLog('system','無慘再生：鬼王回復 '+(this.ghostKingHP-prev)+' HP（現在 '+this.ghostKingHP+'）！');}
+        else if (card.id==='regen'){var prev=this.ghostKingHP;this.ghostKingHP=GameLogic.applyRegen(this.ghostKingHP,5,60);this.addLog('system','無慘再生：鬼王回復 '+(this.ghostKingHP-prev)+' HP（現在 '+this.ghostKingHP+'）！');}
         else if (card.id==='kokushibo'){this.bossStatus.targetHighest=true;this.addLog('system','黑死牟降臨：鬼王本回合攻擊目標改為血量最多的隊伍！');}
       }
     },
@@ -1486,19 +1489,9 @@ createApp({
       }
     },
     calcBossTargets: function() {
-      var living=this.teams.filter(function(t){return t.hp>0;});
-      if(living.length<=2){this.bossStatus.targetHighest=false;return living.slice();}
-      if(this.bossStatus.targetHighest){
-        this.bossStatus.targetHighest=false;
-        var sorted=living.slice().sort(function(a,b){return b.hp!==a.hp?b.hp-a.hp:a.id-b.id;});
-        var threshold=sorted[0].hp;
-        return sorted.filter(function(t){return t.hp>=threshold;}).slice(0,2);
-      }
-      var bossPos=this.bossPosition;
-      var withDist=living.map(function(t){return{team:t,dist:ringDistance(bossPos,t.position)};});
-      withDist.sort(function(a,b){return a.dist!==b.dist?a.dist-b.dist:a.team.id-b.team.id;});
-      var threshold=withDist[0].dist;
-      return withDist.filter(function(x){return x.dist<=threshold;}).map(function(x){return x.team;});
+      var targets=GameLogic.calcBossTargets(this.bossPosition,this.bossStatus.targetHighest,this.teams);
+      this.bossStatus.targetHighest=false;
+      return targets;
     },
     bossRoll: function(n) {
       this.saveSnapshot();
@@ -1530,12 +1523,15 @@ createApp({
       this.saveSnapshot();
       var mult=this.bossStatus.nextAttackMultiplier; var baseDmg=n*mult; this.bossStatus.nextAttackMultiplier=1;
       this.addLog('damage','鬼王無慘發動攻擊！骰子 '+n+(mult>1?' ×'+mult:'')+' = '+baseDmg+' 傷害');
-      for (var i=0;i<this.bossTargets.length;i++){
-        var targetRef=this.bossTargets[i]; var team=null;
-        for (var j=0;j<this.teams.length;j++) if(this.teams[j].id===targetRef.id){team=this.teams[j];break;}
-        if(!team||team.hp<=0) continue;
-        if(team.status.shieldActive){team.status.shieldActive=false;this.addLog('shield',team.name+' 的護盾擋下了攻擊！');}
-        else{team.hp=Math.max(0,team.hp-baseDmg);this.addLog('damage',team.name+' 受到 '+baseDmg+' 點傷害，剩餘 '+team.hp+' HP'+(team.hp<=0?'（已陣亡！）':''));this.triggerDamageEffect(team.id,baseDmg);}
+      var self=this;
+      var currentTargets=this.bossTargets.map(function(ref){return self.teams.find(function(t){return t.id===ref.id;});}).filter(function(t){return t&&t.hp>0;});
+      var attackResults=GameLogic.applyBossAttack(currentTargets,baseDmg);
+      for (var i=0;i<attackResults.length;i++){
+        var r=attackResults[i]; var team=null;
+        for (var j=0;j<this.teams.length;j++) if(this.teams[j].id===r.teamId){team=this.teams[j];break;}
+        if(!team) continue;
+        if(r.shieldConsumed){team.status.shieldActive=false;this.addLog('shield',team.name+' 的護盾擋下了攻擊！');}
+        else{team.hp=r.newHP;this.addLog('damage',team.name+' 受到 '+baseDmg+' 點傷害，剩餘 '+team.hp+' HP'+(team.hp<=0?'（已陣亡！）':''));this.triggerDamageEffect(team.id,baseDmg);}
       }
       this.announcement.result='💥 鬼王造成 '+baseDmg+' 傷害！'; this.announcement.resultColor='text-red-400';
       this.currentPhase='boss-next'; this.checkAllDead();
