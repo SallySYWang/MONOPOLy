@@ -806,7 +806,12 @@ html, body {
                   <!-- ACTION: task -->
                   <div v-else-if="currentPhase==='action'&&currentTurnType==='player'&&lapSquare&&(lapSquare.type==='task'||lapSquare.type==='start')"
                        style="width:100%;display:flex;flex-direction:column;gap:0.3em;position:relative;z-index:1">
-                    <div class="text-center" style="font-size:0.6em;margin-bottom:0.25em;color:#9a8a78">{{ lapSquare.desc }}</div>
+                    <div v-if="!showCrowDesc" class="text-center"
+                         @click="showCrowDesc=true"
+                         style="font-size:0.58em;margin-bottom:0.2em;color:rgba(194,59,43,0.6);cursor:pointer;letter-spacing:0.04em">
+                      查看任務說明 ▾
+                    </div>
+                    <div v-else class="text-center" style="font-size:0.6em;margin-bottom:0.25em;color:#9a8a78">{{ lapSquare.desc }}</div>
                     <button @click="startTask" class="btn"
                             style="font-size:0.72em;padding:0.45em;width:100%;border-color:rgba(184,144,64,0.3);color:#b89040">出發執行任務</button>
                   </div>
@@ -1024,7 +1029,16 @@ html, body {
         <span class="crow-tagline">— 鎹烏送信 · Mission Dispatched —</span>
         <div class="crow-mission-name" v-if="crowMission">{{ crowMission.name }}</div>
         <div class="crow-hr"></div>
-        <div class="crow-mission-desc" v-if="crowMission">{{ crowMission.desc }}</div>
+        <div v-if="crowMission" style="min-height:3em;display:flex;align-items:center;justify-content:center">
+          <div v-if="!showCrowDesc"
+               @click.stop="showCrowDesc=true"
+               style="cursor:pointer;font-size:0.78em;color:rgba(194,59,43,0.7);border:1px solid rgba(194,59,43,0.25);border-radius:4px;padding:0.3em 1em;letter-spacing:0.06em;transition:color 0.15s,border-color 0.15s"
+               onmouseover="this.style.color='rgba(194,59,43,1)';this.style.borderColor='rgba(194,59,43,0.6)'"
+               onmouseout="this.style.color='rgba(194,59,43,0.7)';this.style.borderColor='rgba(194,59,43,0.25)'">
+            查看任務說明 ▾
+          </div>
+          <div v-else class="crow-mission-desc" style="animation:none">{{ crowMission.desc }}</div>
+        </div>
         <span class="crow-dismiss">點擊任意處繼續</span>
       </div>
     </div>
@@ -1050,22 +1064,22 @@ var Vue3 = Vue;
 var createApp = Vue3.createApp;
 
 var SQUARES = [
-  { id:1,  type:'start', name:'START',         desc:'衝到牧師館，吃掉愛玉',                             name2:'START',          desc2:'衝到牧師館，帶一位工作人員回來自拍',               damage:10 },
-  { id:2,  type:'task',  name:'拍大合照',       desc:'衝到牧師館，拍一張大合照',                         name2:'創意合照',       desc2:'衝到牧師館，全隊人手一樣東西擺出創意合照',         damage:10 },
-  { id:3,  type:'task',  name:'繩子接球',       desc:'衝到主日學教室，繩子接球',                         name2:'接力搬物',       desc2:'衝到主日學教室，全隊接力每人搬一樣東西回原位',     damage:10 },
-  { id:4,  type:'task',  name:'找到特定物品',   desc:'衝到主日學教室，找到特定物品',                     name2:'找紙條',         desc2:'衝到主日學教室，找到工作人員藏的紙條並唸出來',     damage:10 },
-  { id:5,  type:'task',  name:'巧拼拼圖案',     desc:'衝到主日學教室，用巧拼拼圖案',                     name2:'自創圖案',       desc2:'衝到主日學教室，用巧拼拼出隊伍自創圖案，拍照給工作人員看', damage:10 },
-  { id:6,  type:'task',  name:'會議室背金句',   desc:'衝到會議室，背金句',                               name2:'合唱詩歌',       desc2:'衝到會議室，全隊合唱一段詩歌',                     damage:10 },
-  { id:7,  type:'task',  name:'會議室寫考卷',   desc:'衝到會議室，寫考卷',                               name2:'白板接龍',       desc2:'衝到會議室，接力白板每人寫一個鬼滅角色名',         damage:10 },
-  { id:8,  type:'task',  name:'原地唱歌',       desc:'原地唱歌',                                         name2:'隊伍舞蹈',       desc2:'原地全隊做同一個舞蹈動作 10 秒',                   damage:5  },
-  { id:9,  type:'task',  name:'金雞獨立',       desc:'原地金雞獨立',                                     name2:'全隊伏地挺身',   desc2:'原地全隊同時做伏地挺身 5 下',                      damage:5  },
-  { id:10, type:'card',  name:'猜拳抽卡',       desc:'原地跟鬼王猜拳，抽取隨機卡片'                                                                                                         },
-  { id:11, type:'task',  name:'骰子比大小',     desc:'原地跟鬼王骰子比大小',                             name2:'猜拳淘汰賽',     desc2:'原地猜拳淘汰賽，最後留下的人代表全隊',             damage:10 },
-  { id:12, type:'card',  name:'丟銅板抽卡',     desc:'原地跟鬼王拼運氣（丟銅板），抽取隨機卡片'                                                                                              },
-  { id:13, type:'task',  name:'車棚揮刀50下',   desc:'衝到車棚，揮刀 50 下',                             name2:'喊隊伍口號',     desc2:'衝到車棚，全隊一起喊隊伍口號 10 秒',               damage:10 },
-  { id:14, type:'task',  name:'車棚開合跳',     desc:'衝到車棚，開合跳',                                 name2:'最快排列',       desc2:'衝到車棚，全隊最快排成一列',                       damage:10 },
-  { id:15, type:'task',  name:'飲料喝完',       desc:'衝到備課教室，把飲料喝完',                         name2:'蓋章任務',       desc2:'衝到備課教室，找到工作人員蓋章',                   damage:10 },
-  { id:16, type:'card',  name:'特殊抽卡格',     desc:'特殊任務格子：抽取隨機卡片'                },
+  { id:1,  type:'start', name:'【牧師館的點心時間】',   desc:'衝向牧師館！全員必須用湯匙輪流餵隊友吃完一碗愛玉。',                                                                                                     name2:'START',          desc2:'衝到牧師館，帶一位工作人員回來自拍',               damage:10 },
+  { id:2,  type:'task',  name:'【聖光普照大合照】',     desc:'衝向牧師館！全員與牧師館建築合照，每人必須擺出最浮誇的鬼臉（或指定聖經動作）。',                                                                          name2:'創意合照',       desc2:'衝到牧師館，全隊人手一樣東西擺出創意合照',         damage:10 },
+  { id:3,  type:'task',  name:'【主日學的默契考驗】',   desc:'衝向主日學教室！利用限定繩索網，全員合力將球接住並維持 10 秒不落地。',                                                                                    name2:'接力搬物',       desc2:'衝到主日學教室，全隊接力每人搬一樣東西回原位',     damage:10 },
+  { id:4,  type:'task',  name:'【失落的教會寶物】',     desc:'衝向主日學教室！在限時 2 分鐘內，根據關主提示找出隱藏的「聖經故事道具」。',                                                                              name2:'找紙條',         desc2:'衝到主日學教室，找到工作人員藏的紙條並唸出來',     damage:10 },
+  { id:5,  type:'task',  name:'【造方舟拼圖挑戰】',     desc:'衝向主日學教室！用巧拼地墊在地上拼出「十字架」或「方舟」圖案。',                                                                                          name2:'自創圖案',       desc2:'衝到主日學教室，用巧拼拼出隊伍自創圖案，拍照給工作人員看', damage:10 },
+  { id:6,  type:'task',  name:'【密室解碼：背金句】',   desc:'衝向會議室！全隊派出一名代表（或接力），一字不漏地背誦出指定本週金句。',                                                                                  name2:'合唱詩歌',       desc2:'衝到會議室，全隊合唱一段詩歌',                     damage:10 },
+  { id:7,  type:'task',  name:'【智力風暴：聖經測驗】', desc:'衝向會議室！全隊限時 3 分鐘內合力完成一張「聖經知識是非題考卷」。',                                                                                      name2:'白板接龍',       desc2:'衝到會議室，接力白板每人寫一個鬼滅角色名',         damage:10 },
+  { id:8,  type:'task',  name:'原地唱歌',               desc:'原地唱歌',                                                                                                                                                name2:'隊伍舞蹈',       desc2:'原地全隊做同一個舞蹈動作 10 秒',                   damage:5  },
+  { id:9,  type:'task',  name:'金雞獨立',               desc:'原地金雞獨立',                                                                                                                                            name2:'全隊伏地挺身',   desc2:'原地全隊同時做伏地挺身 5 下',                      damage:5  },
+  { id:10, type:'card',  name:'猜拳抽卡',               desc:'原地跟鬼王猜拳，抽取隨機卡片'                                                                                                                                                                                                          },
+  { id:11, type:'task',  name:'骰子比大小',             desc:'原地跟鬼王骰子比大小',                                                                                                                                    name2:'猜拳淘汰賽',     desc2:'原地猜拳淘汰賽，最後留下的人代表全隊',             damage:10 },
+  { id:12, type:'card',  name:'丟銅板抽卡',             desc:'原地跟鬼王拼運氣（丟銅板），抽取隨機卡片'                                                                                                                                                                                             },
+  { id:13, type:'task',  name:'【車棚的劍客修煉】',     desc:'衝向車棚！隊伍派出一名勇者（或輪流），手持充氣劍（或道具劍）精神抖擎地揮刀 50 下，口中需喊出「消滅鬼王！」。',                                          name2:'喊隊伍口號',     desc2:'衝到車棚，全隊一起喊隊伍口號 10 秒',               damage:10 },
+  { id:14, type:'task',  name:'【體能試煉：開合跳】',   desc:'衝向車棚！全隊一起完成開合跳 30 下（或累積加總 100 下），動作須整齊劃一。',                                                                               name2:'最快排列',       desc2:'衝到車棚，全隊最快排成一列',                       damage:10 },
+  { id:15, type:'task',  name:'【備課室的聖水試煉】',   desc:'衝向備課教室！全隊輪流接力（或用超長吸管），將指定特調飲料（如：苦茶、或是混搭飲料）全部喝完。',                                                         name2:'蓋章任務',       desc2:'衝到備課教室，找到工作人員蓋章',                   damage:10 },
+  { id:16, type:'card',  name:'特殊抽卡格',             desc:'特殊任務格子：抽取隨機卡片'                },
 ];
 
 var BOARD_LAYOUT = {
@@ -1130,7 +1144,7 @@ createApp({
       showSaveModal:false, showReviveModal:false,
       deadTeams:[], saveJsonStr:'',
       cardChoices:[], flippedCardIndex:null,
-      showCrowModal:false, crowMission:null,
+      showCrowModal:false, crowMission:null, showCrowDesc:false,
       hasSavedGame:false, autoSaveMsg:'',
       animatingPositions:{}, hoppingTeam:null, isAnimating:false,
       taskSuccessRolling:false,
@@ -1357,7 +1371,7 @@ createApp({
       var self=this;
       setTimeout(function(){self.flippingCardIndex=null; self.flipCard(index);},420);
     },
-    closeCrowModal: function() { this.showCrowModal=false; },
+    closeCrowModal: function() { this.showCrowModal=false; this.showCrowDesc=false; },
     closeCardModal: function() {
       this.showCardModal=false;
       if(this.pendingCardChoice){
