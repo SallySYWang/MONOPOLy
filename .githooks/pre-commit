@@ -1,0 +1,19 @@
+#!/bin/sh
+# Run unit tests before every commit. Abort if any test fails.
+
+echo "▶ Running unit tests..."
+cd "$(git rev-parse --show-toplevel)" && npm test
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "✗ Tests failed."
+  exec < /dev/tty
+  printf "測試失敗，確定還是要 commit 嗎？(y/N) "
+  read REPLY
+  case "$REPLY" in
+    y|Y) echo "⚠ 強制 commit。" ;;
+    *)   echo "✗ Commit 已取消。"; exit 1 ;;
+  esac
+fi
+
+echo "✓ All tests passed."
