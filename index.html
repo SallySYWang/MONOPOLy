@@ -37,6 +37,7 @@ html, body {
   background-size: 22px 22px;
 }
 #app > * { position: relative; z-index: 1; }
+#app.modal-open > *:not(.card-overlay):not(.crow-overlay):not(.modal-overlay):not(.turn-transition-overlay) { pointer-events: none !important; }
 
 /* ── typography ── */
 .font-display { font-family: 'Bebas Neue', system-ui, sans-serif; letter-spacing: 0.03em; }
@@ -285,13 +286,13 @@ html, body {
   animation:crow-overlay-in 0.35s ease-out;
 }
 .crow-modal {
-  position:relative; width:min(88%,600px);
+  position:relative; width:min(94%,860px);
   background:
     radial-gradient(ellipse at 50% 0%, rgba(194,59,43,0.07) 0%, transparent 55%),
     radial-gradient(ellipse at 20% 80%, rgba(80,30,80,0.06) 0%, transparent 50%),
     linear-gradient(170deg,#100c14 0%,#0d080e 50%,#08080f 100%);
   border:1px solid rgba(194,59,43,0.14);
-  padding:1.8em 2.2em 1.4em;
+  padding:2.4em 3em 2em;
   text-align:center; cursor:default; overflow:hidden;
   animation:crow-modal-in 0.45s cubic-bezier(0.2,0.8,0.3,1) 0.1s both;
 }
@@ -330,14 +331,14 @@ html, body {
 .crow-eye-glow { animation:crow-eye-pulse 1.8s ease-in-out infinite; }
 .crow-eyeshine { animation:crow-eye-pulse 1.8s ease-in-out 0.3s infinite; }
 .crow-tagline {
-  font-family:'Bebas Neue',sans-serif; font-size:0.44em; letter-spacing:0.28em;
+  font-family:'Bebas Neue',sans-serif; font-size:0.62em; letter-spacing:0.28em;
   color:rgba(194,59,43,0.55); text-transform:uppercase; display:block;
   animation:text-reveal 0.4s ease-out 0.7s both;
 }
 .crow-mission-name {
-  font-family:'Bebas Neue',sans-serif; font-size:1.4em; letter-spacing:0.1em; line-height:1.2;
+  font-family:'Bebas Neue',sans-serif; font-size:2em; letter-spacing:0.1em; line-height:1.2;
   color:#f5ede0; margin:0.18em 0 0.25em;
-  white-space: normal; word-break: keep-all;
+  white-space: nowrap;
   animation:text-reveal 0.4s ease-out 0.85s both;
 }
 .crow-hr {
@@ -347,17 +348,17 @@ html, body {
   animation:divider-grow 0.5s ease-out 1s both;
 }
 .crow-mission-desc {
-  font-size:0.7em; line-height:1.65; color:rgba(245,237,224,0.58); letter-spacing:0.03em;
+  font-size:1em; line-height:1.65; color:rgba(245,237,224,0.75); letter-spacing:0.03em;
   animation:text-reveal 0.4s ease-out 1.05s both;
 }
 .crow-damage-badge {
   display:inline-block; margin-top:0.75em;
-  font-family:'Bebas Neue',sans-serif; font-size:0.6em; color:#c23b2b; letter-spacing:0.1em;
+  font-family:'Bebas Neue',sans-serif; font-size:0.8em; color:#c23b2b; letter-spacing:0.1em;
   border:1px solid rgba(194,59,43,0.28); padding:0.12em 0.9em;
   animation:text-reveal 0.4s ease-out 1.15s both;
 }
 .crow-dismiss {
-  display:block; margin-top:1.1em; font-size:0.44em; letter-spacing:0.14em;
+  display:block; margin-top:1.1em; font-size:0.6em; letter-spacing:0.14em;
   color:rgba(245,237,224,0.25); text-transform:uppercase;
   animation:text-reveal 0.4s ease-out 1.35s both;
 }
@@ -365,61 +366,73 @@ html, body {
 /* ══ CARD REVEAL MODAL ══ */
 .card-overlay {
   position:absolute !important; inset:0;
-  background:rgba(4,2,6,0.92); backdrop-filter:blur(4px);
+  background:rgba(5,2,10,0.92); backdrop-filter:blur(4px);
   display:flex; align-items:center; justify-content:center;
   z-index:200; cursor:pointer;
   animation:crow-overlay-in 0.3s ease-out;
 }
 .card-modal {
-  position:relative; width:min(58%,360px);
-  padding:1.8em 2.4em 1.4em; text-align:center;
+  position:relative; width:min(94%,860px);
+  padding:2.4em 3em 2em; text-align:center;
   cursor:default; overflow:hidden;
-  animation:crow-modal-in 0.4s cubic-bezier(0.2,0.8,0.3,1) 0.05s both;
+  animation:crow-modal-in 0.45s cubic-bezier(0.2,0.8,0.3,1) 0.05s both;
 }
+.card-modal::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(152,100,210,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(152,100,210,0.035) 1px, transparent 1px);
+  background-size:18px 18px;
+}
+.card-modal .crow-corner { border-color:rgba(152,100,210,0.35); }
 .card-modal::after {
   content:''; position:absolute; top:0; left:0; right:0; height:2px;
   background:var(--card-accent-grad); opacity:0.55;
 }
 .card-modal-icon {
-  font-size:2em; margin-bottom:0.2em;
+  font-size:1.6em; margin-bottom:0.15em;
   animation:text-reveal 0.3s ease-out 0.2s both;
 }
 .card-modal-type {
-  font-size:0.4em; letter-spacing:0.22em; text-transform:uppercase;
-  margin-bottom:0.3em;
+  font-family:'Bebas Neue',sans-serif; font-size:0.62em; letter-spacing:0.28em; text-transform:uppercase;
+  margin-bottom:0.3em; display:block;
   animation:text-reveal 0.3s ease-out 0.3s both;
 }
 .card-modal-name {
-  font-family:'Shippori Mincho B1',serif; font-weight:800;
-  font-size:1.6em; line-height:1; letter-spacing:0.06em;
-  margin:0.15em 0 0.3em;
-  animation:text-reveal 0.3s ease-out 0.45s both;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2em; line-height:1.2; letter-spacing:0.1em; white-space:nowrap;
+  margin:0.18em 0 0.25em;
+  animation:text-reveal 0.4s ease-out 0.45s both;
 }
 .card-modal-divider {
-  height:1px; width:50%; margin:0 auto 0.65em;
-  animation:divider-grow 0.4s ease-out 0.6s both;
+  height:1px; width:0; margin:0 auto 0.7em;
+  animation:divider-grow 0.5s ease-out 0.6s both;
 }
 .card-modal-effect {
-  font-size:0.68em; line-height:1.6; color:rgba(245,237,224,0.55);
-  animation:text-reveal 0.3s ease-out 0.75s both;
+  font-size:1em; line-height:1.65; color:rgba(245,237,224,0.75);
+  animation:text-reveal 0.4s ease-out 0.75s both;
 }
 .card-modal-dismiss {
-  display:block; margin-top:1em; font-size:0.42em; letter-spacing:0.14em;
-  color:rgba(245,237,224,0.22); text-transform:uppercase;
-  animation:text-reveal 0.3s ease-out 1s both;
+  display:block; margin-top:1.1em; font-size:0.6em; letter-spacing:0.14em;
+  color:rgba(245,237,224,0.25); text-transform:uppercase;
+  animation:text-reveal 0.4s ease-out 1s both;
 }
 /* chance = green, fate = red */
 .card-modal.chance {
-  --card-accent-grad: linear-gradient(to right,transparent,#5ab88a,transparent);
-  background: radial-gradient(ellipse at 50% 0%, rgba(90,184,138,0.08) 0%, transparent 55%),
-              linear-gradient(170deg,#090e0b 0%,#060c08 100%);
-  border:1px solid rgba(90,184,138,0.2);
+  --card-accent-grad: linear-gradient(to right,transparent,#9878c8,transparent);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(152,100,210,0.1) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(90,184,138,0.05) 0%, transparent 50%),
+    linear-gradient(170deg,#0e0b14 0%,#0a0810 50%,#080810 100%);
+  border:1px solid rgba(152,100,210,0.2);
 }
 .card-modal.fate {
-  --card-accent-grad: linear-gradient(to right,transparent,#c23b2b,transparent);
-  background: radial-gradient(ellipse at 50% 0%, rgba(194,59,43,0.08) 0%, transparent 55%),
-              linear-gradient(170deg,#120c0f 0%,#0e0809 100%);
-  border:1px solid rgba(194,59,43,0.2);
+  --card-accent-grad: linear-gradient(to right,transparent,#9878c8,transparent);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(152,100,210,0.1) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(194,59,43,0.05) 0%, transparent 50%),
+    linear-gradient(170deg,#0e0b14 0%,#0a0810 50%,#080810 100%);
+  border:1px solid rgba(152,100,210,0.2);
 }
 
 /* ══ DAMAGE EFFECTS ══ */
@@ -451,6 +464,170 @@ html, body {
   pointer-events:none; z-index:10;
 }
 
+/* ══ B2：傷害過場 DAMAGE STRIKE ══ */
+@keyframes dmg-overlay-in {
+  from { opacity:0 } to { opacity:1 }
+}
+@keyframes dmg-number-pop {
+  0%   { opacity:0; transform:scale(0.5); }
+  30%  { opacity:1; transform:scale(1.15); }
+  50%  { transform:scale(1); }
+  80%  { opacity:1; transform:scale(1); }
+  100% { opacity:0; transform:scale(0.95) translateY(-0.3em); }
+}
+@keyframes dmg-slash {
+  0%   { width:0; opacity:0; }
+  30%  { width:70%; opacity:1; }
+  80%  { width:70%; opacity:1; }
+  100% { width:70%; opacity:0; }
+}
+@keyframes dmg-text-in {
+  0%,15% { opacity:0; transform:translateY(0.5em); }
+  35%    { opacity:1; transform:translateY(0); }
+  80%    { opacity:1; }
+  100%   { opacity:0; }
+}
+.dmg-overlay {
+  position:absolute !important; inset:0;
+  background:rgba(8,2,4,0.88); backdrop-filter:blur(8px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:310; pointer-events:auto;
+  animation:dmg-overlay-in 0.18s ease-out;
+}
+.dmg-banner {
+  text-align:center; position:relative;
+}
+.dmg-number {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:6em; line-height:1;
+  color:#ef4444;
+  text-shadow:0 0 40px rgba(220,40,40,0.8), 0 0 80px rgba(180,20,20,0.4);
+  animation:dmg-number-pop 2s cubic-bezier(0.2,0.8,0.3,1) forwards;
+}
+.dmg-slash-line {
+  height:2px; margin:0.1em auto 0.4em;
+  background:linear-gradient(to right,transparent,#c23b2b,transparent);
+  animation:dmg-slash 2s ease-out forwards;
+}
+.dmg-team {
+  font-family:'Noto Sans TC',sans-serif; font-size:1em; font-weight:700;
+  letter-spacing:0.18em; color:rgba(245,220,200,0.8);
+  animation:dmg-text-in 2s ease-out forwards;
+}
+.dmg-hp-remain {
+  font-family:'Bebas Neue',sans-serif; font-size:0.8em;
+  letter-spacing:0.2em; color:rgba(194,59,43,0.55);
+  margin-top:0.4em;
+  animation:dmg-text-in 2s ease-out forwards;
+}
+
+/* ══ B3：隊伍受傷過場 TEAM HIT ══ */
+@keyframes team-hit-number {
+  0%   { opacity:0; transform:scale(0.5); }
+  30%  { opacity:1; transform:scale(1.1); }
+  50%  { transform:scale(1); }
+  80%  { opacity:1; }
+  100% { opacity:0; transform:translateY(-0.2em); }
+}
+@keyframes team-hit-row {
+  0%,20% { opacity:0; transform:translateX(-1em); }
+  40%    { opacity:1; transform:translateX(0); }
+  80%    { opacity:1; }
+  100%   { opacity:0; }
+}
+.team-hit-overlay {
+  position:absolute !important; inset:0;
+  background:rgba(8,2,4,0.88); backdrop-filter:blur(8px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:310; pointer-events:auto;
+  animation:dmg-overlay-in 0.18s ease-out;
+}
+.team-hit-banner { text-align:center; }
+.team-hit-label {
+  font-family:'Bebas Neue',sans-serif; font-size:0.7em;
+  letter-spacing:0.3em; color:rgba(194,59,43,0.6); margin-bottom:0.2em;
+  animation:dmg-text-in 2.5s ease-out forwards;
+}
+.team-hit-number {
+  font-family:'Bebas Neue',sans-serif; font-size:5em; line-height:1;
+  color:#ef4444;
+  text-shadow:0 0 40px rgba(220,40,40,0.8), 0 0 80px rgba(180,20,20,0.4);
+  animation:team-hit-number 2.5s cubic-bezier(0.2,0.8,0.3,1) forwards;
+}
+.team-hit-rows { margin-top:0.5em; display:flex; flex-direction:column; gap:0.25em; align-items:center; }
+.team-hit-row {
+  font-family:'Noto Sans TC',sans-serif; font-size:0.9em; font-weight:700;
+  letter-spacing:0.1em; display:flex; align-items:center; gap:0.5em;
+}
+.team-hit-row:nth-child(1) { animation:team-hit-row 2.5s ease-out 0.1s forwards; }
+.team-hit-row:nth-child(2) { animation:team-hit-row 2.5s ease-out 0.2s forwards; }
+.team-hit-row:nth-child(3) { animation:team-hit-row 2.5s ease-out 0.3s forwards; }
+.team-hit-row:nth-child(4) { animation:team-hit-row 2.5s ease-out 0.4s forwards; }
+.team-hit-row:nth-child(5) { animation:team-hit-row 2.5s ease-out 0.5s forwards; }
+.team-hit-row:nth-child(6) { animation:team-hit-row 2.5s ease-out 0.6s forwards; }
+.team-hit-dot { width:0.7em; height:0.7em; border-radius:50%; flex-shrink:0; }
+
+/* ══ B4：産屋敷降臨 UBUYASHIKI SAVES ══ */
+@keyframes ub-overlay-in {
+  from { opacity:0 } to { opacity:1 }
+}
+@keyframes ub-overlay-out {
+  from { opacity:1 } to { opacity:0 }
+}
+@keyframes ub-title-in {
+  0%   { opacity:0; transform:scale(0.85) translateY(0.5em); filter:blur(6px); }
+  40%  { opacity:1; transform:scale(1) translateY(0); filter:blur(0); }
+  85%  { opacity:1; }
+  100% { opacity:0; }
+}
+@keyframes ub-sub-in {
+  0%,25% { opacity:0; transform:translateY(0.6em); }
+  50%    { opacity:1; transform:translateY(0); }
+  85%    { opacity:1; }
+  100%   { opacity:0; }
+}
+@keyframes ub-glow-pulse {
+  0%,100% { box-shadow: 0 0 80px 20px rgba(210,175,80,0.12); }
+  50%     { box-shadow: 0 0 140px 40px rgba(210,175,80,0.22); }
+}
+.ubuyashiki-overlay {
+  position:absolute !important; inset:0;
+  background:rgba(4,3,2,0.96); backdrop-filter:blur(12px);
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  z-index:320; pointer-events:auto;
+  animation:ub-overlay-in 0.5s ease-out;
+}
+.ubuyashiki-overlay.fade-out {
+  animation:ub-overlay-out 0.8s ease-in forwards;
+}
+.ub-glow {
+  position:absolute; width:30em; height:30em; border-radius:50%; pointer-events:none;
+  background:radial-gradient(ellipse,rgba(210,175,80,0.1) 0%,transparent 70%);
+  animation:ub-glow-pulse 2s ease-in-out infinite;
+}
+.ub-label {
+  font-family:'Bebas Neue',sans-serif; font-size:0.55em; letter-spacing:0.32em;
+  color:rgba(210,175,80,0.5); text-transform:uppercase; margin-bottom:0.6em;
+  animation:ub-sub-in 4.5s ease-out forwards;
+}
+.ub-name {
+  font-family:'Shippori Mincho B1',serif; font-weight:800;
+  font-size:3.6em; line-height:1; letter-spacing:0.12em;
+  color:#e8d080;
+  text-shadow:0 0 60px rgba(210,175,80,0.6), 0 0 120px rgba(210,175,80,0.3);
+  animation:ub-title-in 4.5s cubic-bezier(0.2,0.8,0.3,1) forwards;
+}
+.ub-desc {
+  font-family:'Noto Sans TC',sans-serif; font-size:0.9em; font-weight:500;
+  color:rgba(235,220,170,0.65); letter-spacing:0.08em; margin-top:0.8em;
+  animation:ub-sub-in 4.5s ease-out 0.3s forwards;
+}
+.ub-revive {
+  font-family:'Bebas Neue',sans-serif; font-size:1em; letter-spacing:0.2em;
+  color:rgba(90,184,138,0.7); margin-top:0.5em;
+  animation:ub-sub-in 4.5s ease-out 0.6s forwards;
+}
+
 /* ══ C：回合過場 TURN TRANSITION ══ */
 @keyframes turn-banner-show {
   0%   { opacity:0; transform:translateY(-0.6em) scale(0.96); }
@@ -462,7 +639,7 @@ html, body {
   position:absolute !important; inset:0;
   background:rgba(4,2,8,0.78); backdrop-filter:blur(6px);
   display:flex; align-items:center; justify-content:center;
-  z-index:300; pointer-events:none;
+  z-index:300; pointer-events:auto;
 }
 .turn-transition-banner {
   text-align:center;
@@ -510,7 +687,7 @@ html, body {
 </style>
 </head>
 <body>
-<div id="app">
+<div id="app" :class="{ 'modal-open': anyModalOpen }">
 
   <!-- ══ SPLASH ══ -->
   <div v-if="screen === 'splash'" class="splash-wrap">
@@ -819,28 +996,57 @@ html, body {
                   <!-- ACTION: card -->
                   <div v-else-if="currentPhase==='action'&&currentTurnType==='player'&&currentSquare&&currentSquare.type==='card'"
                        style="width:100%;position:relative;z-index:1">
-                    <div v-if="cardChoices.length===0">
-                      <button @click="prepareCards" class="btn w-full"
-                              style="font-size:0.72em;padding:0.5em;border-color:rgba(152,120,200,0.3);color:#9878c8">翻牌</button>
+
+                    <!-- 任務待出發 -->
+                    <div v-if="cardTaskPending" style="width:100%;display:flex;flex-direction:column;gap:0.3em">
+                      <div class="text-center" style="font-size:0.55em;margin-bottom:0.1em;color:#b89040">準備執行任務</div>
+                      <button @click="startCardTask" class="btn"
+                              style="font-size:0.72em;padding:0.45em;width:100%;border-color:rgba(184,144,64,0.3);color:#b89040">出發執行任務</button>
                     </div>
-                    <div v-else-if="flippedCardIndex===null">
-                      <div class="text-center" style="font-size:0.58em;margin-bottom:0.3em;color:#9878c8">選一張翻開</div>
-                      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.25em">
-                        <div v-for="(c,i) in cardChoices" :key="i" @click="startFlipCard(i)"
-                             :class="{'card-flipping-anim': flippingCardIndex===i}"
-                             style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#0e0b12;border:1px solid rgba(194,59,43,0.12);font-size:1.1em;transition:border-color 0.12s,background 0.12s"
-                             onmouseover="this.style.background='#1a1018';this.style.borderColor='rgba(194,59,43,0.3)'"
-                             onmouseout="this.style.background='#0e0b12';this.style.borderColor='rgba(194,59,43,0.12)'">?</div>
+
+                    <!-- 猜拳選擇 -->
+                    <div v-else-if="rpsResult===null">
+                      <div class="text-center" style="font-size:0.55em;margin-bottom:0.3em;color:#9878c8">猜拳結果</div>
+                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.25em">
+                        <button @click="rpsResult='win'"  class="btn" style="font-size:0.72em;padding:0.45em;border-color:rgba(90,184,138,0.4);color:#5ab88a">贏</button>
+                        <button @click="rpsResult='lose'" class="btn" style="font-size:0.72em;padding:0.45em;border-color:rgba(194,59,43,0.4);color:#c23b2b">輸</button>
                       </div>
                     </div>
-                    <div v-else style="text-align:center">
-                      <div :style="cardChoices[flippedCardIndex].isChance
-                             ? 'font-size:0.52em;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#5ab88a'
-                             : 'font-size:0.52em;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#9878c8'">
-                        {{ cardChoices[flippedCardIndex].isChance ? '✨ 機會卡' : '⚠️ 命運卡' }}
-                      </div>
-                      <div class="font-display text-cream" style="font-size:0.82em;margin:0.15em 0;font-weight:900">{{ cardChoices[flippedCardIndex].card.name }}</div>
+
+                    <!-- 輸：直接執行任務 -->
+                    <div v-else-if="rpsResult==='lose'" style="text-align:center">
+                      <div style="font-size:0.62em;color:#c23b2b;margin-bottom:0.3em">落敗，無法抽卡</div>
+                      <button @click="showCardTask" class="btn w-full"
+                              style="font-size:0.68em;padding:0.4em;border-color:rgba(184,144,64,0.3);color:#b89040">查看任務 →</button>
                     </div>
+
+                    <!-- 贏：抽卡流程 -->
+                    <div v-else-if="rpsResult==='win'">
+                      <div v-if="cardChoices.length===0">
+                        <div class="text-center" style="font-size:0.55em;color:#5ab88a;margin-bottom:0.25em">獲勝！可以抽卡</div>
+                        <button @click="prepareCards" class="btn w-full"
+                                style="font-size:0.72em;padding:0.5em;border-color:rgba(152,120,200,0.3);color:#9878c8">翻牌</button>
+                      </div>
+                      <div v-else-if="flippedCardIndex===null">
+                        <div class="text-center" style="font-size:0.58em;margin-bottom:0.3em;color:#9878c8">選一張翻開</div>
+                        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.25em">
+                          <div v-for="(c,i) in cardChoices" :key="i" @click="startFlipCard(i)"
+                               :class="{'card-flipping-anim': flippingCardIndex===i}"
+                               style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#0e0b12;border:1px solid rgba(194,59,43,0.12);font-size:1.1em;transition:border-color 0.12s,background 0.12s"
+                               onmouseover="this.style.background='#1a1018';this.style.borderColor='rgba(194,59,43,0.3)'"
+                               onmouseout="this.style.background='#0e0b12';this.style.borderColor='rgba(194,59,43,0.12)'">{{ i + 1 }}</div>
+                        </div>
+                      </div>
+                      <div v-else style="text-align:center">
+                        <div :style="cardChoices[flippedCardIndex].isChance
+                               ? 'font-size:0.52em;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#5ab88a'
+                               : 'font-size:0.52em;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#9878c8'">
+                          {{ cardChoices[flippedCardIndex].isChance ? '✨ 機會卡' : '⚠️ 命運卡' }}
+                        </div>
+                        <div class="font-display text-cream" style="font-size:0.82em;margin:0.15em 0;font-weight:900">{{ cardChoices[flippedCardIndex].card.name }}</div>
+                      </div>
+                    </div>
+
                   </div>
 
                   <!-- NEXT -->
@@ -1044,6 +1250,40 @@ html, body {
     </div>
 
     <!-- ══ C：TURN TRANSITION OVERLAY ══ -->
+    <!-- ══ TEAM HIT OVERLAY ══ -->
+    <div v-if="showTeamHitOverlay" class="team-hit-overlay">
+      <div class="team-hit-banner">
+        <div class="team-hit-label">鬼王無慘攻擊</div>
+        <div class="team-hit-number">-{{ teamHitDmg }}</div>
+        <div class="team-hit-rows">
+          <div v-for="r in teamHitResults" :key="r.id" class="team-hit-row">
+            <div class="team-hit-dot" :style="{background:r.color}"></div>
+            <span :style="{color:r.color}">{{ r.name }}</span>
+            <span style="color:rgba(245,237,224,0.45);font-size:0.85em">剩 {{ r.hp }} HP{{ r.dead ? '　已陣亡' : '' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DAMAGE STRIKE OVERLAY ══ -->
+    <div v-if="showDmgOverlay" class="dmg-overlay">
+      <div class="dmg-banner">
+        <div class="dmg-number">-{{ dmgOverlayDmg }}</div>
+        <div class="dmg-slash-line"></div>
+        <div class="dmg-team">{{ dmgOverlayTeam }}</div>
+        <div class="dmg-hp-remain">鬼王剩餘 {{ dmgOverlayHP }} HP</div>
+      </div>
+    </div>
+
+    <!-- ══ 産屋敷降臨 ══ -->
+    <div v-if="showUbuyashikiOverlay" class="ubuyashiki-overlay" :class="{'fade-out':ubuyashikiFadingOut}">
+      <div class="ub-glow"></div>
+      <div class="ub-label">御館様降臨</div>
+      <div class="ub-name">産屋敷 耀哉</div>
+      <div class="ub-desc">御館様の加護により、鬼殺隊は再び立ち上がる</div>
+      <div class="ub-revive">全隊伍復活　HP 回復至 3</div>
+    </div>
+
     <div v-if="showTurnTransition" class="turn-transition-overlay">
       <div class="turn-transition-banner">
         <div style="font-size:0.4em;letter-spacing:0.24em;text-transform:uppercase;color:rgba(184,144,64,0.55);margin-bottom:0.4em">
@@ -1066,16 +1306,16 @@ var createApp = Vue3.createApp;
 var SQUARES = [
   { id:1,  type:'start', name:'【牧師館的點心時間】',   desc:'請到牧師館，全員必須用湯匙吃完愛玉。',                                                                     name2:'START',          desc2:'請到牧師館，吃水果。',                        damage:10 },
   { id:2,  type:'task',  name:'【主日學的默契考驗】',   desc:'請到主日學教室，全員合力將氣球拍進呼拉圈裡。',                                    name2:'接力搬物',       desc2:'請到主日學教室，全隊接力每人搬一樣東西回原位',              damage:10 },
-  { id:3,  type:'card',  name:'【猜拳命運抽】',          desc:'原地跟鬼王猜拳，抽取隨機卡片'                                                                                                                                                                    },
+  { id:3,  type:'card',  name:'【猜拳命運抽】',          desc:'原地跟鬼王猜拳，抽取隨機卡片',                   taskName:'【齊聲宣告】', taskDesc:'全隊同聲喊出本週金句一次，聲音要整齊響亮。', taskName2:'【齊聲宣告】', taskDesc2:'全隊同聲喊出本週金句一次，聲音要整齊響亮。', taskDamage:10 },
   { id:4,  type:'task',  name:'【副歌大挑戰】',          desc:'請挑一首夏令營的詩歌，唱一次副歌。',                                                                       name2:'隊伍舞蹈',       desc2:'全隊模仿工作人員指定動作，維持 10 秒。',                            damage:5  },
   { id:5,  type:'task',  name:'【密室解碼：背金句】',   desc:'請到會議室，全隊派出一名代表（或接力），一字不漏地背誦出指定本週金句。',                                  name2:'合唱詩歌',       desc2:'請到會議室，全隊合唱一首夏令營歌曲。',                              damage:10 },
   { id:6,  type:'task',  name:'【體能試煉：開合跳】',   desc:'請到車棚，全隊一起完成開合跳 30 下（或累積加總 100 下），動作須整齊劃一。',                               name2:'最快排列',       desc2:'請到車棚，全隊累積跳繩 100 下。',                                damage:10 },
-  { id:7,  type:'task',  name:'【失落的教會寶物】',     desc:'請到主日學教室，在限時 2 分鐘內，根據關主提示找出隱藏的「聖經故事道具」。',                              name2:'找紙條',         desc2:'請到主日學教室，找到工作人員藏的紙條並唸出來',              damage:10 },
+  { id:7,  type:'task',  name:'【失落的教會寶物】',     desc:'請到主日學教室，根據關主提示找出隱藏的「聖經故事道具」，找到後回來。',                              name2:'找紙條',         desc2:'請到主日學教室，找到工作人員藏的紙條並唸出來',              damage:10 },
   { id:8,  type:'task',  name:'【不倒翁修煉】',          desc:'原地金雞獨立直到下回合。',                                                                                 name2:'全隊伏地挺身',   desc2:'原地全隊同時做伏地挺身 5 下',                               damage:5  },
   { id:9,  type:'task',  name:'【聖光普照大合照】',     desc:'全員與新生教會招牌拍照',                                                                                   name2:'創意合照',       desc2:'請到備課教室，模仿一個場景拍照。',                  damage:10 },
-  { id:10, type:'task',  name:'【智力風暴：聖經測驗】', desc:'請到會議室，全隊限時 3 分鐘內合力完成一張特殊考卷。',                                                      name2:'白板接龍',       desc2:'請到會議室，白板寫出戲劇中的五個角色。',                  damage:10 },
+  { id:10, type:'task',  name:'【智力風暴：聖經測驗】', desc:'請到會議室，全隊合力完成一張特殊考卷，通過後回來。',                                                      name2:'白板接龍',       desc2:'請到會議室，白板寫出戲劇中的五個角色。',                  damage:10 },
   { id:11, type:'task',  name:'【車棚的劍客修煉】',     desc:'請到車棚，手持日輪刀，全體累積揮刀 100 下。',                                                              name2:'喊隊伍口號',     desc2:'請到車棚，全隊需將沙灘球向上拍打 10 下。',                        damage:10 },
-  { id:12, type:'card',  name:'【正反面命運】',          desc:'原地跟鬼王拼運氣（丟銅板），抽取隨機卡片'                                                                                                                                                },
+  { id:12, type:'card',  name:'【正反面命運】',          desc:'原地跟鬼王拼運氣（丟銅板），抽取隨機卡片',       taskName:'【全隊深蹲】', taskDesc:'全隊原地一起做深蹲 10 下，動作要同步整齊。', taskName2:'【全隊深蹲】', taskDesc2:'全隊原地一起做深蹲 10 下，動作要同步整齊。', taskDamage:10 },
   { id:13, type:'task',  name:'【造方舟拼圖挑戰】',     desc:'請到主日學教室，用巧拼地墊在地上拼出十字架圖案。',                                                         name2:'自創圖案',       desc2:'請到主日學教室，將球池的球依照顏色分類。', damage:10 },
   { id:14, type:'task',  name:'【命運骰子對決】',        desc:'原地跟鬼王骰子比大小',                                                                                     name2:'猜拳淘汰賽',     desc2:'原地折 30 架紙飛機。',                      damage:10 },
   { id:15, type:'task',  name:'【備課室的聖水試煉】',   desc:'請到備課教室，全隊輪流接力（或用超長吸管），將指定特調飲料（如：苦茶、或是混搭飲料）全部喝完。',         name2:'蓋章任務',       desc2:'請到備課教室，找到工作人員並完成一個指定挑戰。',                            damage:10 },
@@ -1148,9 +1388,13 @@ createApp({
       hasSavedGame:false, autoSaveMsg:'',
       animatingPositions:{}, hoppingTeam:null, isAnimating:false,
       taskSuccessRolling:false,
-      showCardModal:false, cardModalData:null, pendingCardChoice:null,
+      showCardModal:false, cardModalData:null, pendingCardChoice:null, cardTaskPending:false,
+      rpsResult:null, rpsBossChoice:'', rpsPlayerChoice:'',
       flashingCells:{}, floatingDamages:[],
       showTurnTransition:false, turnTransitionName:'', turnTransitionColor:'#e0d4c0', turnTransitionIsBoss:false,
+      showUbuyashikiOverlay:false, ubuyashikiFadingOut:false,
+      showDmgOverlay:false, dmgOverlayDmg:0, dmgOverlayTeam:'', dmgOverlayHP:0,
+      showTeamHitOverlay:false, teamHitDmg:0, teamHitResults:[],
       flippingCardIndex:null,
       flashingTeams:{},
       bossAnimatingPosition:null, hoppingBoss:false,
@@ -1197,6 +1441,9 @@ createApp({
     },
     bossDisplayPos: function() {
       return this.bossAnimatingPosition!==null ? this.bossAnimatingPosition : this.bossPosition;
+    },
+    anyModalOpen: function() {
+      return this.showCardModal || this.showCrowModal || this.showSaveModal || this.showReviveModal || this.showTurnTransition || this.showDmgOverlay || this.showTeamHitOverlay || this.showUbuyashikiOverlay;
     },
   },
 
@@ -1378,7 +1625,12 @@ createApp({
         var team=this.teams[this.currentTeamIndex];
         this.applyCard(this.pendingCardChoice.card,this.pendingCardChoice.isChance,team);
         this.pendingCardChoice=null;
-        this.currentPhase='next';
+        var sq=this.currentSquare;
+        if(sq && sq.taskName){
+          this.showCardTask();
+        } else {
+          this.currentPhase='next';
+        }
       }
     },
 
@@ -1400,6 +1652,22 @@ createApp({
       setTimeout(function(){self.floatingDamages=self.floatingDamages.filter(function(d){return d.id!==entry.id;});},950);
     },
 
+    showCardTask: function() {
+      var sq=this.currentSquare;
+      var tName=this.currentLap===2&&sq.taskName2?sq.taskName2:sq.taskName;
+      var tDesc=this.currentLap===2&&sq.taskDesc2?sq.taskDesc2:sq.taskDesc;
+      this.crowMission={name:tName,desc:tDesc,damage:sq.taskDamage||10,type:'task'};
+      this.showCrowModal=true; this.cardTaskPending=true;
+    },
+    startCardTask: function() {
+      this.saveSnapshot();
+      var team=this.teams[this.currentTeamIndex]; var sq=this.currentSquare;
+      var tName=this.currentLap===2&&sq.taskName2?sq.taskName2:sq.taskName;
+      team.pendingTask={name:tName,damage:sq.taskDamage||10};
+      this.addLog('system',team.name+' 出發執行卡片任務：「'+tName+'」（結果下輪揭曉）');
+      this.announcement.result='🏃 執行中，下輪結算'; this.announcement.resultColor='text-yellow-400';
+      this.cardTaskPending=false; this.currentPhase='next';
+    },
     startTask: function() {
       this.saveSnapshot();
       var team=this.teams[this.currentTeamIndex]; var sq=this.lapSquare;
@@ -1423,14 +1691,18 @@ createApp({
       this.addLog('success',team.name+' 任務「'+task.name+'」成功！骰出 '+n+(modNote?'（'+modNote.trim()+'）':'')+'，造成 '+dmg+' 傷害。鬼王剩 '+this.ghostKingHP+' HP');
       this.announcement.result='✅ 任務成功！造成 '+dmg+' 傷害'+(modNote?' （'+modNote.trim()+'）':''); this.announcement.resultColor='text-green-400';
       team.pendingTask=null; this.currentPhase='roll'; this.taskSuccessRolling=false;
-      if (this.ghostKingHP<=0) this.screen='finalStrike';
+      var self=this;
+      this.dmgOverlayDmg=dmg; this.dmgOverlayTeam=team.name; this.dmgOverlayHP=this.ghostKingHP;
+      this.showDmgOverlay=true;
+      setTimeout(function(){ self.showDmgOverlay=false; if(self.ghostKingHP<=0) self.screen='finalStrike'; }, 2000);
     },
     settleTaskFail: function() {
       this.saveSnapshot();
       var team=this.teams[this.currentTeamIndex]; var task=team.pendingTask;
-      this.addLog('fail',team.name+' 任務「'+task.name+'」失敗。');
+      this.addLog('fail',team.name+' 任務「'+task.name+'」失敗，跳過本回合。');
       this.announcement.result='❌ 任務失敗'; this.announcement.resultColor='text-orange-400';
-      team.pendingTask=null; this.currentPhase='roll'; this.taskSuccessRolling=false;
+      team.pendingTask=null; this.taskSuccessRolling=false;
+      this.nextPlayerTurn();
     },
     prepareCards: function() {
       var choices=[];
@@ -1486,7 +1758,7 @@ createApp({
       this.showReviveModal=false; this.deadTeams=[];
     },
     nextPlayerTurn: function() {
-      this.saveSnapshot(); this.cardChoices=[]; this.flippedCardIndex=null;
+      this.saveSnapshot(); this.cardChoices=[]; this.flippedCardIndex=null; this.cardTaskPending=false; this.rpsResult=null; this.rpsBossChoice=''; this.rpsPlayerChoice='';
       var nextIdx=-1;
       for (var i=this.currentTeamIndex+1;i<6;i++) if(this.teams[i].hp>0){nextIdx=i;break;}
       if (nextIdx!==-1){
@@ -1549,6 +1821,16 @@ createApp({
       }
       this.announcement.result='💥 鬼王造成 '+baseDmg+' 傷害！'; this.announcement.resultColor='text-red-400';
       this.currentPhase='boss-next'; this.checkAllDead();
+      var hitResults=[];
+      for (var k=0;k<attackResults.length;k++){
+        var ar=attackResults[k]; if(ar.shieldConsumed) continue;
+        var ht=null; for(var m=0;m<this.teams.length;m++) if(this.teams[m].id===ar.teamId){ht=this.teams[m];break;}
+        if(ht) hitResults.push({id:ht.id,name:ht.name,color:ht.color,hp:ht.hp,dead:ht.hp<=0});
+      }
+      if(hitResults.length>0){
+        this.teamHitDmg=baseDmg; this.teamHitResults=hitResults; this.showTeamHitOverlay=true;
+        setTimeout(function(){ self.showTeamHitOverlay=false; }, 2500);
+      }
     },
     endBossTurn: function() {
       this.saveSnapshot(); this.globalRound++;
@@ -1564,7 +1846,16 @@ createApp({
     },
     checkAllDead: function() {
       for (var i=0;i<this.teams.length;i++) if(this.teams[i].hp>0) return;
-      this.screen='bossVictory';
+      var self=this;
+      this.showUbuyashikiOverlay=true; this.ubuyashikiFadingOut=false;
+      this.addLog('system','御館様降臨！全隊伍起死回生，HP 回復至 3。');
+      setTimeout(function(){
+        self.ubuyashikiFadingOut=true;
+        setTimeout(function(){
+          self.showUbuyashikiOverlay=false; self.ubuyashikiFadingOut=false;
+          for(var i=0;i<self.teams.length;i++){ if(self.teams[i].hp<=0) self.teams[i].hp=3; }
+        }, 800);
+      }, 3800);
     },
     generateSave: function() {
       var data={ghostKingHP:this.ghostKingHP,bossPosition:this.bossPosition,currentTurnType:this.currentTurnType,currentTeamIndex:this.currentTeamIndex,currentPhase:this.currentPhase,globalRound:this.globalRound,currentLap:this.currentLap,bossStatus:{nextAttackMultiplier:this.bossStatus.nextAttackMultiplier,isBossTurnSkip:this.bossStatus.isBossTurnSkip,sealedMovement:this.bossStatus.sealedMovement,targetHighest:this.bossStatus.targetHighest},teams:this.teams.map(function(t){return{id:t.id,position:t.position,hp:t.hp,damageDealt:t.damageDealt,totalSteps:t.totalSteps||0,status:{shieldActive:t.status.shieldActive,doubleDamage:t.status.doubleDamage,breathEnhanced:t.status.breathEnhanced,revengeBlade:t.status.revengeBlade},pendingTask:t.pendingTask?{name:t.pendingTask.name,damage:t.pendingTask.damage}:null};})};
