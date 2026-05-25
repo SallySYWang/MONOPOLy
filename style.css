@@ -1,0 +1,662 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@300;400;500;700&family=Shippori+Mincho+B1:wght@800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%;
+  background: #07050a;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  font-family: 'Noto Sans TC', system-ui, sans-serif;
+}
+#app {
+  width: min(100vw, 177.78vh);
+  height: min(100vh, 56.25vw);
+  font-size: min(1.8vw, 3.2vh);
+  position: relative;
+  background: #07050a;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  color: #e0d4c0;
+}
+/* subtle cross-grid texture — like Japanese textile */
+#app::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(194,59,43,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(194,59,43,0.022) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+#app > * { position: relative; z-index: 1; }
+#app.modal-open > *:not(.card-overlay):not(.crow-overlay):not(.modal-overlay):not(.turn-transition-overlay) { pointer-events: none !important; }
+
+/* ── typography ── */
+.font-display { font-family: 'Bebas Neue', system-ui, sans-serif; letter-spacing: 0.03em; }
+.text-cream  { color: #e0d4c0; }
+.text-dim    { color: #5a4a40; }
+.text-muted  { color: #8a7868; }
+.text-accent { color: #c23b2b; }
+.text-gold   { color: #b89040; }
+
+/* ── pulse for slash ── */
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.slash-text { animation: pulse-opacity 1.4s ease-in-out infinite; color: #c23b2b; }
+
+/* ── board — Infinity Castle warm palette ── */
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  width: 100%; height: 100%;
+  gap: 2px;
+  background: #020100;
+}
+.board-cell {
+  position: relative; overflow: hidden; min-height: 0;
+  background: #100c07;
+  border: 1px solid rgba(200,110,40,0.16);
+}
+.board-cell::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 65% 75%, rgba(210,120,40,0.05) 0%, transparent 55%);
+}
+
+/* ── control panel ── */
+.control-panel {
+  grid-column: 2 / 5;
+  grid-row: 2 / 5;
+  background: #150f08;
+  border: 1px solid rgba(200,110,40,0.18);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 0.6em; overflow: hidden; position: relative;
+}
+.control-panel::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1.5px;
+  background: linear-gradient(to right, transparent, #c87828 40%, #c87828 60%, transparent);
+  opacity: 0.5;
+}
+.control-panel::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, rgba(200,110,40,0.05) 0%, transparent 55%);
+}
+
+/* ── tokens ── */
+.token-row { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 2px; justify-content: center; }
+.token-avatar {
+  width: 1.45em; height: 1.45em;
+  border-radius: 50%; overflow: hidden; flex-shrink: 0;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.7);
+  transition: transform 0.15s ease-out;
+}
+.token-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+@keyframes token-hop {
+  0%   { transform: scale(1)     translateY(0); }
+  40%  { transform: scale(1.15)  translateY(-0.25em); }
+  100% { transform: scale(1)     translateY(0); }
+}
+.token-hop { animation: token-hop 0.22s ease-out; }
+
+/* ── bars ── */
+.hp-bar-inner { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+
+/* ── scrollbar ── */
+.log-container { scrollbar-width: thin; scrollbar-color: #2a1a14 #0d0b11; }
+.log-container::-webkit-scrollbar { width: 3px; }
+.log-container::-webkit-scrollbar-track { background: #0d0b11; }
+.log-container::-webkit-scrollbar-thumb { background: #2a1a14; }
+
+/* ── section label ── */
+.section-label {
+  font-size: 0.42em; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(184,144,64,0.45); font-weight: 500;
+  margin-bottom: 0.5em; padding-bottom: 0.38em;
+  border-bottom: 1px solid rgba(194,59,43,0.1);
+}
+
+/* ── announcement card ── */
+.announcement-card {
+  background: transparent; border: none;
+  border-top: 1px solid rgba(194,59,43,0.1);
+  padding: 0.7em;
+}
+
+/* ── modal ── */
+.modal-overlay {
+  position: absolute !important; inset: 0;
+  background: rgba(3,1,6,0.92); backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+}
+
+/* ── buttons ── */
+.btn {
+  font-family: 'Noto Sans TC', system-ui, sans-serif; font-weight: 700;
+  cursor: pointer; border-radius: 2px; outline: none;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(194,59,43,0.22);
+  background: rgba(194,59,43,0.06);
+  color: #e0d4c0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn:hover { background: #c23b2b; color: #fff; border-color: #c23b2b; }
+.btn-red  { background: #c23b2b; border-color: #c23b2b; color: #fff; }
+.btn-red:hover { background: #a02f22; border-color: #a02f22; }
+.btn-ghost { background: transparent; border-color: rgba(224,212,192,0.1); color: #8a7868; }
+.btn-ghost:hover { background: rgba(224,212,192,0.06); color: #e0d4c0; border-color: rgba(224,212,192,0.18); }
+.btn:disabled, .btn[disabled] { opacity: 0.2; cursor: not-allowed; }
+
+/* ── dice ── */
+.dice-btn {
+  font-family: 'Bebas Neue', sans-serif; font-size: 1em;
+  padding: 0.3em 0; letter-spacing: 0.05em; cursor: pointer;
+  border-radius: 2px; display: flex; align-items: center; justify-content: center;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  border: 1px solid rgba(224,212,192,0.07);
+}
+.dice-btn:hover { background: #c23b2b !important; color: #fff !important; border-color: #c23b2b !important; }
+.dice-btn-player { background: rgba(224,212,192,0.04); color: #e0d4c0; }
+.dice-btn-boss   { background: rgba(194,59,43,0.1); color: #e8908a; border-color: rgba(194,59,43,0.2); }
+
+/* ── ticker ── */
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-wrap {
+  flex: 1; overflow: hidden;
+  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+.ticker-inner {
+  display: inline-block; white-space: nowrap;
+  animation: ticker-scroll 28s linear infinite;
+  font-size: 0.42em; letter-spacing: 0.14em;
+  color: rgba(194,59,43,0.18); text-transform: uppercase;
+  font-family: 'Bebas Neue', sans-serif;
+}
+
+/* ── board cell flavours ── */
+.cell-trace        { background: #100c07; }
+.cell-trace-red    {
+  background: radial-gradient(ellipse at 50% 55%, rgba(220,150,50,0.14) 0%, transparent 65%), #120e08;
+  border-color: rgba(210,150,50,0.28) !important;
+}
+.cell-trace-purple {
+  background: radial-gradient(ellipse at 50% 50%, rgba(160,80,180,0.08) 0%, transparent 65%), #100b0e;
+  border-color: rgba(150,70,180,0.14) !important;
+}
+
+/* ══ SPLASH SCREEN ══ */
+.splash-wrap {
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; width: 100%;
+  background-image: url('assets/splash-bg.png');
+  background-size: cover;
+  background-position: center center;
+}
+.splash-circle {
+  position: relative; z-index: 2;
+  width: 20em; height: 20em;
+  flex-shrink: 0;
+  animation: splash-in 0.7s cubic-bezier(0.2,0.8,0.3,1) 0.15s both;
+  filter: drop-shadow(0 0 2.5em rgba(180,25,8,0.55)) drop-shadow(0 0 6em rgba(150,15,5,0.25));
+}
+.splash-circle-text {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 1.4em 1.6em; text-align: center;
+}
+@keyframes splash-in {
+  from { opacity:0; transform:scale(0.9); }
+  to   { opacity:1; transform:scale(1); }
+}
+
+/* ── Tailwind overrides for dark bg ── */
+.text-red-400    { color: #e86050 !important; }
+.text-green-400  { color: #5ab88a !important; }
+.text-yellow-400 { color: #c8a040 !important; }
+.text-yellow-300 { color: #c8a040 !important; }
+.text-teal-400   { color: #4ab0a0 !important; }
+.text-cyan-400   { color: #5090c8 !important; }
+.text-orange-400 { color: #d07040 !important; }
+.text-slate-400  { color: #7a6a60 !important; }
+.text-slate-500  { color: #5a4a42 !important; }
+.text-slate-300  { color: #a09080 !important; }
+.text-purple-300 { color: #9878c8 !important; }
+.text-white      { color: #e0d4c0 !important; }
+
+/* ══ CROW MESSENGER MODAL ══ */
+@keyframes crow-overlay-in  { from { opacity:0 } to { opacity:1 } }
+@keyframes crow-modal-in {
+  from { transform: translateY(-2.5em) scale(0.96); opacity:0 }
+  to   { transform: translateY(0) scale(1); opacity:1 }
+}
+@keyframes crow-fly-in {
+  0%   { transform: translate(40%,-60%) rotate(-20deg) scale(0.5); opacity:0 }
+  65%  { transform: translate(0,0) rotate(3deg) scale(1.06); opacity:1 }
+  100% { transform: translate(0,0) rotate(0deg) scale(1); opacity:1 }
+}
+@keyframes crow-eye-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+@keyframes seal-stamp {
+  from { transform:rotate(12deg) scale(1.8); opacity:0 }
+  to   { transform:rotate(12deg) scale(1); opacity:1 }
+}
+@keyframes text-reveal {
+  from { opacity:0; transform:translateY(0.4em) }
+  to   { opacity:1; transform:translateY(0) }
+}
+@keyframes divider-grow {
+  from { width:0; opacity:0 }
+  to   { width:50%; opacity:1 }
+}
+.crow-overlay {
+  position:fixed !important; inset:0;
+  background:rgba(4,2,6,0.92); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:200; cursor:pointer;
+  animation:crow-overlay-in 0.35s ease-out;
+}
+.crow-modal {
+  position:relative; width:min(94%,860px);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(194,59,43,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(80,30,80,0.06) 0%, transparent 50%),
+    linear-gradient(170deg,#100c14 0%,#0d080e 50%,#08080f 100%);
+  border:1px solid rgba(194,59,43,0.14);
+  padding:2.4em 3em 2em;
+  text-align:center; cursor:default; overflow:hidden;
+  animation:crow-modal-in 0.45s cubic-bezier(0.2,0.8,0.3,1) 0.1s both;
+}
+.crow-modal::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(194,59,43,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(194,59,43,0.025) 1px, transparent 1px);
+  background-size:18px 18px;
+}
+.crow-modal::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(to right,transparent,#c23b2b,transparent); opacity:0.5;
+}
+.crow-corner {
+  position:absolute; width:1.2em; height:1.2em;
+  border-color:rgba(194,59,43,0.3); border-style:solid;
+}
+.crow-corner-tl { top:0.5em; left:0.5em; border-width:1px 0 0 1px; }
+.crow-corner-tr { top:0.5em; right:0.5em; border-width:1px 1px 0 0; }
+.crow-corner-bl { bottom:0.5em; left:0.5em; border-width:0 0 1px 1px; }
+.crow-corner-br { bottom:0.5em; right:0.5em; border-width:0 1px 1px 0; }
+.crow-seal {
+  position:absolute; top:0.9em; right:0.9em;
+  font-family:'Bebas Neue',sans-serif; font-size:0.5em;
+  color:rgba(194,59,43,0.5); border:1.5px solid rgba(194,59,43,0.3);
+  width:2.4em; height:2.4em;
+  display:flex; align-items:center; justify-content:center;
+  letter-spacing:0.04em; line-height:1; transform:rotate(12deg);
+  animation:seal-stamp 0.3s ease-out 1.2s both;
+}
+.crow-figure {
+  display:flex; justify-content:center; margin-bottom:0.6em;
+  animation:crow-fly-in 0.6s cubic-bezier(0.2,0.8,0.3,1) 0.25s both;
+}
+.crow-eye-glow { animation:crow-eye-pulse 1.8s ease-in-out infinite; }
+.crow-eyeshine { animation:crow-eye-pulse 1.8s ease-in-out 0.3s infinite; }
+.crow-tagline {
+  font-family:'Bebas Neue',sans-serif; font-size:0.62em; letter-spacing:0.28em;
+  color:rgba(194,59,43,0.55); text-transform:uppercase; display:block;
+  animation:text-reveal 0.4s ease-out 0.7s both;
+}
+.crow-mission-name {
+  font-family:'Bebas Neue',sans-serif; font-size:2em; letter-spacing:0.1em; line-height:1.2;
+  color:#f5ede0; margin:0.18em 0 0.25em;
+  white-space: nowrap;
+  animation:text-reveal 0.4s ease-out 0.85s both;
+}
+.crow-hr {
+  height:1px; width:0;
+  background:linear-gradient(to right,transparent,rgba(194,59,43,0.45),transparent);
+  margin:0 auto 0.7em;
+  animation:divider-grow 0.5s ease-out 1s both;
+}
+.crow-mission-desc {
+  font-size:1em; line-height:1.65; color:rgba(245,237,224,0.75); letter-spacing:0.03em;
+  animation:text-reveal 0.4s ease-out 1.05s both;
+}
+.crow-damage-badge {
+  display:inline-block; margin-top:0.75em;
+  font-family:'Bebas Neue',sans-serif; font-size:0.8em; color:#c23b2b; letter-spacing:0.1em;
+  border:1px solid rgba(194,59,43,0.28); padding:0.12em 0.9em;
+  animation:text-reveal 0.4s ease-out 1.15s both;
+}
+.crow-dismiss {
+  display:block; margin-top:1.1em; font-size:0.6em; letter-spacing:0.14em;
+  color:rgba(245,237,224,0.25); text-transform:uppercase;
+  animation:text-reveal 0.4s ease-out 1.35s both;
+}
+
+/* ══ CARD REVEAL MODAL ══ */
+.card-overlay {
+  position:absolute !important; inset:0;
+  background:rgba(5,2,10,0.92); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:200; cursor:pointer;
+  animation:crow-overlay-in 0.3s ease-out;
+}
+.card-modal {
+  position:relative; width:min(94%,860px);
+  padding:2.4em 3em 2em; text-align:center;
+  cursor:default; overflow:hidden;
+  animation:crow-modal-in 0.45s cubic-bezier(0.2,0.8,0.3,1) 0.05s both;
+}
+.card-modal::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(152,100,210,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(152,100,210,0.035) 1px, transparent 1px);
+  background-size:18px 18px;
+}
+.card-modal .crow-corner { border-color:rgba(152,100,210,0.35); }
+.card-modal::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--card-accent-grad); opacity:0.55;
+}
+.card-modal-icon {
+  font-size:1.6em; margin-bottom:0.15em;
+  animation:text-reveal 0.3s ease-out 0.2s both;
+}
+.card-modal-type {
+  font-family:'Bebas Neue',sans-serif; font-size:0.62em; letter-spacing:0.28em; text-transform:uppercase;
+  margin-bottom:0.3em; display:block;
+  animation:text-reveal 0.3s ease-out 0.3s both;
+}
+.card-modal-name {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2em; line-height:1.2; letter-spacing:0.1em; white-space:nowrap;
+  margin:0.18em 0 0.25em;
+  animation:text-reveal 0.4s ease-out 0.45s both;
+}
+.card-modal-divider {
+  height:1px; width:0; margin:0 auto 0.7em;
+  animation:divider-grow 0.5s ease-out 0.6s both;
+}
+.card-modal-effect {
+  font-size:1em; line-height:1.65; color:rgba(245,237,224,0.75);
+  animation:text-reveal 0.4s ease-out 0.75s both;
+}
+.card-modal-dismiss {
+  display:block; margin-top:1.1em; font-size:0.6em; letter-spacing:0.14em;
+  color:rgba(245,237,224,0.25); text-transform:uppercase;
+  animation:text-reveal 0.4s ease-out 1s both;
+}
+.card-modal.chance {
+  --card-accent-grad: linear-gradient(to right,transparent,#9878c8,transparent);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(152,100,210,0.1) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(90,184,138,0.05) 0%, transparent 50%),
+    linear-gradient(170deg,#0e0b14 0%,#0a0810 50%,#080810 100%);
+  border:1px solid rgba(152,100,210,0.2);
+}
+.card-modal.fate {
+  --card-accent-grad: linear-gradient(to right,transparent,#9878c8,transparent);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(152,100,210,0.1) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(194,59,43,0.05) 0%, transparent 50%),
+    linear-gradient(170deg,#0e0b14 0%,#0a0810 50%,#080810 100%);
+  border:1px solid rgba(152,100,210,0.2);
+}
+
+/* ══ DAMAGE EFFECTS ══ */
+@keyframes cell-hit-shake {
+  0%,100% { transform:translateX(0); }
+  20%     { transform:translateX(-4px); }
+  40%     { transform:translateX(4px); }
+  60%     { transform:translateX(-3px); }
+  80%     { transform:translateX(2px); }
+}
+@keyframes cell-hit-flash {
+  0%   { box-shadow:inset 0 0 0 100vw rgba(194,59,43,0.55); }
+  100% { box-shadow:inset 0 0 0 100vw rgba(194,59,43,0); }
+}
+.cell-hit {
+  animation: cell-hit-shake 0.4s ease-out, cell-hit-flash 0.6s ease-out;
+}
+@keyframes float-dmg {
+  0%   { transform:translateX(-50%) translateY(0);      opacity:1; }
+  100% { transform:translateX(-50%) translateY(-2.2em); opacity:0; }
+}
+.floating-dmg {
+  position:absolute; left:50%; top:40%;
+  transform:translateX(-50%);
+  font-family:'Bebas Neue',sans-serif; font-size:1.1em;
+  color:#ef4444; font-weight:700; white-space:nowrap;
+  text-shadow:0 0 8px rgba(194,59,43,0.9);
+  animation:float-dmg 0.9s ease-out forwards;
+  pointer-events:none; z-index:10;
+}
+
+/* ══ B2：傷害過場 DAMAGE STRIKE ══ */
+@keyframes dmg-overlay-in {
+  from { opacity:0 } to { opacity:1 }
+}
+@keyframes dmg-number-pop {
+  0%   { opacity:0; transform:scale(0.5); }
+  30%  { opacity:1; transform:scale(1.15); }
+  50%  { transform:scale(1); }
+  80%  { opacity:1; transform:scale(1); }
+  100% { opacity:0; transform:scale(0.95) translateY(-0.3em); }
+}
+@keyframes dmg-slash {
+  0%   { width:0; opacity:0; }
+  30%  { width:70%; opacity:1; }
+  80%  { width:70%; opacity:1; }
+  100% { width:70%; opacity:0; }
+}
+@keyframes dmg-text-in {
+  0%,15% { opacity:0; transform:translateY(0.5em); }
+  35%    { opacity:1; transform:translateY(0); }
+  80%    { opacity:1; }
+  100%   { opacity:0; }
+}
+.dmg-overlay {
+  position:absolute !important; inset:0;
+  background:rgba(8,2,4,0.88); backdrop-filter:blur(8px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:310; pointer-events:auto;
+  animation:dmg-overlay-in 0.18s ease-out;
+}
+.dmg-banner { text-align:center; position:relative; }
+.dmg-number {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:6em; line-height:1;
+  color:#ef4444;
+  text-shadow:0 0 40px rgba(220,40,40,0.8), 0 0 80px rgba(180,20,20,0.4);
+  animation:dmg-number-pop 2s cubic-bezier(0.2,0.8,0.3,1) forwards;
+}
+.dmg-slash-line {
+  height:2px; margin:0.1em auto 0.4em;
+  background:linear-gradient(to right,transparent,#c23b2b,transparent);
+  animation:dmg-slash 2s ease-out forwards;
+}
+.dmg-team {
+  font-family:'Noto Sans TC',sans-serif; font-size:1em; font-weight:700;
+  letter-spacing:0.18em; color:rgba(245,220,200,0.8);
+  animation:dmg-text-in 2s ease-out forwards;
+}
+.dmg-hp-remain {
+  font-family:'Bebas Neue',sans-serif; font-size:0.8em;
+  letter-spacing:0.2em; color:rgba(194,59,43,0.55);
+  margin-top:0.4em;
+  animation:dmg-text-in 2s ease-out forwards;
+}
+
+/* ══ B3：隊伍受傷過場 TEAM HIT ══ */
+@keyframes team-hit-number {
+  0%   { opacity:0; transform:scale(0.5); }
+  30%  { opacity:1; transform:scale(1.1); }
+  50%  { transform:scale(1); }
+  80%  { opacity:1; }
+  100% { opacity:0; transform:translateY(-0.2em); }
+}
+@keyframes team-hit-row {
+  0%,20% { opacity:0; transform:translateX(-1em); }
+  40%    { opacity:1; transform:translateX(0); }
+  80%    { opacity:1; }
+  100%   { opacity:0; }
+}
+.team-hit-overlay {
+  position:absolute !important; inset:0;
+  background:rgba(8,2,4,0.88); backdrop-filter:blur(8px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:310; pointer-events:auto;
+  animation:dmg-overlay-in 0.18s ease-out;
+}
+.team-hit-banner { text-align:center; }
+.team-hit-label {
+  font-family:'Bebas Neue',sans-serif; font-size:0.7em;
+  letter-spacing:0.3em; color:rgba(194,59,43,0.6); margin-bottom:0.2em;
+  animation:dmg-text-in 2.5s ease-out forwards;
+}
+.team-hit-number {
+  font-family:'Bebas Neue',sans-serif; font-size:5em; line-height:1;
+  color:#ef4444;
+  text-shadow:0 0 40px rgba(220,40,40,0.8), 0 0 80px rgba(180,20,20,0.4);
+  animation:team-hit-number 2.5s cubic-bezier(0.2,0.8,0.3,1) forwards;
+}
+.team-hit-rows { margin-top:0.5em; display:flex; flex-direction:column; gap:0.25em; align-items:center; }
+.team-hit-row {
+  font-family:'Noto Sans TC',sans-serif; font-size:0.9em; font-weight:700;
+  letter-spacing:0.1em; display:flex; align-items:center; gap:0.5em;
+}
+.team-hit-row:nth-child(1) { animation:team-hit-row 2.5s ease-out 0.1s forwards; }
+.team-hit-row:nth-child(2) { animation:team-hit-row 2.5s ease-out 0.2s forwards; }
+.team-hit-row:nth-child(3) { animation:team-hit-row 2.5s ease-out 0.3s forwards; }
+.team-hit-row:nth-child(4) { animation:team-hit-row 2.5s ease-out 0.4s forwards; }
+.team-hit-row:nth-child(5) { animation:team-hit-row 2.5s ease-out 0.5s forwards; }
+.team-hit-row:nth-child(6) { animation:team-hit-row 2.5s ease-out 0.6s forwards; }
+.team-hit-dot { width:0.7em; height:0.7em; border-radius:50%; flex-shrink:0; }
+
+/* ══ B4：産屋敷降臨 UBUYASHIKI SAVES ══ */
+@keyframes ub-overlay-in {
+  from { opacity:0 } to { opacity:1 }
+}
+@keyframes ub-overlay-out {
+  from { opacity:1 } to { opacity:0 }
+}
+@keyframes ub-title-in {
+  0%   { opacity:0; transform:scale(0.85) translateY(0.5em); filter:blur(6px); }
+  40%  { opacity:1; transform:scale(1) translateY(0); filter:blur(0); }
+  85%  { opacity:1; }
+  100% { opacity:0; }
+}
+@keyframes ub-sub-in {
+  0%,25% { opacity:0; transform:translateY(0.6em); }
+  50%    { opacity:1; transform:translateY(0); }
+  85%    { opacity:1; }
+  100%   { opacity:0; }
+}
+@keyframes ub-glow-pulse {
+  0%,100% { box-shadow: 0 0 80px 20px rgba(210,175,80,0.12); }
+  50%     { box-shadow: 0 0 140px 40px rgba(210,175,80,0.22); }
+}
+.ubuyashiki-overlay {
+  position:absolute !important; inset:0;
+  background:rgba(4,3,2,0.96); backdrop-filter:blur(12px);
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  z-index:320; pointer-events:auto;
+  animation:ub-overlay-in 0.5s ease-out;
+}
+.ubuyashiki-overlay.fade-out {
+  animation:ub-overlay-out 0.8s ease-in forwards;
+}
+.ub-glow {
+  position:absolute; width:30em; height:30em; border-radius:50%; pointer-events:none;
+  background:radial-gradient(ellipse,rgba(210,175,80,0.1) 0%,transparent 70%);
+  animation:ub-glow-pulse 2s ease-in-out infinite;
+}
+.ub-label {
+  font-family:'Bebas Neue',sans-serif; font-size:0.55em; letter-spacing:0.32em;
+  color:rgba(210,175,80,0.5); text-transform:uppercase; margin-bottom:0.6em;
+  animation:ub-sub-in 4.5s ease-out forwards;
+}
+.ub-name {
+  font-family:'Shippori Mincho B1',serif; font-weight:800;
+  font-size:3.6em; line-height:1; letter-spacing:0.12em;
+  color:#e8d080;
+  text-shadow:0 0 60px rgba(210,175,80,0.6), 0 0 120px rgba(210,175,80,0.3);
+  animation:ub-title-in 4.5s cubic-bezier(0.2,0.8,0.3,1) forwards;
+}
+.ub-desc {
+  font-family:'Noto Sans TC',sans-serif; font-size:0.9em; font-weight:500;
+  color:rgba(235,220,170,0.65); letter-spacing:0.08em; margin-top:0.8em;
+  animation:ub-sub-in 4.5s ease-out 0.3s forwards;
+}
+.ub-revive {
+  font-family:'Bebas Neue',sans-serif; font-size:1em; letter-spacing:0.2em;
+  color:rgba(90,184,138,0.7); margin-top:0.5em;
+  animation:ub-sub-in 4.5s ease-out 0.6s forwards;
+}
+
+/* ══ C：回合過場 TURN TRANSITION ══ */
+@keyframes turn-banner-show {
+  0%   { opacity:0; transform:translateY(-0.6em) scale(0.96); }
+  18%  { opacity:1; transform:translateY(0) scale(1); }
+  80%  { opacity:1; transform:translateY(0) scale(1); }
+  100% { opacity:0; transform:translateY(0.3em) scale(0.98); }
+}
+.turn-transition-overlay {
+  position:absolute !important; inset:0;
+  background:rgba(4,2,8,0.78); backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:300; pointer-events:auto;
+}
+.turn-transition-banner {
+  text-align:center;
+  animation: turn-banner-show 1.4s cubic-bezier(0.2,0.8,0.3,1) forwards;
+}
+
+/* ══ D：翻牌動畫 CARD FLIP ══ */
+@keyframes card-flip-select {
+  0%   { transform:scaleX(1) scaleY(1); }
+  35%  { transform:scaleX(0.04) scaleY(1.08); }
+  65%  { transform:scaleX(0.04) scaleY(1.08); }
+  100% { transform:scaleX(1) scaleY(1); }
+}
+.card-flipping-anim {
+  animation: card-flip-select 0.42s ease-in-out forwards;
+  pointer-events:none;
+}
+
+/* ══ 方案4：道具持有 avatar glow ══ */
+@keyframes glow-shield {
+  0%,100% { box-shadow:0 0 0.35em 0.1em rgba(80,144,200,0.45); }
+  50%     { box-shadow:0 0 0.8em  0.3em rgba(80,144,200,0.8);  }
+}
+@keyframes glow-double {
+  0%,100% { box-shadow:0 0 0.35em 0.1em rgba(208,112,64,0.5); }
+  50%     { box-shadow:0 0 0.8em  0.3em rgba(208,112,64,0.85); }
+}
+@keyframes glow-both {
+  0%  { box-shadow:0 0 0.7em 0.22em rgba(80,144,200,0.75); }
+  50% { box-shadow:0 0 0.7em 0.22em rgba(208,112,64,0.75); }
+  100%{ box-shadow:0 0 0.7em 0.22em rgba(80,144,200,0.75); }
+}
+.avatar-glow-shield { animation:glow-shield 1.6s ease-in-out infinite; }
+.avatar-glow-double { animation:glow-double 1.4s ease-in-out infinite; }
+.avatar-glow-both   { animation:glow-both   2s   ease-in-out infinite; }
+
+/* ══ E：玩家受傷閃爍 TEAM ROW HIT ══ */
+@keyframes team-row-flash {
+  0%   { box-shadow:inset 0 0 0 100vw rgba(194,59,43,0.35); }
+  100% { box-shadow:inset 0 0 0 100vw rgba(194,59,43,0); }
+}
+.team-row-hit { animation: team-row-flash 0.65s ease-out; }
