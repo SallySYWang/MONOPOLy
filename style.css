@@ -16,15 +16,15 @@ html, body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  color: #e0d4c0;
+  color: #fff5ec;
 }
 /* subtle cross-grid texture — like Japanese textile */
 #app::before {
   content: '';
   position: absolute; inset: 0; z-index: 0; pointer-events: none;
   background-image:
-    linear-gradient(rgba(194,59,43,0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(194,59,43,0.022) 1px, transparent 1px);
+    linear-gradient(rgba(255,106,26,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,106,26,0.05) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 #app > * { position: relative; z-index: 1; }
@@ -32,18 +32,18 @@ html, body {
 
 /* ── typography ── */
 .font-display { font-family: 'Bebas Neue', system-ui, sans-serif; letter-spacing: 0.03em; }
-.text-cream  { color: #e0d4c0; }
-.text-dim    { color: #5a4a40; }
-.text-muted  { color: #8a7868; }
-.text-accent { color: #c23b2b; }
-.text-gold   { color: #b89040; }
+.text-cream  { color: #fff5ec; }
+.text-dim    { color: #7a6050; }
+.text-muted  { color: #b09880; }
+.text-accent { color: #ff6818; }
+.text-gold   { color: #f09028; }
 
 /* ── pulse for slash ── */
 @keyframes pulse-opacity {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.4; }
 }
-.slash-text { animation: pulse-opacity 1.4s ease-in-out infinite; color: #c23b2b; }
+.slash-text { animation: pulse-opacity 1.4s ease-in-out infinite; color: #ff6818; }
 
 /* ── board — Infinity Castle warm palette ── */
 .board-grid {
@@ -57,12 +57,12 @@ html, body {
 .board-cell {
   position: relative; overflow: hidden; min-height: 0;
   background: #100c07;
-  border: 1px solid rgba(200,110,40,0.16);
+  border: 1px solid rgba(255,130,40,0.42);
 }
 .board-cell::after {
   content: '';
   position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse at 65% 75%, rgba(210,120,40,0.05) 0%, transparent 55%);
+  background: radial-gradient(ellipse at 65% 75%, rgba(255,140,45,0.12) 0%, transparent 55%);
 }
 
 /* ── control panel ── */
@@ -70,7 +70,7 @@ html, body {
   grid-column: 2 / 5;
   grid-row: 2 / 5;
   background: #150f08;
-  border: 1px solid rgba(200,110,40,0.18);
+  border: 1px solid rgba(255,130,40,0.48);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   padding: 0.6em; overflow: hidden; position: relative;
@@ -78,13 +78,13 @@ html, body {
 .control-panel::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0; height: 1.5px;
-  background: linear-gradient(to right, transparent, #c87828 40%, #c87828 60%, transparent);
-  opacity: 0.5;
+  background: linear-gradient(to right, transparent, #ff8830 40%, #ff8830 60%, transparent);
+  opacity: 1;
 }
 .control-panel::after {
   content: '';
   position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse at 50% 50%, rgba(200,110,40,0.05) 0%, transparent 55%);
+  background: radial-gradient(ellipse at 50% 50%, rgba(255,130,40,0.12) 0%, transparent 55%);
 }
 
 /* ── tokens ── */
@@ -115,15 +115,15 @@ html, body {
 /* ── section label ── */
 .section-label {
   font-size: 0.42em; letter-spacing: 0.18em; text-transform: uppercase;
-  color: rgba(184,144,64,0.45); font-weight: 500;
+  color: rgba(255,140,40,0.95); font-weight: 500;
   margin-bottom: 0.5em; padding-bottom: 0.38em;
-  border-bottom: 1px solid rgba(194,59,43,0.1);
+  border-bottom: 1px solid rgba(255,106,26,0.28);
 }
 
 /* ── announcement card ── */
 .announcement-card {
   background: transparent; border: none;
-  border-top: 1px solid rgba(194,59,43,0.1);
+  border-top: 1px solid rgba(255,106,26,0.28);
   padding: 0.7em;
 }
 
@@ -140,16 +140,16 @@ html, body {
   font-family: 'Noto Sans TC', system-ui, sans-serif; font-weight: 700;
   cursor: pointer; border-radius: 2px; outline: none;
   letter-spacing: 0.06em;
-  border: 1px solid rgba(194,59,43,0.22);
-  background: rgba(194,59,43,0.06);
-  color: #e0d4c0;
+  border: 1px solid rgba(255,106,26,0.52);
+  background: rgba(255,106,26,0.18);
+  color: #fff5ec;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-.btn:hover { background: #c23b2b; color: #fff; border-color: #c23b2b; }
-.btn-red  { background: #c23b2b; border-color: #c23b2b; color: #fff; }
-.btn-red:hover { background: #a02f22; border-color: #a02f22; }
-.btn-ghost { background: transparent; border-color: rgba(224,212,192,0.1); color: #8a7868; }
-.btn-ghost:hover { background: rgba(224,212,192,0.06); color: #e0d4c0; border-color: rgba(224,212,192,0.18); }
+.btn:hover { background: #ff6818; color: #fff; border-color: #ff6818; }
+.btn-red  { background: #ff6818; border-color: #ff6818; color: #fff; }
+.btn-red:hover { background: #cc5512; border-color: #cc5512; }
+.btn-ghost { background: transparent; border-color: rgba(255,245,220,0.28); color: #b09880; }
+.btn-ghost:hover { background: rgba(255,245,220,0.15); color: #fff5ec; border-color: rgba(255,245,220,0.42); }
 .btn:disabled, .btn[disabled] { opacity: 0.2; cursor: not-allowed; }
 
 /* ── dice ── */
@@ -158,11 +158,11 @@ html, body {
   padding: 0.3em 0; letter-spacing: 0.05em; cursor: pointer;
   border-radius: 2px; display: flex; align-items: center; justify-content: center;
   transition: background 0.12s, color 0.12s, border-color 0.12s;
-  border: 1px solid rgba(224,212,192,0.07);
+  border: 1px solid rgba(255,245,220,0.18);
 }
-.dice-btn:hover { background: #c23b2b !important; color: #fff !important; border-color: #c23b2b !important; }
-.dice-btn-player { background: rgba(224,212,192,0.04); color: #e0d4c0; }
-.dice-btn-boss   { background: rgba(194,59,43,0.1); color: #e8908a; border-color: rgba(194,59,43,0.2); }
+.dice-btn:hover { background: #ff6818 !important; color: #fff !important; border-color: #ff6818 !important; }
+.dice-btn-player { background: rgba(255,245,220,0.1); color: #fff5ec; }
+.dice-btn-boss   { background: rgba(255,106,26,0.28); color: #e8908a; border-color: rgba(255,106,26,0.5); }
 
 /* ── ticker ── */
 @keyframes ticker-scroll {
@@ -178,19 +178,19 @@ html, body {
   display: inline-block; white-space: nowrap;
   animation: ticker-scroll 28s linear infinite;
   font-size: 0.42em; letter-spacing: 0.14em;
-  color: rgba(194,59,43,0.18); text-transform: uppercase;
+  color: rgba(255,106,26,0.48); text-transform: uppercase;
   font-family: 'Bebas Neue', sans-serif;
 }
 
 /* ── board cell flavours ── */
 .cell-trace        { background: #100c07; }
 .cell-trace-red    {
-  background: radial-gradient(ellipse at 50% 55%, rgba(220,150,50,0.14) 0%, transparent 65%), #120e08;
-  border-color: rgba(210,150,50,0.28) !important;
+  background: radial-gradient(ellipse at 50% 55%, rgba(255,170,55,0.32) 0%, transparent 65%), #120e08;
+  border-color: rgba(255,170,55,0.6) !important;
 }
 .cell-trace-purple {
-  background: radial-gradient(ellipse at 50% 50%, rgba(160,80,180,0.08) 0%, transparent 65%), #100b0e;
-  border-color: rgba(150,70,180,0.14) !important;
+  background: radial-gradient(ellipse at 50% 55%, rgba(255,130,40,0.18) 0%, transparent 65%), #150e08;
+  border-color: rgba(255,120,30,0.65) !important;
 }
 
 /* ══ SPLASH SCREEN ══ */
@@ -222,18 +222,18 @@ html, body {
 }
 
 /* ── Tailwind overrides for dark bg ── */
-.text-red-400    { color: #e86050 !important; }
+.text-red-400    { color: #f07030 !important; }
 .text-green-400  { color: #5ab88a !important; }
-.text-yellow-400 { color: #c8a040 !important; }
-.text-yellow-300 { color: #c8a040 !important; }
+.text-yellow-400 { color: #f09028 !important; }
+.text-yellow-300 { color: #f09028 !important; }
 .text-teal-400   { color: #4ab0a0 !important; }
 .text-cyan-400   { color: #5090c8 !important; }
 .text-orange-400 { color: #d07040 !important; }
-.text-slate-400  { color: #7a6a60 !important; }
-.text-slate-500  { color: #5a4a42 !important; }
-.text-slate-300  { color: #a09080 !important; }
+.text-slate-400  { color: #a08878 !important; }
+.text-slate-500  { color: #857060 !important; }
+.text-slate-300  { color: #c8b0a0 !important; }
 .text-purple-300 { color: #9878c8 !important; }
-.text-white      { color: #e0d4c0 !important; }
+.text-white      { color: #fff5ec !important; }
 
 /* ══ CROW MESSENGER MODAL ══ */
 @keyframes crow-overlay-in  { from { opacity:0 } to { opacity:1 } }
@@ -269,10 +269,10 @@ html, body {
 .crow-modal {
   position:relative; width:min(94%,860px);
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(194,59,43,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 0%, rgba(255,106,26,0.18) 0%, transparent 55%),
     radial-gradient(ellipse at 20% 80%, rgba(80,30,80,0.06) 0%, transparent 50%),
     linear-gradient(170deg,#100c14 0%,#0d080e 50%,#08080f 100%);
-  border:1px solid rgba(194,59,43,0.14);
+  border:1px solid rgba(255,106,26,0.38);
   padding:2.4em 3em 2em;
   text-align:center; cursor:default; overflow:hidden;
   animation:crow-modal-in 0.45s cubic-bezier(0.2,0.8,0.3,1) 0.1s both;
@@ -280,17 +280,17 @@ html, body {
 .crow-modal::before {
   content:''; position:absolute; inset:0; pointer-events:none;
   background-image:
-    linear-gradient(rgba(194,59,43,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(194,59,43,0.025) 1px, transparent 1px);
+    linear-gradient(rgba(255,106,26,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,106,26,0.06) 1px, transparent 1px);
   background-size:18px 18px;
 }
 .crow-modal::after {
   content:''; position:absolute; top:0; left:0; right:0; height:2px;
-  background:linear-gradient(to right,transparent,#c23b2b,transparent); opacity:0.5;
+  background:linear-gradient(to right,transparent,#ff6818,transparent); opacity:0.92;
 }
 .crow-corner {
   position:absolute; width:1.2em; height:1.2em;
-  border-color:rgba(194,59,43,0.3); border-style:solid;
+  border-color:rgba(255,106,26,0.68); border-style:solid;
 }
 .crow-corner-tl { top:0.5em; left:0.5em; border-width:1px 0 0 1px; }
 .crow-corner-tr { top:0.5em; right:0.5em; border-width:1px 1px 0 0; }
@@ -299,7 +299,7 @@ html, body {
 .crow-seal {
   position:absolute; top:0.9em; right:0.9em;
   font-family:'Bebas Neue',sans-serif; font-size:0.5em;
-  color:rgba(194,59,43,0.5); border:1.5px solid rgba(194,59,43,0.3);
+  color:rgba(255,106,26,0.88); border:1.5px solid rgba(255,106,26,0.68);
   width:2.4em; height:2.4em;
   display:flex; align-items:center; justify-content:center;
   letter-spacing:0.04em; line-height:1; transform:rotate(12deg);
@@ -313,7 +313,7 @@ html, body {
 .crow-eyeshine { animation:crow-eye-pulse 1.8s ease-in-out 0.3s infinite; }
 .crow-tagline {
   font-family:'Bebas Neue',sans-serif; font-size:0.62em; letter-spacing:0.28em;
-  color:rgba(194,59,43,0.55); text-transform:uppercase; display:block;
+  color:rgba(255,106,26,0.9); text-transform:uppercase; display:block;
   animation:text-reveal 0.4s ease-out 0.7s both;
 }
 .crow-mission-name {
@@ -324,23 +324,23 @@ html, body {
 }
 .crow-hr {
   height:1px; width:0;
-  background:linear-gradient(to right,transparent,rgba(194,59,43,0.45),transparent);
+  background:linear-gradient(to right,transparent,rgba(255,106,26,0.82),transparent);
   margin:0 auto 0.7em;
   animation:divider-grow 0.5s ease-out 1s both;
 }
 .crow-mission-desc {
-  font-size:1em; line-height:1.65; color:rgba(245,237,224,0.75); letter-spacing:0.03em;
+  font-size:1em; line-height:1.65; color:rgba(255,250,240,0.95); letter-spacing:0.03em;
   animation:text-reveal 0.4s ease-out 1.05s both;
 }
 .crow-damage-badge {
   display:inline-block; margin-top:0.75em;
-  font-family:'Bebas Neue',sans-serif; font-size:0.8em; color:#c23b2b; letter-spacing:0.1em;
-  border:1px solid rgba(194,59,43,0.28); padding:0.12em 0.9em;
+  font-family:'Bebas Neue',sans-serif; font-size:0.8em; color:#ff6818; letter-spacing:0.1em;
+  border:1px solid rgba(255,106,26,0.62); padding:0.12em 0.9em;
   animation:text-reveal 0.4s ease-out 1.15s both;
 }
 .crow-dismiss {
   display:block; margin-top:1.1em; font-size:0.6em; letter-spacing:0.14em;
-  color:rgba(245,237,224,0.25); text-transform:uppercase;
+  color:rgba(255,250,240,0.62); text-transform:uppercase;
   animation:text-reveal 0.4s ease-out 1.35s both;
 }
 
@@ -368,7 +368,7 @@ html, body {
 .card-modal .crow-corner { border-color:rgba(152,100,210,0.35); }
 .card-modal::after {
   content:''; position:absolute; top:0; left:0; right:0; height:2px;
-  background:var(--card-accent-grad); opacity:0.55;
+  background:var(--card-accent-grad); opacity:0.9;
 }
 .card-modal-icon {
   font-size:1.6em; margin-bottom:0.15em;
@@ -390,12 +390,12 @@ html, body {
   animation:divider-grow 0.5s ease-out 0.6s both;
 }
 .card-modal-effect {
-  font-size:1em; line-height:1.65; color:rgba(245,237,224,0.75);
+  font-size:1em; line-height:1.65; color:rgba(255,250,240,0.95);
   animation:text-reveal 0.4s ease-out 0.75s both;
 }
 .card-modal-dismiss {
   display:block; margin-top:1.1em; font-size:0.6em; letter-spacing:0.14em;
-  color:rgba(245,237,224,0.25); text-transform:uppercase;
+  color:rgba(255,250,240,0.62); text-transform:uppercase;
   animation:text-reveal 0.4s ease-out 1s both;
 }
 .card-modal.chance {
@@ -410,7 +410,7 @@ html, body {
   --card-accent-grad: linear-gradient(to right,transparent,#9878c8,transparent);
   background:
     radial-gradient(ellipse at 50% 0%, rgba(152,100,210,0.1) 0%, transparent 55%),
-    radial-gradient(ellipse at 20% 80%, rgba(194,59,43,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 80%, rgba(255,106,26,0.13) 0%, transparent 50%),
     linear-gradient(170deg,#0e0b14 0%,#0a0810 50%,#080810 100%);
   border:1px solid rgba(152,100,210,0.2);
 }
@@ -424,8 +424,8 @@ html, body {
   80%     { transform:translateX(2px); }
 }
 @keyframes cell-hit-flash {
-  0%   { box-shadow:inset 0 0 0 100vw rgba(194,59,43,0.55); }
-  100% { box-shadow:inset 0 0 0 100vw rgba(194,59,43,0); }
+  0%   { box-shadow:inset 0 0 0 100vw rgba(255,106,26,0.9); }
+  100% { box-shadow:inset 0 0 0 100vw rgba(224,92,24,0); }
 }
 .cell-hit {
   animation: cell-hit-shake 0.4s ease-out, cell-hit-flash 0.6s ease-out;
@@ -438,8 +438,8 @@ html, body {
   position:absolute; left:50%; top:40%;
   transform:translateX(-50%);
   font-family:'Bebas Neue',sans-serif; font-size:1.1em;
-  color:#ef4444; font-weight:700; white-space:nowrap;
-  text-shadow:0 0 8px rgba(194,59,43,0.9);
+  color:#ff6818; font-weight:700; white-space:nowrap;
+  text-shadow:0 0 8px rgba(255,106,26,0.98);
   animation:float-dmg 0.9s ease-out forwards;
   pointer-events:none; z-index:10;
 }
@@ -478,23 +478,23 @@ html, body {
 .dmg-number {
   font-family:'Bebas Neue',sans-serif;
   font-size:6em; line-height:1;
-  color:#ef4444;
-  text-shadow:0 0 40px rgba(220,40,40,0.8), 0 0 80px rgba(180,20,20,0.4);
+  color:#ff6818;
+  text-shadow:0 0 40px rgba(230,90,20,0.8), 0 0 80px rgba(190,65,10,0.4);
   animation:dmg-number-pop 2s cubic-bezier(0.2,0.8,0.3,1) forwards;
 }
 .dmg-slash-line {
   height:2px; margin:0.1em auto 0.4em;
-  background:linear-gradient(to right,transparent,#c23b2b,transparent);
+  background:linear-gradient(to right,transparent,#ff6818,transparent);
   animation:dmg-slash 2s ease-out forwards;
 }
 .dmg-team {
   font-family:'Noto Sans TC',sans-serif; font-size:1em; font-weight:700;
-  letter-spacing:0.18em; color:rgba(245,220,200,0.8);
+  letter-spacing:0.18em; color:rgba(255,240,220,0.98);
   animation:dmg-text-in 2s ease-out forwards;
 }
 .dmg-hp-remain {
   font-family:'Bebas Neue',sans-serif; font-size:0.8em;
-  letter-spacing:0.2em; color:rgba(194,59,43,0.55);
+  letter-spacing:0.2em; color:rgba(255,106,26,0.9);
   margin-top:0.4em;
   animation:dmg-text-in 2s ease-out forwards;
 }
@@ -523,13 +523,13 @@ html, body {
 .team-hit-banner { text-align:center; }
 .team-hit-label {
   font-family:'Bebas Neue',sans-serif; font-size:0.7em;
-  letter-spacing:0.3em; color:rgba(194,59,43,0.6); margin-bottom:0.2em;
+  letter-spacing:0.3em; color:rgba(255,106,26,0.92); margin-bottom:0.2em;
   animation:dmg-text-in 2.5s ease-out forwards;
 }
 .team-hit-number {
   font-family:'Bebas Neue',sans-serif; font-size:5em; line-height:1;
-  color:#ef4444;
-  text-shadow:0 0 40px rgba(220,40,40,0.8), 0 0 80px rgba(180,20,20,0.4);
+  color:#ff6818;
+  text-shadow:0 0 40px rgba(230,90,20,0.8), 0 0 80px rgba(190,65,10,0.4);
   animation:team-hit-number 2.5s cubic-bezier(0.2,0.8,0.3,1) forwards;
 }
 .team-hit-rows { margin-top:0.5em; display:flex; flex-direction:column; gap:0.25em; align-items:center; }
@@ -565,8 +565,8 @@ html, body {
   100%   { opacity:0; }
 }
 @keyframes ub-glow-pulse {
-  0%,100% { box-shadow: 0 0 80px 20px rgba(210,175,80,0.12); }
-  50%     { box-shadow: 0 0 140px 40px rgba(210,175,80,0.22); }
+  0%,100% { box-shadow: 0 0 80px 20px rgba(255,165,50,0.28); }
+  50%     { box-shadow: 0 0 140px 40px rgba(255,165,50,0.48); }
 }
 .ubuyashiki-overlay {
   position:absolute !important; inset:0;
@@ -580,24 +580,24 @@ html, body {
 }
 .ub-glow {
   position:absolute; width:30em; height:30em; border-radius:50%; pointer-events:none;
-  background:radial-gradient(ellipse,rgba(210,175,80,0.1) 0%,transparent 70%);
+  background:radial-gradient(ellipse,rgba(255,165,50,0.22) 0%,transparent 70%);
   animation:ub-glow-pulse 2s ease-in-out infinite;
 }
 .ub-label {
   font-family:'Bebas Neue',sans-serif; font-size:0.55em; letter-spacing:0.32em;
-  color:rgba(210,175,80,0.5); text-transform:uppercase; margin-bottom:0.6em;
+  color:rgba(255,165,50,0.92); text-transform:uppercase; margin-bottom:0.6em;
   animation:ub-sub-in 4.5s ease-out forwards;
 }
 .ub-name {
   font-family:'Shippori Mincho B1',serif; font-weight:800;
   font-size:3.6em; line-height:1; letter-spacing:0.12em;
-  color:#e8d080;
-  text-shadow:0 0 60px rgba(210,175,80,0.6), 0 0 120px rgba(210,175,80,0.3);
+  color:#ffaa45;
+  text-shadow:0 0 60px rgba(255,165,50,0.95), 0 0 120px rgba(220,140,40,0.3);
   animation:ub-title-in 4.5s cubic-bezier(0.2,0.8,0.3,1) forwards;
 }
 .ub-desc {
   font-family:'Noto Sans TC',sans-serif; font-size:0.9em; font-weight:500;
-  color:rgba(235,220,170,0.65); letter-spacing:0.08em; margin-top:0.8em;
+  color:rgba(255,210,120,0.92); letter-spacing:0.08em; margin-top:0.8em;
   animation:ub-sub-in 4.5s ease-out 0.3s forwards;
 }
 .ub-revive {
@@ -656,7 +656,7 @@ html, body {
 
 /* ══ E：玩家受傷閃爍 TEAM ROW HIT ══ */
 @keyframes team-row-flash {
-  0%   { box-shadow:inset 0 0 0 100vw rgba(194,59,43,0.35); }
-  100% { box-shadow:inset 0 0 0 100vw rgba(194,59,43,0); }
+  0%   { box-shadow:inset 0 0 0 100vw rgba(255,106,26,0.72); }
+  100% { box-shadow:inset 0 0 0 100vw rgba(224,92,24,0); }
 }
 .team-row-hit { animation: team-row-flash 0.65s ease-out; }

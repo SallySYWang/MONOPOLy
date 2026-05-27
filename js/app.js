@@ -49,7 +49,7 @@ createApp({
         return null;
       }
       for (var j=this.currentTeamIndex+1;j<this.teams.length;j++) if (this.teams[j].hp>0) return {name:this.teams[j].name,color:this.teams[j].color};
-      return {name:'鬼王無慘',color:'#c23b2b'};
+      return {name:'鬼王無慘',color:'#ff6818'};
     },
     currentSquare: function() {
       if (this.currentTurnType!=='player') return null;
@@ -392,7 +392,7 @@ createApp({
         this.currentTurnType='boss'; this.announcement.title='鬼王無慘回合'; this.announcement.desc=''; this.clearAnnouncementResult();
         if(this.bossStatus.isBossTurnSkip){this.bossStatus.isBossTurnSkip=false;this.addLog('system','白天來了：鬼王跳過本回合行動！');this.announcement.result='☀️ 白天來了：鬼王跳過！';this.announcement.resultColor='text-yellow-400';this.currentPhase='boss-next';}
         else{this.currentPhase='boss-roll';}
-        this.showTurnCard('鬼王無慘', '#c23b2b', true);
+        this.showTurnCard('鬼王無慘', '#ff6818', true);
       }
     },
     calcBossTargets: function() {
