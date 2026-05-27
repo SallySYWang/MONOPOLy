@@ -61,3 +61,34 @@ function nowStr() {
   var d=new Date();
   return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0');
 }
+
+var SQUARES_DANEI = [
+  { id:1,  type:'start', name:'【起點】',               desc:'所有隊伍從這裡出發。',                           name2:'START',         desc2:'所有隊伍從這裡出發。',           damage:10 },
+  { id:2,  type:'task',  name:'【任務 2】',              desc:'（大內教會版本任務，待補充）',                  name2:'任務 2',        desc2:'（待補充）',                      damage:10 },
+  { id:3,  type:'task',  name:'【任務 3】',              desc:'（大內教會版本任務，待補充）',                  name2:'任務 3',        desc2:'（待補充）',                      damage:10 },
+  { id:4,  type:'task',  name:'【任務 4】',              desc:'（大內教會版本任務，待補充）',                  name2:'任務 4',        desc2:'（待補充）',                      damage:10 },
+  { id:5,  type:'task',  name:'【任務 5】',              desc:'（大內教會版本任務，待補充）',                  name2:'任務 5',        desc2:'（待補充）',                      damage:10 },
+  { id:6,  type:'card',  name:'【猜拳命運抽】',          desc:'原地跟鬼王猜拳，抽取隨機卡片',                 taskName:'【齊聲宣告】', taskDesc:'全隊同聲喊出本週金句一次。', taskName2:'【齊聲宣告】', taskDesc2:'全隊同聲喊出本週金句一次。', taskDamage:10 },
+  { id:7,  type:'task',  name:'【任務 7】',              desc:'（大內教會版本任務，待補充）',                  name2:'任務 7',        desc2:'（待補充）',                      damage:10 },
+  { id:8,  type:'task',  name:'【任務 8】',              desc:'（大內教會版本任務，待補充）',                  name2:'任務 8',        desc2:'（待補充）',                      damage:10 },
+  { id:9,  type:'task',  name:'【任務 9】',              desc:'（大內教會版本任務，待補充）',                  name2:'任務 9',        desc2:'（待補充）',                      damage:10 },
+  { id:10, type:'task',  name:'【任務 10】',             desc:'（大內教會版本任務，待補充）',                  name2:'任務 10',       desc2:'（待補充）',                      damage:10 },
+  { id:11, type:'task',  name:'【任務 11】',             desc:'（大內教會版本任務，待補充）',                  name2:'任務 11',       desc2:'（待補充）',                      damage:10 },
+  { id:12, type:'card',  name:'【正反面命運】',          desc:'原地跟鬼王拼運氣（丟銅板），抽取隨機卡片',     taskName:'【全隊深蹲】', taskDesc:'全隊原地一起做深蹲 10 下。', taskName2:'【全隊深蹲】', taskDesc2:'全隊原地一起做深蹲 10 下。', taskDamage:10 },
+];
+
+var BOARD_LAYOUT_DANEI = {
+  '1-1':1, '1-2':2, '1-3':3, '1-4':4,
+  '2-4':5, '3-4':6,
+  '4-4':7, '4-3':8, '4-2':9, '4-1':10,
+  '3-1':11,'2-1':12,
+};
+
+function defaultTeams_DANEI() {
+  return [
+    { id:1, name:'霞柱 ‧ 時透',   color:'#14b8a6', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false,breathEnhanced:false,revengeBlade:false}, totalSteps:0, avatar:'assets/avatar-tokito.png',  pendingTask:null },
+    { id:2, name:'水柱 ‧ 義勇',   color:'#3b82f6', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false,breathEnhanced:false,revengeBlade:false}, totalSteps:0, avatar:'assets/avatar-tomioka.png', pendingTask:null },
+    { id:3, name:'炎柱 ‧ 杏壽郎', color:'#f97316', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false,breathEnhanced:false,revengeBlade:false}, totalSteps:0, avatar:'assets/avatar-rengoku.png', pendingTask:null },
+    { id:4, name:'蛇柱 ‧ 伊黑',   color:'#a855f7', position:1, hp:10, damageDealt:0, status:{shieldActive:false,doubleDamage:false,breathEnhanced:false,revengeBlade:false}, totalSteps:0, avatar:'assets/avatar-iguro.png',   pendingTask:null },
+  ];
+}

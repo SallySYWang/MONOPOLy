@@ -10,20 +10,23 @@
 
   // ── Board movement ──────────────────────────────────────────────────────────
 
-  // 16-tile ring: position 1–16
-  function movePosition(pos, steps) {
-    return ((pos - 1 + steps) % 16) + 1;
+  // N-tile ring: position 1–N (default 16 for backward compatibility)
+  function movePosition(pos, steps, ringSize) {
+    ringSize = ringSize || 16;
+    return ((pos - 1 + steps) % ringSize) + 1;
   }
 
   // Shortest distance between two positions on the ring
-  function ringDistance(a, b) {
+  function ringDistance(a, b, ringSize) {
+    ringSize = ringSize || 16;
     var d = Math.abs(a - b);
-    return Math.min(d, 16 - d);
+    return Math.min(d, ringSize - d);
   }
 
-  // Returns true if moving `steps` from `startPos` crosses position 16→1
-  function didWrap(startPos, steps) {
-    return (startPos - 1 + steps) >= 16;
+  // Returns true if moving `steps` from `startPos` crosses position N→1
+  function didWrap(startPos, steps, ringSize) {
+    ringSize = ringSize || 16;
+    return (startPos - 1 + steps) >= ringSize;
   }
 
   // ── Task damage ─────────────────────────────────────────────────────────────
@@ -84,7 +87,8 @@
    *   - targetHighest → attack ALL teams sharing the highest HP (no cap).
    *   - Otherwise → attack all teams tied for closest ring distance.
    */
-  function calcBossTargets(bossPosition, targetHighest, teams) {
+  function calcBossTargets(bossPosition, targetHighest, teams, ringSize) {
+    ringSize = ringSize || 16;
     var living = teams.filter(function (t) { return t.hp > 0; });
 
     if (living.length <= 2) return living.slice();
@@ -98,7 +102,7 @@
     }
 
     var withDist = living.map(function (t) {
-      return { team: t, dist: ringDistance(bossPosition, t.position) };
+      return { team: t, dist: ringDistance(bossPosition, t.position, ringSize) };
     });
     withDist.sort(function (a, b) {
       return a.dist !== b.dist ? a.dist - b.dist : a.team.id - b.team.id;

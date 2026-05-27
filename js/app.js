@@ -6,6 +6,7 @@ var ringDistance = GameLogic.ringDistance;
 createApp({
   data: function() {
     return {
+      version: null,
       screen:'splash',
       currentTurnType:'player', currentTeamIndex:0, currentPhase:'roll',
       globalRound:1, ghostKingHP:60, bossPosition:1, currentLap:1,
@@ -43,6 +44,15 @@ createApp({
   },
 
   computed: {
+    ringSize: function() { return this.version === 'danei' ? 12 : 16; },
+    boardSize: function() { return this.version === 'danei' ? 4 : 5; },
+    currentSquares: function() { return this.version === 'danei' ? SQUARES_DANEI : SQUARES; },
+    currentBoardLayout: function() { return this.version === 'danei' ? BOARD_LAYOUT_DANEI : BOARD_LAYOUT; },
+    controlPanelGridStyle: function() {
+      return this.version === 'danei'
+        ? 'grid-column:2/4;grid-row:2/4;'
+        : 'grid-column:2/5;grid-row:2/5;';
+    },
     nextTurnInfo: function() {
       if (this.currentTurnType==='boss') {
         for (var i=0;i<this.teams.length;i++) if (this.teams[i].hp>0) return {name:this.teams[i].name,color:this.teams[i].color};
@@ -54,7 +64,8 @@ createApp({
     currentSquare: function() {
       if (this.currentTurnType!=='player') return null;
       var team=this.teams[this.currentTeamIndex]; if (!team) return null;
-      for (var i=0;i<SQUARES.length;i++) if (SQUARES[i].id===team.position) return SQUARES[i];
+      var squares=this.currentSquares;
+      for (var i=0;i<squares.length;i++) if (squares[i].id===team.position) return squares[i];
       return null;
     },
     lapSquare: function() {
@@ -113,6 +124,17 @@ createApp({
     startGame: function() {
       localStorage.removeItem('ds_monopoly_save');
       this.hasSavedGame=false;
+      this.screen='versionSelect';
+    },
+    selectVersion: function(v) {
+      this.version=v;
+      this.teams=v==='danei'?defaultTeams_DANEI():defaultTeams();
+      this.ghostKingHP=60; this.bossPosition=1;
+      this.currentTurnType='player'; this.currentTeamIndex=0;
+      this.currentPhase='roll'; this.globalRound=1; this.currentLap=1;
+      this.bossStatus={nextAttackMultiplier:1,isBossTurnSkip:false,sealedMovement:false,targetHighest:false};
+      this.gameLog=[]; this.bossTargets=[];
+      localStorage.removeItem('ds_monopoly_save');
       this.screen='game';
       this.addLog('system','遊戲開始！第 1 輪，從 '+this.teams[0].name+' 開始！');
       this.refreshAnnouncement();
@@ -125,6 +147,7 @@ createApp({
       try {
         localStorage.setItem('ds_monopoly_save', JSON.stringify({
           screen:'game',
+          version:this.version,
           ghostKingHP:this.ghostKingHP, bossPosition:this.bossPosition,
           currentTurnType:this.currentTurnType, currentTeamIndex:this.currentTeamIndex,
           currentPhase:this.currentPhase, globalRound:this.globalRound,
@@ -146,7 +169,8 @@ createApp({
         this.currentPhase=data.currentPhase||'roll'; this.globalRound=data.globalRound;
         this.bossStatus={nextAttackMultiplier:data.bossStatus.nextAttackMultiplier,isBossTurnSkip:data.bossStatus.isBossTurnSkip,sealedMovement:data.bossStatus.sealedMovement||false,targetHighest:data.bossStatus.targetHighest||false};
         this.currentLap=data.currentLap||1;
-        var defaults=defaultTeams();
+        this.version=data.version||'xinsheng';
+        var defaults=this.version==='danei'?defaultTeams_DANEI():defaultTeams();
         this.teams=data.teams.map(function(saved){
           var def=null; for(var i=0;i<defaults.length;i++)if(defaults[i].id===saved.id){def=defaults[i];break;}
           return{id:def.id,name:def.name,color:def.color,avatar:def.avatar,position:saved.position,hp:saved.hp,damageDealt:saved.damageDealt,totalSteps:saved.totalSteps||0,status:{shieldActive:saved.status.shieldActive,doubleDamage:saved.status.doubleDamage,breathEnhanced:saved.status.breathEnhanced||false,revengeBlade:saved.status.revengeBlade||false},pendingTask:saved.pendingTask||null};
@@ -166,8 +190,9 @@ createApp({
       return '';
     },
     squareAt: function(row,col) {
-      var id=BOARD_LAYOUT[row+'-'+col]; if (!id) return null;
-      for (var i=0;i<SQUARES.length;i++) if (SQUARES[i].id===id) return SQUARES[i];
+      var id=this.currentBoardLayout[row+'-'+col]; if (!id) return null;
+      var squares=this.currentSquares;
+      for (var i=0;i<squares.length;i++) if (squares[i].id===id) return squares[i];
       return null;
     },
     cellClass: function(row,col) {
@@ -184,7 +209,7 @@ createApp({
     clearAnnouncementResult: function() {
       this.announcement.cardType='';this.announcement.cardName='';this.announcement.cardEffect='';this.announcement.result='';this.announcement.resultColor='';
     },
-    movePosition: function(pos,steps) { return GameLogic.movePosition(pos,steps); },
+    movePosition: function(pos,steps) { return GameLogic.movePosition(pos,steps,this.ringSize); },
     teamDisplayPos: function(team) {
       return this.animatingPositions[team.id] !== undefined
         ? this.animatingPositions[team.id]
@@ -211,7 +236,7 @@ createApp({
           setTimeout(moveStep, 280);
         } else {
           setTimeout(function() {
-            var wrapped = (startPos - 1 + n) >= 16;
+            var wrapped = GameLogic.didWrap(startPos, n, self.ringSize);
             team.position = midPos;
             team.totalSteps = (team.totalSteps||0) + n;
             self.animatingPositions = {};
@@ -221,7 +246,8 @@ createApp({
               else { team.status.shieldActive = true; self.addLog('shield', team.name + ' 繞完一圈！自動獲得護盾！'); }
             }
             var sq = null;
-            for (var i = 0; i < SQUARES.length; i++) if (SQUARES[i].id === midPos) { sq = SQUARES[i]; break; }
+            var squares = self.currentSquares;
+            for (var i = 0; i < squares.length; i++) if (squares[i].id === midPos) { sq = squares[i]; break; }
             var sqName = sq ? (self.currentLap===2&&sq.name2 ? sq.name2 : sq.name) : '';
             self.addLog('system', team.name + ' 擲出 ' + n + '，移動到格 ' + midPos + '「' + sqName + '」');
             self.currentPhase = 'action';
@@ -381,7 +407,7 @@ createApp({
     nextPlayerTurn: function() {
       this.saveSnapshot(); this.cardChoices=[]; this.flippedCardIndex=null; this.cardTaskPending=false; this.rpsResult=null; this.rpsBossChoice=''; this.rpsPlayerChoice='';
       var nextIdx=-1;
-      for (var i=this.currentTeamIndex+1;i<6;i++) if(this.teams[i].hp>0){nextIdx=i;break;}
+      for (var i=this.currentTeamIndex+1;i<this.teams.length;i++) if(this.teams[i].hp>0){nextIdx=i;break;}
       if (nextIdx!==-1){
         this.currentTeamIndex=nextIdx; this.currentTurnType='player'; this.clearAnnouncementResult();
         var nextTeam=this.teams[nextIdx];
@@ -396,7 +422,7 @@ createApp({
       }
     },
     calcBossTargets: function() {
-      var targets=GameLogic.calcBossTargets(this.bossPosition,this.bossStatus.targetHighest,this.teams);
+      var targets=GameLogic.calcBossTargets(this.bossPosition,this.bossStatus.targetHighest,this.teams,this.ringSize);
       this.bossStatus.targetHighest=false;
       return targets;
     },

@@ -91,6 +91,40 @@
     </div>
   </div>
 
+  <!-- ══ VERSION SELECT ══ -->
+  <div v-else-if="screen === 'versionSelect'"
+       class="flex flex-col items-center justify-center h-full w-full"
+       style="background:rgba(7,5,10,0.98);gap:1.8em">
+    <div class="font-display text-cream" style="font-size:0.7em;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,106,26,0.7)">Select Version</div>
+    <div class="font-display text-cream" style="font-size:1.8em;letter-spacing:0.1em">選擇版本</div>
+
+    <div class="flex" style="gap:2em;margin-top:0.5em">
+      <!-- 新生教會 card -->
+      <div @click="selectVersion('xinsheng')"
+           class="flex flex-col items-center"
+           style="cursor:pointer;padding:1.6em 2.4em;background:rgba(255,106,26,0.06);border:1px solid rgba(255,106,26,0.3);border-radius:2px;gap:0.6em;transition:background 0.15s,border-color 0.15s;min-width:9em"
+           onmouseover="this.style.background='rgba(255,106,26,0.14)';this.style.borderColor='rgba(255,106,26,0.7)'"
+           onmouseout="this.style.background='rgba(255,106,26,0.06)';this.style.borderColor='rgba(255,106,26,0.3)'">
+        <div class="font-display text-accent" style="font-size:1.6em;letter-spacing:0.08em">新生教會</div>
+        <div style="height:1px;width:100%;background:rgba(255,106,26,0.3)"></div>
+        <div class="text-muted" style="font-size:0.52em;letter-spacing:0.1em">6 隊 · 16 格</div>
+      </div>
+
+      <!-- 大內教會 card -->
+      <div @click="selectVersion('danei')"
+           class="flex flex-col items-center"
+           style="cursor:pointer;padding:1.6em 2.4em;background:rgba(255,106,26,0.06);border:1px solid rgba(255,106,26,0.3);border-radius:2px;gap:0.6em;transition:background 0.15s,border-color 0.15s;min-width:9em"
+           onmouseover="this.style.background='rgba(255,106,26,0.14)';this.style.borderColor='rgba(255,106,26,0.7)'"
+           onmouseout="this.style.background='rgba(255,106,26,0.06)';this.style.borderColor='rgba(255,106,26,0.3)'">
+        <div class="font-display text-accent" style="font-size:1.6em;letter-spacing:0.08em">大內教會</div>
+        <div style="height:1px;width:100%;background:rgba(255,106,26,0.3)"></div>
+        <div class="text-muted" style="font-size:0.52em;letter-spacing:0.1em">4 隊 · 12 格</div>
+      </div>
+    </div>
+
+    <button @click="screen='splash'" class="btn btn-ghost" style="font-size:0.52em;padding:0.4em 1.8em;letter-spacing:0.1em;margin-top:0.5em">← 返回</button>
+  </div>
+
   <!-- ══ FINAL STRIKE ══ -->
   <div v-else-if="screen === 'finalStrike'" class="flex flex-col items-center justify-center h-full w-full" style="padding:3em">
     <div style="font-size:0.52em;letter-spacing:0.22em;text-transform:uppercase;color:rgba(208,120,32,0.5);margin-bottom:0.7em">Final Strike</div>
@@ -243,13 +277,13 @@
       <div class="flex flex-col items-center justify-center"
            style="width:56%;padding:0.4em;background:#080502">
         <div style="width:100%;aspect-ratio:1/1;max-height:100%;position:relative">
-          <div class="board-grid" style="height:100%;width:100%">
+          <div class="board-grid" :style="'height:100%;width:100%;grid-template-columns:repeat('+boardSize+',1fr);grid-template-rows:repeat('+boardSize+',1fr)'">
 
-            <template v-for="row in 5" :key="'r'+row">
-              <template v-for="col in 5" :key="'r'+row+'c'+col">
+            <template v-for="row in boardSize" :key="'r'+row">
+              <template v-for="col in boardSize" :key="'r'+row+'c'+col">
 
                 <!-- control panel -->
-                <div v-if="row===2&&col===2" class="control-panel">
+                <div v-if="row===2&&col===2" class="control-panel" :style="controlPanelGridStyle">
 
                   <div class="text-center" style="margin-bottom:0.5em;position:relative;z-index:1">
                     <div class="text-dim" style="font-size:0.42em;letter-spacing:0.17em;text-transform:uppercase;margin-bottom:0.22em">現在輪到</div>
@@ -407,7 +441,7 @@
                 </div>
 
                 <!-- skip interior -->
-                <div v-else-if="row>=2&&row<=4&&col>=2&&col<=4" style="display:none"></div>
+                <div v-else-if="row>=2&&row<=boardSize-1&&col>=2&&col<=boardSize-1" style="display:none"></div>
 
                 <!-- board cell -->
                 <div v-else
