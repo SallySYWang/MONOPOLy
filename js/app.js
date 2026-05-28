@@ -129,7 +129,7 @@ createApp({
     selectVersion: function(v) {
       this.version=v;
       this.teams=v==='danei'?defaultTeams_DANEI():defaultTeams();
-      this.ghostKingHP=60; this.bossPosition=1;
+      this.ghostKingHP=v==='danei'?40:60; this.bossPosition=1;
       this.currentTurnType='player'; this.currentTeamIndex=0;
       this.currentPhase='roll'; this.globalRound=1; this.currentLap=1;
       this.bossStatus={nextAttackMultiplier:1,isBossTurnSkip:false,sealedMovement:false,targetHighest:false};
@@ -392,7 +392,7 @@ createApp({
           for (var i=0;i<blastResults.length;i++){var br=blastResults[i];var t=null;for(var j=0;j<this.teams.length;j++)if(this.teams[j].id===br.teamId){t=this.teams[j];break;}if(!t)continue;if(br.shieldConsumed){t.status.shieldActive=false;this.addLog('shield',t.name+' 護盾抵擋了大招！');}else{t.hp=br.newHP;this.addLog('damage',t.name+' 受到 3 點傷害，剩餘 '+t.hp+' HP'+(t.hp<=0?'（已陣亡！）':''));this.triggerDamageEffect(t.id,3);}}
           this.checkAllDead();
         } else if (card.id==='peace'){this.addLog('system','真是個平安的一天：無事發生。');}
-        else if (card.id==='regen'){var prev3=this.ghostKingHP;this.ghostKingHP=GameLogic.applyRegen(this.ghostKingHP,5,60);this.addLog('system','無慘再生：鬼王回復 '+(this.ghostKingHP-prev3)+' HP（現在 '+this.ghostKingHP+'）！');}
+        else if (card.id==='regen'){var prev3=this.ghostKingHP;this.ghostKingHP=GameLogic.applyRegen(this.ghostKingHP,5,this.version==='danei'?40:60);this.addLog('system','無慘再生：鬼王回復 '+(this.ghostKingHP-prev3)+' HP（現在 '+this.ghostKingHP+'）！');}
         else if (card.id==='kokushibo'){this.bossStatus.targetHighest=true;this.addLog('system','黑死牟降臨：鬼王本回合攻擊目標改為血量最多的隊伍！');}
       }
     },
