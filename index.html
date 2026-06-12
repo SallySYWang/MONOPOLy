@@ -195,8 +195,7 @@
       <span v-if="autoSaveMsg" style="font-size:0.42em;color:rgba(208,120,32,0.5);letter-spacing:0.08em;flex-shrink:0">{{ autoSaveMsg }}</span>
       <div class="flex gap-2" style="flex-shrink:0">
         <button @click="undoLastAction" :disabled="!lastSnapshot" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em">↩ 上一步</button>
-        <button @click="switchLap" class="btn btn-ghost" :style="currentLap===2?'font-size:0.52em;padding:0.3em 0.8em;border-color:rgba(90,184,138,0.5);color:#5ab88a':'font-size:0.52em;padding:0.3em 0.8em'">{{ currentLap===1?'切換第二圈':'● 第二圈' }}</button>
-        <button @click="showSaveModal=true" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em">存檔</button>
+<button @click="showSaveModal=true" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em">存檔</button>
       </div>
     </div>
 
@@ -294,7 +293,7 @@
                     </div>
                     <div v-else-if="currentTurnType==='boss'" class="font-display text-accent" style="font-size:1.45em;line-height:1">鬼王無慘</div>
                     <div v-else class="font-display text-cream" style="font-size:1.1em;line-height:1">
-                      {{ {'task-overview':'任務確認','countdown':'執行任務中','task-results':'記錄任務結果','attack-settle':'攻擊結算'}[currentPhase]||'' }}
+                      {{ {'big-game':'大遊戲','big-game-results':'大遊戲結算'}[currentPhase]||'' }}
                     </div>
                     <div class="text-dim" style="margin-top:0.3em;font-size:0.46em;letter-spacing:0.12em;text-transform:uppercase;opacity:0.7">
                       {{ phaseLabel }}
@@ -316,57 +315,71 @@
                     </div>
                   </div>
 
-                  <!-- TASK OVERVIEW -->
-                  <div v-else-if="currentPhase==='task-overview'"
-                       style="width:100%;display:flex;flex-direction:column;gap:0.22em;position:relative;z-index:1;overflow-y:auto;max-height:14em">
-                    <div class="text-center" style="font-size:0.52em;margin-bottom:0.15em;color:#f09028;letter-spacing:0.08em">本輪任務總覽</div>
-                    <div v-for="t in roundTasks" :key="t.teamId"
-                         style="display:flex;flex-direction:column;gap:0.08em;padding:0.22em 0.3em;border-bottom:1px solid rgba(255,106,26,0.1)">
-                      <div style="display:flex;align-items:baseline;gap:0.4em">
-                        <span style="font-size:0.5em;font-weight:600;flex-shrink:0;min-width:5em" :style="{color:t.color}">{{ t.name }}</span>
-                        <span style="font-size:0.5em;color:#e0c890;font-weight:600">{{ t.taskName }}</span>
-                      </div>
-                      <div v-if="t.taskDesc" style="font-size:0.44em;color:#b8a888;padding-left:0.3em;line-height:1.35">{{ t.taskDesc }}</div>
-                    </div>
-                    <button @click="startMission" class="btn w-full" style="font-size:0.66em;padding:0.45em;margin-top:0.35em;border-color:rgba(255,140,40,0.62);color:#f09028">出發！開始計時</button>
-                  </div>
 
                   <!-- COUNTDOWN -->
                   <div v-else-if="currentPhase==='countdown'"
                        style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0.5em;position:relative;z-index:1">
                     <div style="font-size:0.46em;letter-spacing:0.14em;color:rgba(208,120,32,0.5)">任務倒數計時</div>
                     <div class="font-display text-accent" style="font-size:3.8em;line-height:1;letter-spacing:0.04em">{{ countdownDisplay }}</div>
-                    <button @click="endCountdown" class="btn w-full" style="font-size:0.62em;padding:0.4em;border-color:rgba(255,106,26,0.35);color:rgba(255,106,26,0.65)">時間到，開始記錄</button>
+                    <button v-if="!countdownRunning" @click="startMission" class="btn w-full"
+                            style="font-size:0.62em;padding:0.4em;border-color:rgba(255,140,40,0.62);color:#f09028">開始計時</button>
+                    <button @click="endCountdown" class="btn w-full"
+                            style="font-size:0.62em;padding:0.4em;border-color:rgba(255,106,26,0.35);color:rgba(255,106,26,0.65)">時間到，開始結算</button>
                   </div>
 
-                  <!-- TASK RESULTS -->
-                  <div v-else-if="currentPhase==='task-results'"
+                  <!-- TEAM JUDGE -->
+                  <div v-else-if="currentPhase==='team-judge'"
+                       style="width:100%;display:flex;flex-direction:column;gap:0.28em;position:relative;z-index:1">
+                    <div class="text-center" style="font-size:0.42em;color:#6a5a50;margin-bottom:0.05em">
+                      {{ judgeTeamIndex+1 }} / {{ judgeQueue.length }} 隊
+                    </div>
+                    <div v-if="judgeQueue[judgeTeamIndex]" class="text-center font-bold"
+                         style="font-size:0.6em"
+                         :style="{color:judgeQueue[judgeTeamIndex].color}">
+                      {{ judgeQueue[judgeTeamIndex].name }}
+                    </div>
+                    <template v-if="!judgeWaitingRoll">
+                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3em;margin-top:0.1em">
+                        <button @click="judgePass" class="btn"
+                                style="font-size:0.6em;padding:0.4em;border-color:rgba(90,184,138,0.7);color:#5ab88a">過關 ✓</button>
+                        <button @click="judgeFail" class="btn"
+                                style="font-size:0.6em;padding:0.4em;border-color:rgba(255,106,26,0.6);color:#ff6818">失敗 ✗</button>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div class="text-center" style="font-size:0.44em;color:#5ab88a;margin-bottom:0.05em">過關！選擇骰子點數</div>
+                      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
+                        <button v-for="n in 6" :key="n" @click="judgeRoll(n)" :disabled="showDmgOverlay" class="dice-btn dice-btn-player">{{ n }}</button>
+                      </div>
+                    </template>
+                  </div>
+
+                  <!-- BIG GAME -->
+                  <div v-else-if="currentPhase==='big-game'"
+                       style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0.4em;position:relative;z-index:1">
+                    <div class="font-display text-cream text-center" style="font-size:0.75em;letter-spacing:0.06em">大遊戲時間！</div>
+                    <div class="text-center" style="font-size:0.44em;color:#b8a888;line-height:1.5">進行大遊戲<br>結束後記錄各隊勝負</div>
+                    <button @click="startBigGameResults" class="btn w-full"
+                            style="font-size:0.66em;padding:0.45em;margin-top:0.3em;border-color:rgba(255,140,40,0.62);color:#f09028">記錄大遊戲結果 →</button>
+                  </div>
+
+                  <!-- BIG GAME RESULTS -->
+                  <div v-else-if="currentPhase==='big-game-results'"
                        style="width:100%;display:flex;flex-direction:column;gap:0.2em;position:relative;z-index:1">
-                    <div class="text-center" style="font-size:0.48em;margin-bottom:0.1em;color:#f09028;letter-spacing:0.08em">記錄任務結果</div>
-                    <div v-for="r in taskResults" :key="r.teamId"
+                    <div class="text-center" style="font-size:0.44em;margin-bottom:0.1em;color:#f09028;letter-spacing:0.06em">大遊戲 — 哪幾隊贏？</div>
+                    <div v-for="r in bigGameResults" :key="r.teamId"
                          style="display:flex;align-items:center;gap:0.3em">
-                      <span style="font-size:0.48em;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" :style="{color:r.color}">{{ r.name }}</span>
-                      <button @click="setTaskResult(r.teamId,true)" class="btn"
-                              :style="r.success===true?'font-size:0.48em;padding:0.22em 0.55em;background:rgba(90,184,138,0.18);border-color:rgba(90,184,138,0.7);color:#5ab88a':'font-size:0.48em;padding:0.22em 0.55em;border-color:rgba(90,184,138,0.2);color:rgba(90,184,138,0.38)'">✓</button>
-                      <button @click="setTaskResult(r.teamId,false)" class="btn"
-                              :style="r.success===false?'font-size:0.48em;padding:0.22em 0.55em;background:rgba(255,106,26,0.18);border-color:rgba(255,106,26,0.7);color:#ff6818':'font-size:0.48em;padding:0.22em 0.55em;border-color:rgba(255,106,26,0.2);color:rgba(255,106,26,0.38)'">✗</button>
+                      <span style="font-size:0.46em;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" :style="{color:r.color}">{{ r.name }}</span>
+                      <button @click="toggleBigGameResult(r.teamId)" class="btn"
+                              :style="r.won?'font-size:0.46em;padding:0.22em 0.7em;background:rgba(90,184,138,0.18);border-color:rgba(90,184,138,0.7);color:#5ab88a':'font-size:0.46em;padding:0.22em 0.7em;border-color:rgba(255,106,26,0.2);color:rgba(255,106,26,0.3)'">
+                        {{ r.won ? '贏 ✓' : '贏？' }}
+                      </button>
                     </div>
-                    <button v-if="allTasksRecorded" @click="startAttackSettle" class="btn w-full"
-                            style="font-size:0.62em;padding:0.4em;margin-top:0.3em;border-color:rgba(255,140,40,0.62);color:#f09028">大遊戲結束，進入攻擊結算</button>
-                  </div>
-
-                  <!-- ATTACK SETTLE -->
-                  <div v-else-if="currentPhase==='attack-settle'"
-                       style="width:100%;display:flex;flex-direction:column;gap:0.2em;position:relative;z-index:1">
-                    <div class="text-center" style="font-size:0.48em;margin-bottom:0.1em;color:#f09028;letter-spacing:0.08em">攻擊結算（輸入點數）</div>
-                    <div v-for="inp in attackInputs" :key="inp.teamId"
-                         style="display:flex;align-items:center;gap:0.35em">
-                      <span style="font-size:0.48em;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" :style="{color:inp.color}">{{ inp.name }}</span>
-                      <input v-model="inp.points" type="number" min="0"
-                             style="width:3.2em;font-size:0.52em;padding:0.2em 0.3em;background:#0a0810;border:1px solid rgba(255,106,26,0.4);color:#e0d4c0;text-align:center;outline:none;border-radius:2px">
+                    <div class="text-center" style="font-size:0.4em;color:#6a5a50;margin-top:0.2em">
+                      {{ bigGameResults.filter(function(r){return r.won}).length }} 隊獲勝 → 鬼王扣 {{ bigGameResults.filter(function(r){return r.won}).length }} HP
                     </div>
-                    <button @click="applyGroupAttacks" class="btn w-full"
-                            style="font-size:0.66em;padding:0.45em;margin-top:0.3em;border-color:rgba(255,106,26,0.78);color:#ff6818">攻擊鬼王！</button>
+                    <button @click="applyBigGameResults" class="btn w-full"
+                            style="font-size:0.66em;padding:0.45em;margin-top:0.2em;border-color:rgba(255,106,26,0.78);color:#ff6818">結算 →</button>
                   </div>
 
                   <!-- BOSS ROLL -->
@@ -457,6 +470,7 @@
         </div>
       </div>
     </div>
+
 
     <!-- SAVE/LOAD MODAL -->
     <div v-if="showSaveModal" class="modal-overlay" @click.self="showSaveModal=false">

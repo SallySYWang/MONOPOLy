@@ -153,10 +153,11 @@
    * Heal all **living** teams by 2 HP, capped at 10.
    * @returns {Array<{ teamId, newHP }>}
    */
-  function applyPillars(teams) {
+  function applyPillars(teams, cap) {
+    var maxHp = cap || 10;
     return teams
       .filter(function (t) { return t.hp > 0; })
-      .map(function (t) { return { teamId: t.id, newHP: Math.min(10, t.hp + 2) }; });
+      .map(function (t) { return { teamId: t.id, newHP: Math.min(maxHp, t.hp + 2) }; });
   }
 
   // ── Simple HP helpers ───────────────────────────────────────────────────────
