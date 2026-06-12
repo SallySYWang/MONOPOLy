@@ -73,7 +73,7 @@
 
       const prevJudge = vm.judgeTeamIndex;
       const teamName = vm.judgeQueue[prevJudge]?.name || '?';
-      const pass = Math.random() < 0.5;
+      const pass = Math.random() < 0.8;
 
       if (pass) {
         const atk = rand();
