@@ -33,6 +33,12 @@ createApp({
       flippingCardIndex:null,
       flashingTeams:{},
       bossAnimatingPosition:null, hoppingBoss:false,
+      rollTeamIndex:0,
+      roundTasks:[],
+      taskResults:[],
+      attackInputs:[],
+      countdownRemaining:600,
+      countdownRunning:false,
     };
   },
 
@@ -54,12 +60,15 @@ createApp({
         : 'grid-column:2/5;grid-row:2/5;';
     },
     nextTurnInfo: function() {
-      if (this.currentTurnType==='boss') {
-        for (var i=0;i<this.teams.length;i++) if (this.teams[i].hp>0) return {name:this.teams[i].name,color:this.teams[i].color};
+      if (this.currentPhase==='group-roll') {
+        for (var i=this.rollTeamIndex+1;i<this.teams.length;i++) if(this.teams[i].hp>0) return {name:this.teams[i].name,color:this.teams[i].color};
         return null;
       }
-      for (var j=this.currentTeamIndex+1;j<this.teams.length;j++) if (this.teams[j].hp>0) return {name:this.teams[j].name,color:this.teams[j].color};
-      return {name:'鬼王無慘',color:'#ff6818'};
+      if (this.currentTurnType==='boss') {
+        for (var j=0;j<this.teams.length;j++) if(this.teams[j].hp>0) return {name:this.teams[j].name,color:this.teams[j].color};
+        return null;
+      }
+      return null;
     },
     currentSquare: function() {
       if (this.currentTurnType!=='player') return null;
@@ -74,7 +83,14 @@ createApp({
       return Object.assign({},sq,{name:sq.name2,desc:sq.desc2});
     },
     phaseLabel: function() {
-      return {'settle':'結算上回合任務','roll':'擲骰中','action':'行動中','next':'結算','boss-roll':'鬼王移動','boss-attack':'鬼王攻擊','boss-next':'回合結算'}[this.currentPhase]||'';
+      return {'group-roll':'擲骰中','task-overview':'任務確認','countdown':'任務執行中','task-results':'記錄結果','attack-settle':'攻擊結算','boss-roll':'鬼王移動','boss-attack':'鬼王攻擊','boss-next':'回合結算'}[this.currentPhase]||'';
+    },
+    allTasksRecorded: function() {
+      return this.taskResults.length > 0 && this.taskResults.every(function(r){ return r.success !== null; });
+    },
+    countdownDisplay: function() {
+      var m=Math.floor(this.countdownRemaining/60); var s=this.countdownRemaining%60;
+      return (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
     },
     rankedTeams: function() {
       return this.teams.slice().sort(function(a,b){return b.damageDealt-a.damageDealt;});
@@ -131,13 +147,14 @@ createApp({
       this.teams=v==='danei'?defaultTeams_DANEI():defaultTeams();
       this.ghostKingHP=v==='danei'?40:60; this.bossPosition=1;
       this.currentTurnType='player'; this.currentTeamIndex=0;
-      this.currentPhase='roll'; this.globalRound=1; this.currentLap=1;
+      this.currentPhase='group-roll'; this.globalRound=1; this.currentLap=1;
+      this.rollTeamIndex=0; this.roundTasks=[]; this.taskResults=[]; this.attackInputs=[];
+      this.countdownRemaining=600; this.countdownRunning=false;
       this.bossStatus={nextAttackMultiplier:1,isBossTurnSkip:false,sealedMovement:false,targetHighest:false};
       this.gameLog=[]; this.bossTargets=[];
       localStorage.removeItem('ds_monopoly_save');
       this.screen='game';
-      this.addLog('system','遊戲開始！第 1 輪，從 '+this.teams[0].name+' 開始！');
-      this.refreshAnnouncement();
+      this.addLog('system','遊戲開始！第 1 輪，從 '+this.teams[0].name+' 開始擲骰！');
     },
     addLog: function(type,msg) {
       this.gameLog.unshift({type:type,msg:msg,time:nowStr()});
@@ -259,6 +276,125 @@ createApp({
       }
       setTimeout(moveStep, 80);
     },
+    groupRoll: function(n) {
+      this.saveSnapshot();
+      var team=this.teams[this.rollTeamIndex];
+      var startPos=team.position; var step=0; var self=this;
+      this.isAnimating=true;
+      function moveStep(){
+        step++;
+        var midPos=self.movePosition(startPos,step);
+        var ap={}; for(var k in self.animatingPositions) ap[k]=self.animatingPositions[k];
+        ap[team.id]=midPos; self.animatingPositions=ap;
+        self.hoppingTeam=team.id;
+        setTimeout(function(){self.hoppingTeam=null;},220);
+        if(step<n){ setTimeout(moveStep,280); }
+        else {
+          setTimeout(function(){
+            var wrapped=GameLogic.didWrap(startPos,n,self.ringSize);
+            team.position=midPos; team.totalSteps=(team.totalSteps||0)+n;
+            self.animatingPositions={}; self.isAnimating=false;
+            if(wrapped){
+              if(team.status.shieldActive){self.addLog('shield',team.name+' 繞完一圈！已有護盾，護盾保留。');}
+              else{team.status.shieldActive=true;self.addLog('shield',team.name+' 繞完一圈！自動獲得護盾！');}
+            }
+            var sq=null; var squares=self.currentSquares;
+            for(var i=0;i<squares.length;i++) if(squares[i].id===midPos){sq=squares[i];break;}
+            var taskName,taskDesc;
+            if(sq){
+              if(sq.type==='card'){
+                taskName=(self.currentLap===2&&sq.taskName2)?sq.taskName2:sq.taskName;
+                taskDesc=(self.currentLap===2&&sq.taskDesc2)?sq.taskDesc2:sq.taskDesc;
+              } else {
+                taskName=(self.currentLap===2&&sq.name2)?sq.name2:sq.name;
+                taskDesc=(self.currentLap===2&&sq.desc2)?sq.desc2:sq.desc;
+              }
+            }
+            var sqLabel=taskName||('格'+midPos);
+            self.addLog('system',team.name+' 擲出 '+n+'，移動到格 '+midPos+'「'+sqLabel+'」');
+            self.roundTasks.push({teamId:team.id,name:team.name,color:team.color,taskName:sqLabel,taskDesc:taskDesc||''});
+            self.crowMission={name:sqLabel,desc:taskDesc||''};
+            self.showCrowModal=true; self.showCrowDesc=true;
+          },280);
+        }
+      }
+      setTimeout(moveStep,80);
+    },
+    advanceGroupRoll: function() {
+      var nextIdx=-1;
+      for(var i=this.rollTeamIndex+1;i<this.teams.length;i++) if(this.teams[i].hp>0){nextIdx=i;break;}
+      if(nextIdx!==-1){
+        this.rollTeamIndex=nextIdx; this.currentTeamIndex=nextIdx;
+      } else {
+        this.currentPhase='task-overview';
+        this.addLog('system','所有隊伍擲骰完畢，確認任務後出發！');
+      }
+    },
+    startMission: function() {
+      this.currentPhase='countdown'; this.countdownRemaining=600; this.countdownRunning=true;
+      var self=this;
+      if(this._countdownInterval) clearInterval(this._countdownInterval);
+      this._countdownInterval=setInterval(function(){
+        if(self.countdownRemaining>0){self.countdownRemaining--;}
+        else{self.countdownRunning=false;clearInterval(self._countdownInterval);}
+      },1000);
+      this.addLog('system','出發！10 分鐘倒數開始！');
+    },
+    endCountdown: function() {
+      this.countdownRunning=false;
+      if(this._countdownInterval) clearInterval(this._countdownInterval);
+      this.currentPhase='task-results';
+      this.taskResults=this.roundTasks.map(function(t){return{teamId:t.teamId,name:t.name,color:t.color,taskName:t.taskName,success:null};});
+      this.addLog('system','時間到！開始記錄任務結果。');
+    },
+    setTaskResult: function(teamId,success) {
+      for(var i=0;i<this.taskResults.length;i++){
+        if(this.taskResults[i].teamId===teamId){
+          this.taskResults[i].success=success;
+          this.addLog(success?'success':'fail',this.taskResults[i].name+' 任務「'+this.taskResults[i].taskName+'」'+(success?'成功！':'失敗。'));
+          break;
+        }
+      }
+    },
+    startAttackSettle: function() {
+      this.currentPhase='attack-settle';
+      this.attackInputs=this.teams.filter(function(t){return t.hp>0;}).map(function(t){return{teamId:t.id,name:t.name,color:t.color,points:''};});
+    },
+    applyGroupAttacks: function() {
+      this.saveSnapshot();
+      var totalDmg=0;
+      for(var i=0;i<this.attackInputs.length;i++){
+        var inp=this.attackInputs[i]; var pts=parseInt(inp.points)||0;
+        if(pts>0){
+          for(var j=0;j<this.teams.length;j++){
+            if(this.teams[j].id===inp.teamId){
+              this.teams[j].damageDealt+=pts;
+              this.ghostKingHP=Math.max(0,this.ghostKingHP-pts);
+              totalDmg+=pts;
+              this.addLog('success',this.teams[j].name+' 攻擊鬼王 '+pts+' 點！鬼王剩 '+this.ghostKingHP+' HP');
+              break;
+            }
+          }
+        }
+      }
+      if(this.ghostKingHP<=0){this.screen='finalStrike';return;}
+      var self=this;
+      var startBoss=function(){
+        self.currentTurnType='boss'; self.clearAnnouncementResult();
+        if(self.bossStatus.isBossTurnSkip){
+          self.bossStatus.isBossTurnSkip=false;
+          self.addLog('system','白天來了：鬼王跳過本回合行動！');
+          self.announcement.result='☀️ 白天來了：鬼王跳過！'; self.announcement.resultColor='text-yellow-400';
+          self.currentPhase='boss-next';
+        } else { self.currentPhase='boss-roll'; }
+        self.showTurnCard('鬼王無慘','#ff6818',true);
+      };
+      if(totalDmg>0){
+        this.dmgOverlayDmg=totalDmg; this.dmgOverlayTeam='全體攻擊'; this.dmgOverlayHP=this.ghostKingHP;
+        this.showDmgOverlay=true;
+        setTimeout(function(){self.showDmgOverlay=false;startBoss();},2000);
+      } else { startBoss(); }
+    },
     showTurnCard: function(name, color, isBoss) {
       this.turnTransitionName=name; this.turnTransitionColor=color; this.turnTransitionIsBoss=isBoss;
       this.showTurnTransition=true;
@@ -271,7 +407,10 @@ createApp({
       var self=this;
       setTimeout(function(){self.flippingCardIndex=null; self.flipCard(index);},420);
     },
-    closeCrowModal: function() { this.showCrowModal=false; this.showCrowDesc=false; },
+    closeCrowModal: function() {
+      this.showCrowModal=false; this.showCrowDesc=false;
+      if (this.currentPhase==='group-roll') this.advanceGroupRoll();
+    },
     closeCardModal: function() {
       this.showCardModal=false;
       if(this.pendingCardChoice){
@@ -482,14 +621,13 @@ createApp({
     endBossTurn: function() {
       this.saveSnapshot(); this.globalRound++;
       var firstIdx=-1;
-      for (var i=0;i<this.teams.length;i++) if(this.teams[i].hp>0){firstIdx=i;break;}
+      for(var i=0;i<this.teams.length;i++) if(this.teams[i].hp>0){firstIdx=i;break;}
       if(firstIdx===-1){this.screen='bossVictory';return;}
-      this.currentTeamIndex=firstIdx; this.currentTurnType='player'; this.bossTargets=[];
-      this.addLog('system','第 '+this.globalRound+' 輪開始！'); this.clearAnnouncementResult();
-      var firstTeam=this.teams[firstIdx];
-      if(firstTeam.pendingTask){this.currentPhase='settle';this.announcement.title='⏳ 結算上回合任務';this.announcement.desc=firstTeam.name+' 的任務：'+firstTeam.pendingTask.name;}
-      else{this.currentPhase='roll';this.announcement.title='';this.announcement.desc='';this.refreshAnnouncement();}
-      this.showTurnCard(firstTeam.name, firstTeam.color, false);
+      this.bossTargets=[]; this.addLog('system','第 '+this.globalRound+' 輪開始！');
+      this.currentTurnType='player'; this.currentTeamIndex=firstIdx;
+      this.rollTeamIndex=firstIdx; this.roundTasks=[]; this.taskResults=[]; this.attackInputs=[];
+      this.currentPhase='group-roll'; this.clearAnnouncementResult();
+      this.showTurnCard(this.teams[firstIdx].name, this.teams[firstIdx].color, false);
     },
     checkAllDead: function() {
       for (var i=0;i<this.teams.length;i++) if(this.teams[i].hp>0) return;
