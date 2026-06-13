@@ -850,3 +850,184 @@ html, body {
   100% { box-shadow:inset 0 0 0 100vw rgba(224,92,24,0); }
 }
 .team-row-hit { animation: team-row-flash 0.65s ease-out; }
+
+/* ══ RPG HUD REDESIGN ══ */
+
+/* ── Dice buttons ── */
+.dice-btn {
+  position: relative; overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -1px 0 rgba(0,0,0,0.25);
+  transition: all 0.12s ease-out !important;
+}
+.dice-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, transparent 55%);
+  pointer-events: none;
+}
+.dice-btn:not([disabled]):hover {
+  transform: translateY(-2px) scale(1.04) !important;
+  box-shadow: 0 4px 16px rgba(255,106,26,0.5), inset 0 1px 0 rgba(255,255,255,0.12) !important;
+  z-index: 2;
+}
+.dice-btn:not([disabled]):active { transform: scale(0.95) !important; }
+
+/* ── Boss HP bar ── */
+.boss-hud-bar {
+  height: 6px;
+  background: rgba(255,50,20,0.12);
+  border-radius: 3px;
+  margin-top: 0.4em;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255,70,30,0.2);
+  box-shadow: 0 0 8px rgba(255,60,20,0.15);
+}
+.boss-hud-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #aa1800 0%, #e83010 40%, #ff6818 75%, #ffa040 100%);
+  border-radius: 3px;
+  position: relative;
+  transition: width 0.9s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 6px rgba(255,80,20,0.6);
+}
+.boss-hud-bar-fill::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 45%;
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px 3px 0 0;
+}
+
+/* ── Team HP bars ── */
+.team-hud-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 1.5px;
+  margin-top: 0.28em;
+  overflow: hidden;
+}
+.team-hud-bar-fill {
+  height: 100%;
+  border-radius: 1.5px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  opacity: 0.85;
+}
+
+/* ── Judge buttons ── */
+.btn-judge-pass {
+  background: rgba(70,180,110,0.1) !important;
+  border: 1px solid rgba(70,180,110,0.6) !important;
+  color: #55e890 !important;
+  box-shadow: 0 0 10px rgba(70,180,110,0.12) !important;
+  transition: all 0.12s !important;
+  font-size: 0.68em !important; padding: 0.55em !important;
+}
+.btn-judge-pass:hover {
+  background: rgba(70,180,110,0.25) !important;
+  box-shadow: 0 0 20px rgba(70,180,110,0.4), 0 2px 8px rgba(0,0,0,0.3) !important;
+  transform: translateY(-1px) !important;
+}
+.btn-judge-fail {
+  background: rgba(255,70,40,0.1) !important;
+  border: 1px solid rgba(255,70,40,0.55) !important;
+  color: #ff7060 !important;
+  box-shadow: 0 0 10px rgba(255,70,40,0.12) !important;
+  transition: all 0.12s !important;
+  font-size: 0.68em !important; padding: 0.55em !important;
+}
+.btn-judge-fail:hover {
+  background: rgba(255,70,40,0.25) !important;
+  box-shadow: 0 0 20px rgba(255,70,40,0.4), 0 2px 8px rgba(0,0,0,0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ── Control panel atmosphere ── */
+.control-panel {
+  box-shadow: inset 0 0 40px rgba(255,130,40,0.07), 0 0 0 1px rgba(255,130,40,0.48) !important;
+}
+.control-panel::after {
+  background: radial-gradient(ellipse at 50% 50%, rgba(255,130,40,0.1) 0%, transparent 60%) !important;
+}
+
+/* ── Phase label ── */
+.hud-phase-label {
+  display: inline-block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.36em; letter-spacing: 0.25em;
+  color: rgba(255,106,26,0.6);
+  border: 1px solid rgba(255,106,26,0.25);
+  background: rgba(255,106,26,0.05);
+  padding: 0.18em 0.6em;
+  border-radius: 1px;
+  margin-bottom: 0.5em;
+  text-transform: uppercase;
+}
+
+/* ── Team row active glow ── */
+.team-row-active-glow {
+  animation: team-active-pulse 2s ease-in-out infinite;
+}
+@keyframes team-active-pulse {
+  0%,100% { background: rgba(255,255,255,0.04); }
+  50%      { background: rgba(255,255,255,0.07); }
+}
+
+/* ── Action label ── */
+.action-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.56em; letter-spacing: 0.2em;
+  color: rgba(255,150,50,0.55);
+  text-transform: uppercase;
+  margin-bottom: 0.3em;
+  text-align: center;
+}
+
+/* ── Boss label ── */
+.boss-hud-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.38em; letter-spacing: 0.28em;
+  color: rgba(255,80,40,0.5);
+  text-transform: uppercase;
+  margin-bottom: 0.15em;
+}
+
+/* ── Log entry types ── */
+.log-success { color: #55c888 !important; }
+.log-fail    { color: rgba(255,100,70,0.75) !important; }
+.log-damage  { color: rgba(255,150,60,0.85) !important; }
+.log-system  { color: rgba(180,145,95,0.55) !important; }
+.log-shield  { color: rgba(80,155,210,0.82) !important; }
+.log-heal    { color: rgba(80,200,140,0.82) !important; }
+.log-card    { color: rgba(170,110,220,0.82) !important; }
+
+/* ── Attack glow on boss dice ── */
+.dice-btn-boss:not([disabled]):hover {
+  box-shadow: 0 4px 16px rgba(255,60,20,0.6) !important;
+}
+
+/* ── Big action button ── */
+.btn-action-primary {
+  background: rgba(255,106,26,0.12) !important;
+  border: 1px solid rgba(255,106,26,0.6) !important;
+  color: #ffaa50 !important;
+  letter-spacing: 0.1em;
+  transition: all 0.15s !important;
+  box-shadow: 0 0 12px rgba(255,106,26,0.1) !important;
+}
+.btn-action-primary:hover {
+  background: rgba(255,106,26,0.28) !important;
+  box-shadow: 0 0 24px rgba(255,106,26,0.35) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ── HP number glow ── */
+.hp-num-boss {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4em; line-height: 1;
+  color: #ff7040;
+  text-shadow: 0 0 10px rgba(255,80,20,0.5);
+}
+.hp-num-low { color: #ff3020 !important; text-shadow: 0 0 14px rgba(255,40,10,0.7) !important; animation: hp-low-blink 1.2s ease-in-out infinite; }
+@keyframes hp-low-blink {
+  0%,100% { opacity: 1; } 50% { opacity: 0.65; }
+}

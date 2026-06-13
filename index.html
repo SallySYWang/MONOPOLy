@@ -276,21 +276,25 @@
                style="width:2.6em;height:2.6em;border-radius:50%;object-fit:cover;flex-shrink:0;opacity:0.9;outline:1.5px solid #ff6818;outline-offset:2px"
                onerror="this.style.display='none'">
           <div style="flex:1;min-width:0">
-            <div style="font-size:0.76em;font-weight:700;color:#e8908a">鬼王無慘</div>
-            <div style="height:2px;background:rgba(255,106,26,0.4);margin-top:0.35em;border-radius:1px">
-              <div class="hp-bar-inner h-full" style="border-radius:1px"
-                   :style="{width:Math.max(0,ghostKingHP/60*100)+'%',background:'#ff6818'}"></div>
+            <div class="boss-hud-label">Demon King</div>
+            <div style="font-size:0.78em;font-weight:700;color:#e8908a;letter-spacing:0.04em">鬼王無慘</div>
+            <div class="boss-hud-bar">
+              <div class="boss-hud-bar-fill hp-bar-inner"
+                   :style="{width:Math.max(0,ghostKingHP/(version==='danei'?56:80)*100)+'%'}"></div>
             </div>
-            <div style="margin-top:0.2em;display:flex;gap:0.4em">
-              <span v-if="bossStatus.nextAttackMultiplier>1" style="font-size:0.42em;color:rgba(255,106,26,0.92)">夜晚 ×{{ bossStatus.nextAttackMultiplier }}</span>
-              <span v-if="bossStatus.isBossTurnSkip"   style="font-size:0.42em;color:rgba(208,120,32,0.5)">白天跳過</span>
-              <span v-if="bossStatus.sealedMovement"   style="font-size:0.42em;color:rgba(90,184,138,0.6)">封印</span>
-              <span v-if="bossStatus.targetHighest"    style="font-size:0.42em;color:rgba(180,80,200,0.7)">黑死牟</span>
+            <div style="margin-top:0.28em;display:flex;align-items:center;justify-content:space-between">
+              <div style="display:flex;gap:0.35em;flex-wrap:wrap">
+                <span v-if="bossStatus.nextAttackMultiplier>1" style="font-size:0.38em;color:#ff8840;background:rgba(255,106,26,0.12);border:1px solid rgba(255,106,26,0.35);padding:0.1em 0.4em;border-radius:1px">夜晚×{{ bossStatus.nextAttackMultiplier }}</span>
+                <span v-if="bossStatus.isBossTurnSkip"   style="font-size:0.38em;color:#f0c040;background:rgba(208,160,0,0.1);border:1px solid rgba(208,160,0,0.3);padding:0.1em 0.4em;border-radius:1px">白天</span>
+                <span v-if="bossStatus.sealedMovement"   style="font-size:0.38em;color:#5ab88a;background:rgba(90,184,138,0.1);border:1px solid rgba(90,184,138,0.3);padding:0.1em 0.4em;border-radius:1px">封印</span>
+                <span v-if="bossStatus.targetHighest"    style="font-size:0.38em;color:#c080e8;background:rgba(180,80,200,0.1);border:1px solid rgba(180,80,200,0.3);padding:0.1em 0.4em;border-radius:1px">黑死牟</span>
+              </div>
+              <span style="font-size:0.38em;color:rgba(224,92,24,0.45);letter-spacing:0.04em">/ {{ version==='danei'?56:80 }}</span>
             </div>
           </div>
-          <div style="flex-shrink:0;text-align:right">
-            <div class="font-display text-accent" style="font-size:1.1em;line-height:1">{{ ghostKingHP }}</div>
-            <div style="font-size:0.34em;color:rgba(224,92,24,0.38);letter-spacing:0.08em;margin-top:0.1em">HP</div>
+          <div style="flex-shrink:0;text-align:right;padding-left:0.4em">
+            <div class="hp-num-boss" :class="ghostKingHP<=10?'hp-num-low':''">{{ ghostKingHP }}</div>
+            <div style="font-size:0.3em;color:rgba(224,92,24,0.32);letter-spacing:0.1em;margin-top:0.1em;text-transform:uppercase">HP</div>
           </div>
         </div>
 
@@ -314,20 +318,24 @@
                  :style="{outline:'1.5px solid '+(team.hp>0?team.color:'#2a1a14'),outlineOffset:'2px'}"
                  onerror="this.style.display='none'">
             <div style="flex:1;min-width:0">
-              <div style="font-size:0.76em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+              <div style="font-size:0.74em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
                    :style="{color:team.hp>0?'#e0d4c0':'#7a6050'}">{{ team.name }}</div>
-              <div style="display:flex;align-items:center;gap:0.35em;margin-top:0.12em">
-                <span v-if="team.status.shieldActive"  style="font-size:0.42em;color:#5090c8">盾</span>
-                <span v-if="team.status.doubleDamage"  style="font-size:0.42em;color:#ff6818">×2</span>
-                <span v-if="team.status.breathEnhanced" style="font-size:0.42em;color:#5ab88a">呼</span>
-                <span v-if="team.status.revengeBlade"   style="font-size:0.42em;color:#e8a84a">刃</span>
-                <span style="font-size:0.42em;color:rgba(208,120,32,0.38)">傷 {{ team.damageDealt }}</span>
+              <div class="team-hud-bar">
+                <div class="team-hud-bar-fill hp-bar-inner"
+                     :style="{width:Math.max(0,team.hp/12*100)+'%', background:team.hp>0?team.color:'#3a2a24'}"></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.28em;margin-top:0.15em;flex-wrap:wrap">
+                <span v-if="team.status.shieldActive"  style="font-size:0.36em;color:#6ab0e8;background:rgba(80,144,200,0.12);border:1px solid rgba(80,144,200,0.3);padding:0.1em 0.35em;border-radius:1px">盾</span>
+                <span v-if="team.status.doubleDamage"  style="font-size:0.36em;color:#ff8040;background:rgba(255,106,26,0.12);border:1px solid rgba(255,106,26,0.3);padding:0.1em 0.35em;border-radius:1px">×2</span>
+                <span v-if="team.status.breathEnhanced" style="font-size:0.36em;color:#5ab88a;background:rgba(90,184,138,0.1);border:1px solid rgba(90,184,138,0.28);padding:0.1em 0.35em;border-radius:1px">呼</span>
+                <span v-if="team.status.revengeBlade"   style="font-size:0.36em;color:#e8a84a;background:rgba(232,168,74,0.1);border:1px solid rgba(232,168,74,0.28);padding:0.1em 0.35em;border-radius:1px">刃</span>
+                <span style="font-size:0.36em;color:rgba(208,120,32,0.35);margin-left:auto">{{ team.damageDealt }}dmg</span>
               </div>
             </div>
-            <div style="flex-shrink:0;text-align:right">
-              <div class="font-display" style="font-size:1.1em;line-height:1"
-                   :style="{color:team.hp>0?team.color:'#3a2a24'}">{{ team.hp }}</div>
-              <div style="font-size:0.34em;color:rgba(224,212,192,0.2);letter-spacing:0.08em;margin-top:0.1em">HP</div>
+            <div style="flex-shrink:0;text-align:right;padding-left:0.3em">
+              <div class="font-display" style="font-size:1.15em;line-height:1;transition:color 0.3s"
+                   :style="{color:team.hp<=0?'#3a2a24':team.hp<=3?'#ff5030':team.color}">{{ team.hp }}</div>
+              <div style="font-size:0.3em;color:rgba(224,212,192,0.18);letter-spacing:0.1em;margin-top:0.1em;text-transform:uppercase">HP</div>
             </div>
           </div>
         </div>
@@ -346,33 +354,31 @@
                 <div v-if="row===2&&col===2" class="control-panel" :style="controlPanelGridStyle">
 
                   <div class="text-center" style="margin-bottom:0.5em;position:relative;z-index:1">
-                    <div class="text-dim" style="font-size:0.42em;letter-spacing:0.17em;text-transform:uppercase;margin-bottom:0.22em">現在輪到</div>
+                    <div class="hud-phase-label">{{ phaseLabel || 'Stand By' }}</div>
                     <div v-if="currentPhase==='group-roll'&&teams[rollTeamIndex]"
-                         class="font-display" style="font-size:1.45em;line-height:1"
+                         class="font-display" style="font-size:1.5em;line-height:1;letter-spacing:0.04em;text-shadow:0 0 20px currentColor"
                          :style="{color:teams[rollTeamIndex].color}">
                       {{ teams[rollTeamIndex].name }}
                     </div>
-                    <div v-else-if="currentTurnType==='boss'" class="font-display text-accent" style="font-size:1.45em;line-height:1">鬼王無慘</div>
-                    <div v-else class="font-display text-cream" style="font-size:1.1em;line-height:1">
-                      {{ {'big-game':'大遊戲','big-game-results':'大遊戲結算'}[currentPhase]||'' }}
-                    </div>
-                    <div class="text-dim" style="margin-top:0.3em;font-size:0.46em;letter-spacing:0.12em;text-transform:uppercase;opacity:0.7">
-                      {{ phaseLabel }}
+                    <div v-else-if="currentTurnType==='boss'" class="font-display text-accent" style="font-size:1.5em;line-height:1;text-shadow:0 0 20px rgba(255,106,26,0.6)">鬼王無慘</div>
+                    <div v-else class="font-display text-cream" style="font-size:1.15em;line-height:1;letter-spacing:0.08em">
+                      {{ {'big-game':'大 遊 戲','big-game-results':'大遊戲結算'}[currentPhase]||'' }}
                     </div>
                     <div v-if="nextTurnInfo" class="text-dim"
-                         style="margin-top:0.4em;padding-top:0.3em;border-top:1px solid rgba(255,106,26,0.22);font-size:0.46em">
-                      下一位 <span style="font-weight:500" :style="{color:nextTurnInfo.color}">{{ nextTurnInfo.name }}</span>
+                         style="margin-top:0.45em;padding-top:0.3em;border-top:1px solid rgba(255,106,26,0.18);font-size:0.44em;letter-spacing:0.08em">
+                      NEXT → <span style="font-weight:600" :style="{color:nextTurnInfo.color}">{{ nextTurnInfo.name }}</span>
                     </div>
                   </div>
 
                   <!-- GROUP ROLL -->
                   <div v-if="currentPhase==='group-roll'&&currentTurnType==='player'"
                        style="width:100%;position:relative;z-index:1">
-                    <div class="text-center" style="font-size:0.62em;margin-bottom:0.3em;color:#6a5a50">選擇骰子點數</div>
-                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
+                    <div class="action-label">⚔ 選擇骰子點數</div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.25em">
                       <button v-for="n in 6" :key="n" @click="groupRoll(n)"
                               :disabled="isAnimating"
-                              class="dice-btn dice-btn-player">{{ n }}</button>
+                              class="dice-btn dice-btn-player"
+                              style="font-size:1.15em;padding:0.42em 0;font-family:'Bebas Neue',sans-serif">{{ n }}</button>
                     </div>
                   </div>
 
@@ -382,35 +388,35 @@
                        style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0.5em;position:relative;z-index:1">
                     <div style="font-size:0.46em;letter-spacing:0.14em;color:rgba(208,120,32,0.5)">任務倒數計時</div>
                     <div class="font-display text-accent" style="font-size:3.8em;line-height:1;letter-spacing:0.04em">{{ countdownDisplay }}</div>
-                    <button v-if="!countdownRunning" @click="startMission" class="btn w-full"
-                            style="font-size:0.62em;padding:0.4em;border-color:rgba(255,140,40,0.62);color:#f09028">開始計時</button>
+                    <button v-if="!countdownRunning" @click="startMission" class="btn btn-action-primary w-full"
+                            style="font-size:0.62em;padding:0.48em;letter-spacing:0.1em">▶ 開始計時</button>
                     <button @click="endCountdown" class="btn w-full"
-                            style="font-size:0.62em;padding:0.4em;border-color:rgba(255,106,26,0.35);color:rgba(255,106,26,0.65)">時間到，開始結算</button>
+                            style="font-size:0.62em;padding:0.48em;border-color:rgba(255,106,26,0.3);color:rgba(255,106,26,0.55);letter-spacing:0.08em">時間到，開始結算</button>
                   </div>
 
                   <!-- TEAM JUDGE -->
                   <div v-else-if="currentPhase==='team-judge'"
                        style="width:100%;display:flex;flex-direction:column;gap:0.28em;position:relative;z-index:1">
-                    <div class="text-center" style="font-size:0.42em;color:#6a5a50;margin-bottom:0.05em">
+                    <div class="text-center" style="font-size:0.38em;color:rgba(180,140,80,0.5);letter-spacing:0.1em;margin-bottom:0.05em">
                       {{ judgeTeamIndex+1 }} / {{ judgeQueue.length }} 隊
                     </div>
-                    <div v-if="judgeQueue[judgeTeamIndex]" class="text-center font-bold"
-                         style="font-size:0.6em"
+                    <div v-if="judgeQueue[judgeTeamIndex]" class="text-center font-display"
+                         style="font-size:0.65em;letter-spacing:0.06em"
                          :style="{color:judgeQueue[judgeTeamIndex].color}">
                       {{ judgeQueue[judgeTeamIndex].name }}
                     </div>
                     <template v-if="!judgeWaitingRoll">
-                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3em;margin-top:0.1em">
-                        <button @click="judgePass" class="btn"
-                                style="font-size:0.6em;padding:0.4em;border-color:rgba(90,184,138,0.7);color:#5ab88a">過關 ✓</button>
-                        <button @click="judgeFail" class="btn"
-                                style="font-size:0.6em;padding:0.4em;border-color:rgba(255,106,26,0.6);color:#ff6818">失敗 ✗</button>
+                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3em;margin-top:0.15em">
+                        <button @click="judgePass" class="btn btn-judge-pass">✓ 任務成功</button>
+                        <button @click="judgeFail" class="btn btn-judge-fail">✗ 任務失敗</button>
                       </div>
                     </template>
                     <template v-else>
-                      <div class="text-center" style="font-size:0.44em;color:#5ab88a;margin-bottom:0.05em">過關！選擇骰子點數</div>
-                      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
-                        <button v-for="n in 6" :key="n" @click="judgeRoll(n)" :disabled="showDmgOverlay" class="dice-btn dice-btn-player">{{ n }}</button>
+                      <div class="action-label" style="color:rgba(80,200,130,0.65)">⚔ 過關！選攻擊骰</div>
+                      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.25em">
+                        <button v-for="n in 6" :key="n" @click="judgeRoll(n)" :disabled="showDmgOverlay"
+                                class="dice-btn dice-btn-player"
+                                style="font-size:1.15em;padding:0.42em 0;font-family:'Bebas Neue',sans-serif">{{ n }}</button>
                       </div>
                     </template>
                   </div>
@@ -420,8 +426,8 @@
                        style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0.4em;position:relative;z-index:1">
                     <div class="font-display text-cream text-center" style="font-size:0.75em;letter-spacing:0.06em">大遊戲時間！</div>
                     <div class="text-center" style="font-size:0.44em;color:#b8a888;line-height:1.5">進行大遊戲<br>結束後記錄各隊勝負</div>
-                    <button @click="startBigGameResults" class="btn w-full"
-                            style="font-size:0.66em;padding:0.45em;margin-top:0.3em;border-color:rgba(255,140,40,0.62);color:#f09028">記錄大遊戲結果 →</button>
+                    <button @click="startBigGameResults" class="btn btn-action-primary w-full"
+                            style="font-size:0.66em;padding:0.5em;margin-top:0.3em;letter-spacing:0.1em">記錄大遊戲結果 →</button>
                   </div>
 
                   <!-- BIG GAME RESULTS -->
@@ -446,28 +452,32 @@
                   <!-- BOSS ROLL -->
                   <div v-else-if="currentPhase==='boss-roll'"
                        style="width:100%;position:relative;z-index:1">
-                    <div class="text-center" style="font-size:0.62em;margin-bottom:0.3em;color:#6a5a50">鬼王移動點數</div>
-                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
-                      <button v-for="n in 6" :key="n" @click="bossRoll(n)" :disabled="isAnimating" class="dice-btn dice-btn-boss">{{ n }}</button>
+                    <div class="action-label" style="color:rgba(255,80,40,0.55)">☠ 鬼王移動</div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.25em">
+                      <button v-for="n in 6" :key="n" @click="bossRoll(n)" :disabled="isAnimating"
+                              class="dice-btn dice-btn-boss"
+                              style="font-size:1.15em;padding:0.42em 0;font-family:'Bebas Neue',sans-serif">{{ n }}</button>
                     </div>
                   </div>
 
                   <!-- BOSS ATTACK -->
                   <div v-else-if="currentPhase==='boss-attack'"
                        style="width:100%;position:relative;z-index:1">
-                    <div class="text-accent text-center font-bold" style="font-size:0.6em;margin-bottom:0.2em">
-                      攻擊：{{ bossTargets.map(function(t){return t.name}).join(' / ') }}
+                    <div class="action-label" style="color:rgba(255,60,30,0.6)">☠ 鬼王攻擊</div>
+                    <div class="text-center" style="font-size:0.44em;margin-bottom:0.3em;color:rgba(255,120,60,0.7);letter-spacing:0.06em">
+                      目標：{{ bossTargets.map(function(t){return t.name}).join(' / ') }}
                     </div>
-                    <div class="text-center" style="font-size:0.58em;margin-bottom:0.25em;color:#6a5a50">傷害骰子點數</div>
-                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.2em">
-                      <button v-for="n in 6" :key="n" @click="bossAttack(n)" class="dice-btn dice-btn-boss">{{ n }}</button>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.25em">
+                      <button v-for="n in 6" :key="n" @click="bossAttack(n)"
+                              class="dice-btn dice-btn-boss"
+                              style="font-size:1.15em;padding:0.42em 0;font-family:'Bebas Neue',sans-serif">{{ n }}</button>
                     </div>
                   </div>
 
                   <!-- BOSS NEXT -->
                   <div v-else-if="currentPhase==='boss-next'"
                        style="width:100%;position:relative;z-index:1">
-                    <button @click="endBossTurn" class="btn w-full" style="font-size:0.72em;padding:0.5em">換下一位 →</button>
+                    <button @click="endBossTurn" class="btn btn-action-primary w-full" style="font-size:0.72em;padding:0.55em;letter-spacing:0.12em">下一回合 →</button>
                   </div>
 
                 </div>
@@ -523,10 +533,10 @@
         <div class="flex-1 overflow-y-auto log-container" style="padding:0.5em 0.5em 0.5em 0.6em">
           <div class="section-label">事件日誌</div>
           <div v-for="(entry,idx) in gameLog" :key="idx"
-               :class="logEntryClass(entry.type)"
-               style="font-size:0.58em;padding:0.2em 0.4em;margin-bottom:0.1em;border-radius:2px">
-            <span style="color:#3a2a24;margin-right:0.3em">{{ entry.time }}</span>
-            <span>{{ entry.msg }}</span>
+               style="font-size:0.56em;padding:0.22em 0.4em;margin-bottom:0.08em;border-radius:1px;border-left:2px solid transparent;transition:border-color 0.2s"
+               :style="{borderLeftColor: entry.type==='success'?'rgba(80,200,130,0.5)':entry.type==='damage'||entry.type==='fail'?'rgba(255,90,50,0.45)':entry.type==='heal'?'rgba(80,200,140,0.4)':entry.type==='shield'?'rgba(80,150,220,0.4)':entry.type==='card'?'rgba(160,90,210,0.4)':'rgba(255,106,26,0.18)'}">
+            <span style="color:rgba(100,70,50,0.6);margin-right:0.3em;font-size:0.85em">{{ entry.time }}</span>
+            <span :class="{'log-success':entry.type==='success','log-fail':entry.type==='fail','log-damage':entry.type==='damage','log-system':entry.type==='system','log-shield':entry.type==='shield','log-heal':entry.type==='heal','log-card':entry.type==='card'}">{{ entry.msg }}</span>
           </div>
         </div>
       </div>
