@@ -195,7 +195,8 @@
       <span v-if="autoSaveMsg" style="font-size:0.42em;color:rgba(208,120,32,0.5);letter-spacing:0.08em;flex-shrink:0">{{ autoSaveMsg }}</span>
       <div class="flex gap-2" style="flex-shrink:0">
         <button @click="undoLastAction" :disabled="!lastSnapshot" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em">↩ 上一步</button>
-<button @click="showSaveModal=true" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em">存檔</button>
+        <button @click="showSaveModal=true" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em">存檔</button>
+        <button @click="screen='victory'" class="btn btn-ghost" style="font-size:0.52em;padding:0.3em 0.8em;color:rgba(255,106,26,0.7);border-color:rgba(255,106,26,0.3)">結束結算</button>
       </div>
     </div>
 
