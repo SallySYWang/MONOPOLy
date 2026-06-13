@@ -35,14 +35,6 @@ var CHANCE_CARDS = [
   { id:'pillars', name:'柱的支持',   effect:'場上所有存活隊伍各立即回復 2 HP' },
 ];
 
-var FATE_CARDS = [
-  { id:'night',     name:'夜晚來臨',         effect:'鬼王下一回合攻擊傷害 ×2' },
-  { id:'day',       name:'白天來了',          effect:'鬼王下一回合暫停行動' },
-  { id:'blast',     name:'鬼放大招',          effect:'無慘立即對所有存活隊伍造成 3 點傷害' },
-  { id:'peace',     name:'真是個平安的一天', effect:'無事發生' },
-  { id:'regen',     name:'無慘再生',          effect:'鬼王立即回復 5 HP（上限 80）' },
-  { id:'kokushibo', name:'黑死牟降臨',        effect:'鬼王本回合攻擊目標改為血量最多的隊伍' },
-];
 
 var MUZAN_AVATAR = 'assets/avatar-muzan.png';
 

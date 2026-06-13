@@ -172,9 +172,6 @@ createApp({
         this.addLog('system','↩ 已從自動儲存還原，第 '+this.globalRound+' 輪');
       } catch(e) { alert('還原失敗：'+e.message); }
     },
-    logEntryClass: function(type) {
-      return {damage:'text-red-400',success:'text-green-400',card:'text-yellow-400',system:'text-slate-400',fail:'text-orange-400',heal:'text-teal-400',shield:'text-cyan-400'}[type]||'text-slate-400';
-    },
     squareAt: function(row,col) {
       var id=this.currentBoardLayout[row+'-'+col]; if (!id) return null;
       var squares=this.currentSquares;

@@ -2,11 +2,6 @@
   "name": "monopoly-game",
   "private": true,
   "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "prepare": "git config core.hooksPath .githooks"
-  },
-  "devDependencies": {
-    "vitest": "^2.0.0"
+    "start": "npx serve . -p 3456"
   }
 }

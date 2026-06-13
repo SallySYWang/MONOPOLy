@@ -38,13 +38,6 @@ html, body {
 .text-accent { color: #ff6818; }
 .text-gold   { color: #f09028; }
 
-/* ── pulse for slash ── */
-@keyframes pulse-opacity {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-.slash-text { animation: pulse-opacity 1.4s ease-in-out infinite; color: #ff6818; }
-
 /* ── board — Infinity Castle warm palette ── */
 .board-grid {
   display: grid;
@@ -120,12 +113,6 @@ html, body {
   border-bottom: 1px solid rgba(255,106,26,0.28);
 }
 
-/* ── announcement card ── */
-.announcement-card {
-  background: transparent; border: none;
-  border-top: 1px solid rgba(255,106,26,0.28);
-  padding: 0.7em;
-}
 
 /* ── modal ── */
 .modal-overlay {
@@ -377,13 +364,6 @@ html, body {
   font-family: 'Shippori Mincho B1', serif; font-size: 0.95em;
   color: rgba(255,130,30,0.9); letter-spacing: 0.2em;
 }
-/* Team message */
-.fs-team-msg {
-  font-size: 0.57em; letter-spacing: 0.11em;
-  color: rgba(255,245,220,0.52);
-  animation: fs-fade-up 0.7s ease 1.05s both; margin-bottom: 0.35em;
-}
-.fs-team-msg b { color: rgba(255,190,60,0.8); font-weight: 500; }
 /* Stage label */
 .fs-stage-label {
   font-family: 'Bebas Neue', sans-serif; font-size: 0.52em;
@@ -411,19 +391,6 @@ html, body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Tailwind overrides for dark bg ── */
-.text-red-400    { color: #f07030 !important; }
-.text-green-400  { color: #5ab88a !important; }
-.text-yellow-400 { color: #f09028 !important; }
-.text-yellow-300 { color: #f09028 !important; }
-.text-teal-400   { color: #4ab0a0 !important; }
-.text-cyan-400   { color: #5090c8 !important; }
-.text-orange-400 { color: #d07040 !important; }
-.text-slate-400  { color: #a08878 !important; }
-.text-slate-500  { color: #857060 !important; }
-.text-slate-300  { color: #c8b0a0 !important; }
-.text-purple-300 { color: #9878c8 !important; }
-.text-white      { color: #fff5ec !important; }
 
 /* ══ CROW MESSENGER MODAL ══ */
 @keyframes crow-overlay-in  { from { opacity:0 } to { opacity:1 } }
@@ -821,10 +788,6 @@ html, body {
   65%  { transform:scaleX(0.04) scaleY(1.08); }
   100% { transform:scaleX(1) scaleY(1); }
 }
-.card-flipping-anim {
-  animation: card-flip-select 0.42s ease-in-out forwards;
-  pointer-events:none;
-}
 
 /* ══ 方案4：道具持有 avatar glow ══ */
 @keyframes glow-shield {
@@ -963,14 +926,6 @@ html, body {
   text-transform: uppercase;
 }
 
-/* ── Team row active glow ── */
-.team-row-active-glow {
-  animation: team-active-pulse 2s ease-in-out infinite;
-}
-@keyframes team-active-pulse {
-  0%,100% { background: rgba(255,255,255,0.04); }
-  50%      { background: rgba(255,255,255,0.07); }
-}
 
 /* ── Action label ── */
 .action-label {
