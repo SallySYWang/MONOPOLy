@@ -200,28 +200,28 @@
   <div v-else-if="screen === 'victory'" class="flex h-full w-full" style="padding:3em 5em;gap:4.5em;align-items:center">
     <div style="flex:0 0 auto">
       <div style="font-size:0.52em;letter-spacing:0.22em;text-transform:uppercase;color:rgba(208,120,32,0.5);margin-bottom:0.4em">Victory</div>
-      <div class="font-display text-accent" style="font-size:4.8em;line-height:0.88;margin-bottom:0.2em">鬼王<br>消滅</div>
+      <div class="font-display text-accent" style="font-size:4.8em;line-height:0.88;margin-bottom:0.2em">戰績<br>揭曉</div>
       <div style="width:2.5em;height:1.5px;background:linear-gradient(to right,#f09028,transparent);margin-top:0.6em;opacity:0.7"></div>
       <div class="text-muted" style="font-size:0.62em;margin-top:0.8em">鬼殺隊全員英勇獲勝</div>
     </div>
     <div style="flex:1;border-left:1px solid rgba(255,106,26,0.3);padding-left:2.5em">
       <div class="section-label">最終排名</div>
-      <div style="display:grid;grid-template-columns:1.6em 1.8em 1fr auto auto auto;gap:0 0.6em;align-items:center;font-size:0.44em;letter-spacing:0.08em;text-transform:uppercase;color:rgba(208,120,32,0.4);padding:0 0 0.4em 0;margin-bottom:0.2em">
+      <div style="display:grid;grid-template-columns:2em 2.2em 1fr auto auto auto;gap:0 0.8em;align-items:center;font-size:0.54em;letter-spacing:0.08em;text-transform:uppercase;color:rgba(208,120,32,0.4);padding:0 0 0.5em 0;margin-bottom:0.3em">
         <span></span><span></span><span></span>
-        <span>傷害</span><span>步數</span><span style="width:2.5em;text-align:right"></span>
+        <span>傷害</span><span>步數</span><span style="width:3em;text-align:right"></span>
       </div>
       <div v-for="(team, idx) in rankedTeams" :key="team.id"
            class="flex items-center gap-3"
-           style="padding:0.4em 0;border-bottom:1px solid rgba(255,106,26,0.18)">
-        <span class="font-display text-dim" style="font-size:0.7em;width:1.6em;flex-shrink:0">0{{ idx+1 }}</span>
+           style="padding:0.55em 0;border-bottom:1px solid rgba(255,106,26,0.18)">
+        <span class="font-display text-dim" style="font-size:0.9em;width:2em;flex-shrink:0">0{{ idx+1 }}</span>
         <img :src="team.avatar"
-             style="width:1.8em;height:1.8em;border-radius:50%;object-fit:cover;flex-shrink:0"
-             :style="{outline:'1.5px solid '+team.color,outlineOffset:'1px'}"
+             style="width:2.4em;height:2.4em;border-radius:50%;object-fit:cover;flex-shrink:0"
+             :style="{outline:'2px solid '+team.color,outlineOffset:'2px'}"
              onerror="this.style.display='none'">
-        <span class="text-cream" style="font-size:0.82em;font-weight:500;flex:1">{{ team.name }}</span>
-        <span class="font-display" style="font-size:0.78em;width:2.2em;text-align:right" :style="{color:team.color}">{{ team.damageDealt }}</span>
-        <span class="font-display" style="font-size:0.78em;width:2.2em;text-align:right;color:rgba(208,120,32,0.7)">{{ team.totalSteps||0 }}</span>
-        <span style="font-size:0.44em;letter-spacing:0.08em;width:3.5em;text-align:right">
+        <span class="text-cream" style="font-size:1.05em;font-weight:500;flex:1">{{ team.name }}</span>
+        <span class="font-display" style="font-size:1.05em;width:2.4em;text-align:right" :style="{color:team.color}">{{ team.damageDealt }}</span>
+        <span class="font-display" style="font-size:1.05em;width:2.4em;text-align:right;color:rgba(208,120,32,0.7)">{{ team.totalSteps||0 }}</span>
+        <span style="font-size:0.6em;letter-spacing:0.08em;width:3em;text-align:right">
           <span v-if="idx===0" style="color:rgba(208,120,32,0.7)">最強</span>
           <span v-if="team.id===mostTraveledId" style="color:rgba(90,184,138,0.8)">最遠</span>
         </span>
