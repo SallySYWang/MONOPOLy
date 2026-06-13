@@ -126,14 +126,74 @@
   </div>
 
   <!-- ══ FINAL STRIKE ══ -->
-  <div v-else-if="screen === 'finalStrike'" class="flex flex-col items-center justify-center h-full w-full" style="padding:3em">
-    <div style="font-size:0.52em;letter-spacing:0.22em;text-transform:uppercase;color:rgba(208,120,32,0.5);margin-bottom:0.7em">Final Strike</div>
-    <div class="font-display text-cream" style="font-size:2.2em;margin-bottom:0.15em">鬼王無慘血量歸零</div>
-    <div class="text-muted" style="font-size:0.7em;margin-bottom:2.5em">全員準備好──同時揮刀</div>
-    <div style="border-top:1px solid rgba(255,106,26,0.78);border-bottom:1px solid rgba(255,106,26,0.78);padding:0.8em 3.5em;margin-bottom:2.5em">
-      <div class="font-display slash-text" style="font-size:4.5em;letter-spacing:0.22em">鬼殺隊――斬！</div>
+  <div v-else-if="screen === 'finalStrike'" class="fs-victory-wrap">
+    <!-- Entry flash -->
+    <div class="fs-flash"></div>
+    <!-- Sunburst rotating rays -->
+    <div class="fs-sunburst"></div>
+    <!-- Central glow -->
+    <div class="fs-burst"></div>
+    <!-- Expanding light rings -->
+    <div class="fs-ring" style="animation-duration:2.8s;animation-delay:0.0s"></div>
+    <div class="fs-ring" style="animation-duration:2.8s;animation-delay:0.5s"></div>
+    <div class="fs-ring" style="animation-duration:2.8s;animation-delay:1.0s"></div>
+    <!-- Sword slash lines -->
+    <div class="fs-slash-line fs-slash-line-1"></div>
+    <div class="fs-slash-line fs-slash-line-2"></div>
+    <!-- Confetti particles (24 pieces) -->
+    <div class="fs-particle" style="left:3%;width:7px;height:11px;background:#ffcc40;animation-duration:3.2s;animation-delay:0.0s"></div>
+    <div class="fs-particle" style="left:8%;width:4px;height:9px;background:#ff6818;animation-duration:4.1s;animation-delay:0.3s"></div>
+    <div class="fs-particle" style="left:14%;width:9px;height:6px;background:#fff5ec;animation-duration:3.6s;animation-delay:0.7s"></div>
+    <div class="fs-particle" style="left:20%;width:5px;height:10px;background:#ffd060;animation-duration:2.9s;animation-delay:1.1s"></div>
+    <div class="fs-particle" style="left:27%;width:7px;height:5px;background:#ff8820;animation-duration:3.8s;animation-delay:0.2s"></div>
+    <div class="fs-particle" style="left:34%;width:4px;height:11px;background:#ffcc40;animation-duration:4.3s;animation-delay:0.6s"></div>
+    <div class="fs-particle" style="left:41%;width:10px;height:6px;background:#fff5ec;animation-duration:3.1s;animation-delay:1.4s"></div>
+    <div class="fs-particle" style="left:48%;width:5px;height:9px;background:#ffd060;animation-duration:3.7s;animation-delay:0.8s"></div>
+    <div class="fs-particle" style="left:54%;width:6px;height:8px;background:#ff6818;animation-duration:2.8s;animation-delay:0.4s"></div>
+    <div class="fs-particle" style="left:60%;width:4px;height:10px;background:#ffcc40;animation-duration:4.0s;animation-delay:1.0s"></div>
+    <div class="fs-particle" style="left:67%;width:9px;height:5px;background:#fff5ec;animation-duration:3.4s;animation-delay:0.6s"></div>
+    <div class="fs-particle" style="left:73%;width:5px;height:9px;background:#ffd060;animation-duration:3.9s;animation-delay:1.3s"></div>
+    <div class="fs-particle" style="left:79%;width:7px;height:7px;background:#ff8820;animation-duration:2.7s;animation-delay:0.5s"></div>
+    <div class="fs-particle" style="left:85%;width:4px;height:11px;background:#ffcc40;animation-duration:4.4s;animation-delay:1.0s"></div>
+    <div class="fs-particle" style="left:91%;width:8px;height:6px;background:#fff5ec;animation-duration:3.3s;animation-delay:0.8s"></div>
+    <div class="fs-particle" style="left:96%;width:5px;height:9px;background:#ff6818;animation-duration:4.0s;animation-delay:1.5s"></div>
+    <div class="fs-particle" style="left:11%;width:6px;height:8px;background:#ffd060;animation-duration:3.5s;animation-delay:1.9s"></div>
+    <div class="fs-particle" style="left:38%;width:5px;height:9px;background:#ff8820;animation-duration:4.6s;animation-delay:2.1s"></div>
+    <div class="fs-particle" style="left:57%;width:8px;height:6px;background:#ffcc40;animation-duration:3.2s;animation-delay:1.7s"></div>
+    <div class="fs-particle" style="left:72%;width:4px;height:10px;background:#fff5ec;animation-duration:3.8s;animation-delay:2.3s"></div>
+    <div class="fs-particle" style="left:87%;width:7px;height:7px;background:#ffd060;animation-duration:3.0s;animation-delay:1.6s"></div>
+    <div class="fs-particle" style="left:23%;width:5px;height:8px;background:#ff6818;animation-duration:4.2s;animation-delay:2.6s"></div>
+    <div class="fs-particle" style="left:50%;width:6px;height:7px;background:#ffcc40;animation-duration:3.6s;animation-delay:2.8s"></div>
+    <div class="fs-particle" style="left:65%;width:4px;height:11px;background:#fff5ec;animation-duration:4.1s;animation-delay:3.0s"></div>
+    <!-- Main content -->
+    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center">
+      <!-- CLEAR emblem -->
+      <div class="fs-clear-emblem">
+        <div class="fs-clear-orn">
+          <div class="fs-clear-orn-line"></div>
+          <span class="fs-clear-orn-gem">◆</span>
+          <div class="fs-clear-orn-line" style="background:linear-gradient(to left,transparent,rgba(255,200,70,0.85),transparent)"></div>
+        </div>
+        <div class="fs-clear-text">CLEAR</div>
+        <div class="fs-clear-orn">
+          <div class="fs-clear-orn-line"></div>
+          <span class="fs-clear-orn-gem">◆</span>
+          <div class="fs-clear-orn-line" style="background:linear-gradient(to left,transparent,rgba(255,200,70,0.85),transparent)"></div>
+        </div>
+      </div>
+      <!-- Main title -->
+      <div class="fs-title">鬼殺隊　勝利！</div>
+      <!-- Subtitle -->
+      <div class="fs-battle-sub">
+        <div class="fs-battle-sub-line"></div>
+        <div class="fs-battle-sub-text">鬼王無慘　討伐完成</div>
+        <div class="fs-battle-sub-line r"></div>
+      </div>
+      <!-- Stage label -->
+      <div class="fs-stage-label">Final Battle · Mission Complete</div>
+      <!-- Button -->
+      <button @click="screen='victory'" class="btn-gold">查看戰果</button>
     </div>
-    <button @click="screen='victory'" class="btn btn-red" style="font-size:0.7em;padding:0.55em 2.4em;letter-spacing:0.12em">完成斬擊</button>
   </div>
 
   <!-- ══ VICTORY ══ -->
