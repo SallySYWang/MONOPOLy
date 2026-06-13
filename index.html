@@ -202,7 +202,6 @@
       <div style="font-size:0.52em;letter-spacing:0.22em;text-transform:uppercase;color:rgba(208,120,32,0.5);margin-bottom:0.4em">Victory</div>
       <div class="font-display text-accent" style="font-size:4.8em;line-height:0.88;margin-bottom:0.2em">戰績<br>揭曉</div>
       <div style="width:2.5em;height:1.5px;background:linear-gradient(to right,#f09028,transparent);margin-top:0.6em;opacity:0.7"></div>
-      <div class="text-muted" style="font-size:0.62em;margin-top:0.8em">鬼殺隊全員英勇獲勝</div>
     </div>
     <div style="flex:1;border-left:1px solid rgba(255,106,26,0.3);padding-left:2.5em">
       <div class="section-label">最終排名</div>
@@ -219,8 +218,8 @@
              :style="{outline:'2px solid '+team.color,outlineOffset:'2px'}"
              onerror="this.style.display='none'">
         <span class="text-cream" style="font-size:1.05em;font-weight:500;flex:1">{{ team.name }}</span>
-        <span class="font-display" style="font-size:1.05em;width:2.4em;text-align:right" :style="{color:team.color}">{{ team.damageDealt }}</span>
-        <span class="font-display" style="font-size:1.05em;width:2.4em;text-align:right;color:rgba(208,120,32,0.7)">{{ team.totalSteps||0 }}</span>
+        <span class="font-display" style="font-size:1.4em;width:2em;text-align:right" :style="{color:team.color}">{{ team.damageDealt }}</span>
+        <span class="font-display" style="font-size:1.4em;width:2em;text-align:right;color:rgba(208,120,32,0.7)">{{ team.totalSteps||0 }}</span>
         <span style="font-size:0.6em;letter-spacing:0.08em;width:3em;text-align:right">
           <span v-if="idx===0" style="color:rgba(208,120,32,0.7)">最強</span>
           <span v-if="team.id===mostTraveledId" style="color:rgba(90,184,138,0.8)">最遠</span>
