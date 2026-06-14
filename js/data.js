@@ -10,7 +10,7 @@ var SQUARES = [
   { id:9,  type:'task',  name:'【光天化日】',             desc:'和新生教會招牌和老師拍一張搞怪合照' },
   { id:10, type:'task',  name:'【智力風暴】',             desc:'請到會議室挑戰聖經知識考卷，通過他！' },
   { id:11, type:'task',  name:'【劍客修煉】',             desc:'請到車棚，手持日輪刀，全體累積揮刀 100 下。' },
-  { id:12, type:'card',  name:'【正反命運】',             desc:'原地跟鬼王玩拼運氣遊戲（丟銅板），抽卡！' },
+  { id:12, type:'fate',  name:'【命運試煉】',             desc:'無限城異變！抽取命運卡，未知事件即將發生。' },
   { id:13, type:'task',  name:'【十字架拼】',             desc:'請到主日學教室合力拼完成一個十字架或教會主題圖案' },
   { id:14, type:'task',  name:'【命運的籌組】',           desc:'請到禮拜堂，抽四張牌，必須加減成指定的數字' },
   { id:15, type:'task',  name:'【飲用聖水】',             desc:'到備課室全隊把飲料喝完' },
@@ -75,7 +75,7 @@ var SQUARES_DANEI = [
   { id:9,  type:'task',  name:'【任務 9】',              desc:'（大內教會版本任務，待補充）' },
   { id:10, type:'task',  name:'【任務 10】',             desc:'（大內教會版本任務，待補充）' },
   { id:11, type:'task',  name:'【任務 11】',             desc:'（大內教會版本任務，待補充）' },
-  { id:12, type:'card',  name:'【正反面命運】',          desc:'原地跟鬼王拼運氣（丟銅板），抽取隨機卡片' },
+  { id:12, type:'fate',  name:'【命運試煉】',             desc:'無限城異變！抽取命運卡，未知事件即將發生。' },
 ];
 
 var BOARD_LAYOUT_DANEI = {

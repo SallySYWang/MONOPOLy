@@ -49,13 +49,111 @@ html, body {
 }
 .board-cell {
   position: relative; overflow: hidden; min-height: 0;
-  background: #100c07;
-  border: 1px solid rgba(255,130,40,0.42);
+  background: #0d0900;
+  border: 1px solid rgba(255,130,40,0.32);
+  display: flex; flex-direction: column;
 }
-.board-cell::after {
+/* Diagonal texture on all cells */
+.board-cell::before {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: repeating-linear-gradient(
+    -45deg, transparent, transparent 10px,
+    rgba(255,100,20,0.018) 10px, rgba(255,100,20,0.018) 11px
+  );
+}
+
+/* ── Task cells (default) ── */
+.cell-trace {
+  background: linear-gradient(145deg, #120c06 0%, #0d0900 100%);
+  border-color: rgba(255,120,40,0.35);
+  animation: task-breathe 4s ease-in-out infinite;
+}
+.cell-trace::after {
   content: '';
   position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse at 65% 75%, rgba(255,140,45,0.12) 0%, transparent 55%);
+  background: radial-gradient(ellipse at 50% 80%, rgba(255,100,30,0.1) 0%, transparent 60%);
+}
+@keyframes task-breathe {
+  0%,100% { box-shadow: inset 0 0 8px rgba(255,100,20,0.04); }
+  50%     { box-shadow: inset 0 0 18px rgba(255,100,20,0.12); }
+}
+
+/* ── Start cell — golden hero origin ── */
+.cell-trace-red {
+  background: linear-gradient(145deg, rgba(255,175,55,0.22) 0%, rgba(255,120,30,0.08) 60%, #120e08 100%);
+  border: 2px solid rgba(255,195,60,0.85) !important;
+  animation: start-glow 2s ease-in-out infinite;
+}
+.cell-trace-red::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 45%, rgba(255,200,60,0.22) 0%, transparent 62%);
+}
+@keyframes start-glow {
+  0%,100% { box-shadow: inset 0 0 14px rgba(255,175,50,0.18), 0 0 8px rgba(255,155,30,0.18); }
+  50%     { box-shadow: inset 0 0 28px rgba(255,200,60,0.38), 0 0 18px rgba(255,170,40,0.4); }
+}
+
+/* ── Chance cell — 鎹鴉傳令 (gold) ── */
+.cell-trace-purple {
+  background: linear-gradient(145deg, rgba(255,205,50,0.18) 0%, rgba(200,155,20,0.07) 55%, #110d06 100%);
+  border: 2px solid rgba(255,200,55,0.75) !important;
+  animation: chance-shimmer 2.8s ease-in-out infinite;
+}
+.cell-trace-purple::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 38%, rgba(255,205,55,0.22) 0%, transparent 58%);
+}
+@keyframes chance-shimmer {
+  0%,80%,100% { box-shadow: inset 0 0 14px rgba(255,200,55,0.15); }
+  88%         { box-shadow: inset 0 0 28px rgba(255,215,65,0.45), 0 0 18px rgba(255,200,50,0.35); }
+}
+
+/* ── Fate cell — 命運試煉 (purple mystery) ── */
+.cell-trace-fate {
+  background: linear-gradient(145deg, rgba(155,60,230,0.2) 0%, rgba(100,30,175,0.08) 55%, #0e0812 100%);
+  border: 2px solid rgba(165,80,235,0.7) !important;
+  animation: fate-pulse 3.2s ease-in-out infinite;
+}
+.cell-trace-fate::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 55%, rgba(155,60,230,0.22) 0%, transparent 62%);
+}
+@keyframes fate-pulse {
+  0%,100% { box-shadow: inset 0 0 14px rgba(155,60,230,0.14); }
+  50%     { box-shadow: inset 0 0 28px rgba(175,85,245,0.32), 0 0 14px rgba(155,60,230,0.25); }
+}
+
+/* ── Cell identity layout ── */
+.cell-identity {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+  align-items: center;
+  flex: 1; min-height: 0;
+  padding: 0.1em 0.15em 0;
+  gap: 0.02em;
+}
+.cell-sq-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.42em; line-height: 1;
+  color: rgba(200,130,60,0.28);
+  align-self: flex-start;
+}
+.cell-sq-icon {
+  font-family: 'Shippori Mincho B1', serif;
+  font-size: 1.05em; line-height: 1;
+  margin: 0.05em 0;
+}
+.cell-sq-label {
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 0.36em; line-height: 1.3;
+  text-align: center; opacity: 0.65;
+  max-width: 100%;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding: 0 0.2em;
 }
 
 /* ── control panel ── */

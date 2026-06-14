@@ -182,6 +182,7 @@ createApp({
       var sq=this.squareAt(row,col); if (!sq) return '';
       if (sq.type==='start') return 'cell-trace-red';
       if (sq.type==='card')  return 'cell-trace-purple';
+      if (sq.type==='fate')  return 'cell-trace-fate';
       return 'cell-trace';
     },
     movePosition: function(pos,steps) { return GameLogic.movePosition(pos,steps,this.ringSize); },
@@ -220,8 +221,15 @@ createApp({
               self.currentTeamIndex=self.rollTeamIndex;
               var chanceCard=CHANCE_CARDS[Math.floor(Math.random()*CHANCE_CARDS.length)];
               self.pendingCardChoice={card:chanceCard,isChance:true};
-              self.cardModalData={isChance:true,type:'機會卡',name:chanceCard.name,effect:chanceCard.effect};
+              self.cardModalData={isChance:true,type:'鎹鴉傳令',name:chanceCard.name,effect:chanceCard.effect};
               self.addLog('card',team.name+' 抽到機會卡：'+chanceCard.name);
+              self.showCardModal=true;
+            } else if(sq && sq.type==='fate'){
+              self.currentTeamIndex=self.rollTeamIndex;
+              var fateCard=FATE_CARDS[Math.floor(Math.random()*FATE_CARDS.length)];
+              self.pendingCardChoice={card:fateCard,isChance:false};
+              self.cardModalData={isChance:false,type:'命運試煉',name:fateCard.name,effect:fateCard.effect};
+              self.addLog('card',team.name+' 觸發命運試煉：'+fateCard.name);
               self.showCardModal=true;
             } else {
               self.advanceGroupRoll();

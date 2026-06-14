@@ -486,26 +486,39 @@
 
                 <!-- board cell -->
                 <div v-else
-                     class="board-cell flex flex-col"
-                     :class="[cellClass(row,col), squareAt(row,col)&&flashingCells[squareAt(row,col).id]?'cell-hit':'']"
-                     style="padding:0.25em;min-width:0">
+                     class="board-cell"
+                     :class="[cellClass(row,col), squareAt(row,col)&&flashingCells[squareAt(row,col).id]?'cell-hit':'']">
                   <template v-if="squareAt(row,col)">
                     <!-- floating damage numbers -->
                     <div v-for="dmg in floatingDamages.filter(function(d){return squareAt(row,col)&&d.squareId===squareAt(row,col).id;})"
                          :key="dmg.id" class="floating-dmg">-{{ dmg.damage }}</div>
-                    <div class="text-center"
-                         style="font-size:0.65em;letter-spacing:0.04em;line-height:1;font-family:'Bebas Neue',sans-serif;color:rgba(200,130,60,0.3)">
-                      {{ squareAt(row,col).id }}
+
+                    <!-- cell identity: icon + label -->
+                    <div class="cell-identity">
+                      <div class="cell-sq-num">{{ squareAt(row,col).id }}</div>
+
+                      <!-- Start -->
+                      <div v-if="squareAt(row,col).type==='start'" class="cell-sq-icon" style="color:#f0c040">★</div>
+                      <!-- Chance (鎹鴉傳令) -->
+                      <div v-else-if="squareAt(row,col).type==='card'" class="cell-sq-icon" style="color:#ffc840">鴉</div>
+                      <!-- Fate (命運試煉) -->
+                      <div v-else-if="squareAt(row,col).type==='fate'" class="cell-sq-icon" style="color:#b870f0">月</div>
+                      <!-- Task -->
+                      <div v-else class="cell-sq-icon" style="color:rgba(255,130,50,0.75)">刃</div>
+
+                      <!-- label -->
+                      <div class="cell-sq-label"
+                           :style="{color: squareAt(row,col).type==='start'?'rgba(240,190,60,0.7)':squareAt(row,col).type==='card'?'rgba(255,200,60,0.7)':squareAt(row,col).type==='fate'?'rgba(180,100,240,0.7)':'rgba(200,120,50,0.6)'}">
+                        {{ squareAt(row,col).type==='start'?'出發點':squareAt(row,col).type==='card'?'鎹鴉傳令':squareAt(row,col).type==='fate'?'命運試煉':squareAt(row,col).name.replace(/[【】]/g,'').substring(0,5) }}
+                      </div>
                     </div>
-                    <div class="text-center leading-tight" style="font-size:0.65em;opacity:0.6"
-                         :style="{color: squareAt(row,col).type==='start'?'#e8a84a':squareAt(row,col).type==='card'?'#b060c8':'rgba(200,100,40,0.55)'}">
-                      {{ squareAt(row,col).type==='start'?'★':squareAt(row,col).type==='card'?'◈':'×' }}
-                    </div>
-                    <div class="token-row">
+
+                    <!-- tokens -->
+                    <div class="token-row" style="position:relative;z-index:1">
                       <template v-for="team in teams" :key="team.id">
                         <div v-if="teamDisplayPos(team)===squareAt(row,col).id&&team.hp>0"
                              class="token-avatar"
-                             :class="{' token-hop': hoppingTeam===team.id}"
+                             :class="{'token-hop': hoppingTeam===team.id}"
                              :style="{outline:'2px solid '+team.color,outlineOffset:'1px'}">
                           <img :src="team.avatar" onerror="this.style.display='none'">
                         </div>
