@@ -504,7 +504,7 @@
                       <!-- Fate (命運試煉) -->
                       <div v-else-if="squareAt(row,col).type==='fate'" class="cell-sq-icon" style="color:#b870f0">月</div>
                       <!-- Task — sword icon -->
-                      <div v-else class="cell-sq-icon cell-sword" style="color:rgba(255,130,50,0.7)"></div>
+                      <div v-else class="cell-sq-icon" style="font-size:0.9em">⚔️</div>
 
                       <!-- label: 只有特殊格顯示 -->
                       <div v-if="squareAt(row,col).type!=='task'" class="cell-sq-label"

@@ -148,46 +148,6 @@ html, body {
   margin: 0.05em 0;
 }
 
-/* ── CSS 日輪刀 (Demon Slayer katana) ── */
-/* Structure: tsuba (main element), blade (::before above), handle (::after below) */
-.cell-sword {
-  /* Tsuba / guard — wider horizontal bar */
-  position: relative;
-  display: block;
-  width: 0.52em;
-  height: 0.09em;
-  background: currentColor;
-  border-radius: 2px;
-  margin: 0.3em auto 0;
-  flex-shrink: 0;
-  box-shadow: 0 0 5px rgba(255,140,50,0.4);
-}
-/* Blade — tapered, narrow at tip, wide at tsuba base */
-.cell-sword::before {
-  content: '';
-  position: absolute;
-  bottom: calc(100% + 0.02em);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0.11em;
-  height: 0.52em;
-  background: currentColor;
-  /* Katana blade: wide at base, tapers to point at top */
-  clip-path: polygon(32% 0%, 68% 0%, 100% 100%, 0% 100%);
-}
-/* Handle / grip — narrow, textured feeling */
-.cell-sword::after {
-  content: '';
-  position: absolute;
-  top: calc(100% + 0.02em);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0.07em;
-  height: 0.25em;
-  background: currentColor;
-  opacity: 0.75;
-  border-radius: 0 0 2px 2px;
-}
 .cell-sq-label {
   font-family: 'Noto Sans TC', sans-serif;
   font-size: 0.36em; line-height: 1.3;
