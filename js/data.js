@@ -1,10 +1,10 @@
 var SQUARES = [
   { id:1,  type:'start', name:'【牧師館的點心時間】',   desc:'到牧師館合力把愛玉吃完' },
   { id:2,  type:'task',  name:'【默契大考驗】',          desc:'請到主日學教室，全員合力將氣球拍進呼拉圈裡。' },
-  { id:3,  type:'card',  name:'【猜拳命運】',             desc:'原地跟鬼王猜拳，獲勝獲得技能卡' },
+  { id:3,  type:'task',  name:'【猜拳命運】',             desc:'原地跟鬼王猜拳，獲勝獲得技能卡' },
   { id:4,  type:'task',  name:'【K歌王】',               desc:'請到禮拜堂，挑一首詩歌，大合唱' },
   { id:5,  type:'task',  name:'【金句密碼】',             desc:'請到禮拜堂，解開一段聖經密碼，找出關鍵經文' },
-  { id:6,  type:'task',  name:'【體能測試】',             desc:'請到禮拜堂，全隊一起完成開合跳 30 下' },
+  { id:6,  type:'card',  name:'【鎹鴉傳令】',            desc:'鎹鴉帶來消息！抽取機會卡，好事即將發生。' },
   { id:7,  type:'task',  name:'【失落的寶物】',           desc:'主日學教室藏了神秘物品，找到就有獎' },
   { id:8,  type:'task',  name:'【潛行修煉】',             desc:'請到禮拜堂，地板不出聲到下一關，不能說話' },
   { id:9,  type:'task',  name:'【光天化日】',             desc:'和新生教會招牌和老師拍一張搞怪合照' },

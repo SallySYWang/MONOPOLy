@@ -503,13 +503,13 @@
                       <div v-else-if="squareAt(row,col).type==='card'" class="cell-sq-icon" style="color:#ffc840">鴉</div>
                       <!-- Fate (命運試煉) -->
                       <div v-else-if="squareAt(row,col).type==='fate'" class="cell-sq-icon" style="color:#b870f0">月</div>
-                      <!-- Task -->
-                      <div v-else class="cell-sq-icon" style="color:rgba(255,130,50,0.75)">刃</div>
+                      <!-- Task — sword icon -->
+                      <div v-else class="cell-sq-icon cell-sword" style="color:rgba(255,130,50,0.7)"></div>
 
-                      <!-- label -->
-                      <div class="cell-sq-label"
-                           :style="{color: squareAt(row,col).type==='start'?'rgba(240,190,60,0.7)':squareAt(row,col).type==='card'?'rgba(255,200,60,0.7)':squareAt(row,col).type==='fate'?'rgba(180,100,240,0.7)':'rgba(200,120,50,0.6)'}">
-                        {{ squareAt(row,col).type==='start'?'出發點':squareAt(row,col).type==='card'?'鎹鴉傳令':squareAt(row,col).type==='fate'?'命運試煉':squareAt(row,col).name.replace(/[【】]/g,'').substring(0,5) }}
+                      <!-- label: 只有特殊格顯示 -->
+                      <div v-if="squareAt(row,col).type!=='task'" class="cell-sq-label"
+                           :style="{color: squareAt(row,col).type==='start'?'rgba(240,190,60,0.7)':squareAt(row,col).type==='card'?'rgba(255,200,60,0.7)':'rgba(180,100,240,0.7)'}">
+                        {{ squareAt(row,col).type==='start'?'出發點':squareAt(row,col).type==='card'?'鎹鴉傳令':'命運試煉' }}
                       </div>
                     </div>
 

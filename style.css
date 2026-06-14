@@ -147,6 +147,37 @@ html, body {
   font-size: 1.05em; line-height: 1;
   margin: 0.05em 0;
 }
+
+/* ── CSS katana sword icon (task cells) ── */
+.cell-sword {
+  position: relative;
+  width: 0.12em;
+  height: 0.9em;
+  background: currentColor;
+  border-radius: 0 0 2px 2px;
+  margin: 0.08em 0;
+}
+/* blade tip */
+.cell-sword::before {
+  content: '';
+  position: absolute;
+  top: -0.22em; left: 50%;
+  transform: translateX(-50%);
+  width: 0.12em; height: 0.22em;
+  background: currentColor;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+/* guard (tsuba) */
+.cell-sword::after {
+  content: '';
+  position: absolute;
+  top: 0.28em; left: 50%;
+  transform: translateX(-50%);
+  width: 0.55em; height: 0.09em;
+  background: currentColor;
+  border-radius: 2px;
+  opacity: 0.9;
+}
 .cell-sq-label {
   font-family: 'Noto Sans TC', sans-serif;
   font-size: 0.36em; line-height: 1.3;
