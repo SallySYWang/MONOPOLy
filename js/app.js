@@ -35,6 +35,7 @@ createApp({
       judgeWaitingRoll:false,
       countdownRemaining:600,
       countdownRunning:false,
+      victoryRevealStep:0,
     };
   },
 
@@ -86,6 +87,18 @@ createApp({
     },
     anyModalOpen: function() {
       return this.showCardModal || this.showCrowModal || this.showSaveModal || this.showReviveModal || this.showTurnTransition || this.showDmgOverlay || this.showTeamHitOverlay || this.showUbuyashikiOverlay;
+    },
+    countdownProgress: function() {
+      return (this.countdownRemaining / 600) * 100;
+    },
+    countdownBarColor: function() {
+      var pct = this.countdownRemaining / 600;
+      if (pct > 0.5) return '#22c55e';
+      if (pct >= 0.2) return '#eab308';
+      return '#ef4444';
+    },
+    countdownPulse: function() {
+      return this.countdownRemaining <= 30 && this.countdownRunning;
     },
   },
 
@@ -485,6 +498,18 @@ createApp({
     generateSave: function() {
       var data={ghostKingHP:this.ghostKingHP,bossPosition:this.bossPosition,currentTurnType:this.currentTurnType,currentTeamIndex:this.currentTeamIndex,currentPhase:this.currentPhase,globalRound:this.globalRound,bossStatus:{nextAttackMultiplier:this.bossStatus.nextAttackMultiplier,isBossTurnSkip:this.bossStatus.isBossTurnSkip,sealedMovement:this.bossStatus.sealedMovement,targetHighest:this.bossStatus.targetHighest},teams:this.teams.map(function(t){return{id:t.id,position:t.position,hp:t.hp,damageDealt:t.damageDealt,totalSteps:t.totalSteps||0,status:{shieldActive:t.status.shieldActive,doubleDamage:t.status.doubleDamage,breathEnhanced:t.status.breathEnhanced,revengeBlade:t.status.revengeBlade}};})};
       this.saveJsonStr=JSON.stringify(data,null,2);
+    },
+    startVictoryReveal: function() {
+      var self = this;
+      var total = self.rankedTeams.length;
+      self.victoryRevealStep = 0;
+      function revealNext() {
+        if (self.victoryRevealStep < total) {
+          self.victoryRevealStep++;
+          setTimeout(revealNext, 2000);
+        }
+      }
+      setTimeout(revealNext, 2000);
     },
     loadSave: function() {
       try {

@@ -192,7 +192,7 @@
       <!-- Stage label -->
       <div class="fs-stage-label">Final Battle · Mission Complete</div>
       <!-- Button -->
-      <button @click="screen='victory'" class="btn-gold">查看戰果</button>
+      <button @click="screen='victory'; startVictoryReveal()" class="btn-gold">查看戰果</button>
     </div>
   </div>
 
@@ -210,20 +210,26 @@
         <span>傷害</span><span>步數</span><span style="width:3em;text-align:right"></span>
       </div>
       <div v-for="(team, idx) in rankedTeams" :key="team.id"
-           class="flex items-center gap-3"
-           style="padding:0.55em 0;border-bottom:1px solid rgba(255,106,26,0.18)">
-        <span class="font-display text-dim" style="font-size:0.9em;width:2em;flex-shrink:0">0{{ idx+1 }}</span>
-        <img :src="team.avatar"
-             style="width:2.4em;height:2.4em;border-radius:50%;object-fit:cover;flex-shrink:0"
-             :style="{outline:'2px solid '+team.color,outlineOffset:'2px'}"
-             onerror="this.style.display='none'">
-        <span class="text-cream" style="font-size:1.05em;font-weight:500;flex:1">{{ team.name }}</span>
-        <span class="font-display" style="font-size:1.4em;width:2em;text-align:right" :style="{color:team.color}">{{ team.damageDealt }}</span>
-        <span class="font-display" style="font-size:1.4em;width:2em;text-align:right;color:rgba(208,120,32,0.7)">{{ team.totalSteps||0 }}</span>
-        <span style="font-size:0.6em;letter-spacing:0.08em;width:3em;text-align:right">
-          <span v-if="idx===0" style="color:rgba(208,120,32,0.7)">最強</span>
-          <span v-if="team.id===mostTraveledId" style="color:rgba(90,184,138,0.8)">最遠</span>
-        </span>
+           class="rank-entry"
+           :style="{
+             opacity: victoryRevealStep >= (rankedTeams.length - idx) ? 1 : 0,
+             transform: victoryRevealStep >= (rankedTeams.length - idx) ? 'translateY(0)' : 'translateY(1em)'
+           }">
+        <div class="flex items-center gap-3"
+             style="padding:0.55em 0;border-bottom:1px solid rgba(255,106,26,0.18)">
+          <span class="font-display text-dim" style="font-size:0.9em;width:2em;flex-shrink:0">0{{ idx+1 }}</span>
+          <img :src="team.avatar"
+               style="width:2.4em;height:2.4em;border-radius:50%;object-fit:cover;flex-shrink:0"
+               :style="{outline:'2px solid '+team.color,outlineOffset:'2px'}"
+               onerror="this.style.display='none'">
+          <span class="text-cream" style="font-size:1.05em;font-weight:500;flex:1">{{ team.name }}</span>
+          <span class="font-display" style="font-size:1.4em;width:2em;text-align:right" :style="{color:team.color}">{{ team.damageDealt }}</span>
+          <span class="font-display" style="font-size:1.4em;width:2em;text-align:right;color:rgba(208,120,32,0.7)">{{ team.totalSteps||0 }}</span>
+          <span style="font-size:0.6em;letter-spacing:0.08em;width:3em;text-align:right">
+            <span v-if="idx===0" style="color:rgba(208,120,32,0.7)">最強</span>
+            <span v-if="team.id===mostTraveledId" style="color:rgba(90,184,138,0.8)">最遠</span>
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -255,7 +261,7 @@
       <div class="flex gap-2" style="flex-shrink:0">
         <button @click="undoLastAction" :disabled="!lastSnapshot" class="btn btn-ghost" style="font-size:0.65em;padding:0.3em 0.8em">↩ 上一步</button>
         <button @click="showSaveModal=true" class="btn btn-ghost" style="font-size:0.65em;padding:0.3em 0.8em">存檔</button>
-        <button @click="screen='victory'" class="btn btn-ghost" style="font-size:0.65em;padding:0.3em 0.8em;color:rgba(255,106,26,0.7);border-color:rgba(255,106,26,0.3)">結束結算</button>
+        <button @click="screen='victory'; startVictoryReveal()" class="btn btn-ghost" style="font-size:0.65em;padding:0.3em 0.8em;color:rgba(255,106,26,0.7);border-color:rgba(255,106,26,0.3)">結束結算</button>
       </div>
     </div>
 
@@ -323,11 +329,11 @@
                 <div class="team-hud-bar-fill hp-bar-inner"
                      :style="{width:Math.max(0,team.hp/12*100)+'%', background:team.hp>0?team.color:'#3a2a24'}"></div>
               </div>
-              <div style="display:flex;align-items:center;gap:0.28em;margin-top:0.15em;flex-wrap:wrap">
-                <span v-if="team.status.shieldActive"  style="font-size:0.65em;color:#6ab0e8;background:rgba(80,144,200,0.12);border:1px solid rgba(80,144,200,0.3);padding:0.1em 0.35em;border-radius:1px">盾</span>
-                <span v-if="team.status.doubleDamage"  style="font-size:0.65em;color:#ff8040;background:rgba(255,106,26,0.12);border:1px solid rgba(255,106,26,0.3);padding:0.1em 0.35em;border-radius:1px">×2</span>
-                <span v-if="team.status.breathEnhanced" style="font-size:0.65em;color:#5ab88a;background:rgba(90,184,138,0.1);border:1px solid rgba(90,184,138,0.28);padding:0.1em 0.35em;border-radius:1px">呼</span>
-                <span v-if="team.status.revengeBlade"   style="font-size:0.65em;color:#e8a84a;background:rgba(232,168,74,0.1);border:1px solid rgba(232,168,74,0.28);padding:0.1em 0.35em;border-radius:1px">刃</span>
+              <div style="display:flex;align-items:center;gap:0.28em;margin-top:0.15em;flex-wrap:nowrap">
+                <span v-if="team.status.shieldActive" class="team-badge team-badge-shield">盾</span>
+                <span v-if="team.status.doubleDamage" class="team-badge team-badge-double">×2</span>
+                <span v-if="team.status.breathEnhanced" class="team-badge team-badge-breath">呼</span>
+                <span v-if="team.status.revengeBlade" class="team-badge team-badge-revenge">刃</span>
                 <span style="font-size:0.65em;color:rgba(208,120,32,0.35);margin-left:auto">{{ team.damageDealt }}dmg</span>
               </div>
             </div>
@@ -350,16 +356,20 @@
               <template v-for="col in boardSize" :key="'r'+row+'c'+col">
 
                 <!-- control panel -->
-                <div v-if="row===2&&col===2" class="control-panel" :style="controlPanelGridStyle">
+                <div v-if="row===2&&col===2" class="control-panel panel-glow" :style="[controlPanelGridStyle, {'--panel-glow': currentTurnType === 'boss' ? 'rgba(255,104,24,0.6)' : (currentPhase==='team-judge'&&judgeQueue[judgeTeamIndex] ? judgeQueue[judgeTeamIndex].color : (teams[rollTeamIndex] ? teams[rollTeamIndex].color : '#fff5ec'))}]">
 
                   <div class="text-center" style="margin-bottom:0.5em;position:relative;z-index:1">
+                    <img v-if="currentTurnType==='boss'" :src="MUZAN_AVATAR" :style="'width:'+(['big-game-results','team-judge','countdown'].indexOf(currentPhase)>=0?'2em':'3em')+';height:'+(['big-game-results','team-judge','countdown'].indexOf(currentPhase)>=0?'2em':'3em')+';border-radius:50%;object-fit:cover;margin:0 auto 0.3em auto;display:block'" onerror="this.style.display='none'">
+                    <img v-else-if="currentPhase==='team-judge'&&judgeQueue[judgeTeamIndex]" :src="judgeQueue[judgeTeamIndex].avatar" style="width:2em;height:2em;border-radius:50%;object-fit:cover;margin:0 auto 0.3em auto;display:block" onerror="this.style.display='none'">
+                    <img v-else-if="currentPhase==='big-game-results'||currentPhase==='countdown'" style="display:none">
+                    <img v-else-if="teams[rollTeamIndex]" :src="teams[rollTeamIndex].avatar" style="width:3em;height:3em;border-radius:50%;object-fit:cover;margin:0 auto 0.4em auto;display:block" onerror="this.style.display='none'">
                     <div class="hud-phase-label">{{ phaseLabel || 'Stand By' }}</div>
                     <div v-if="currentPhase==='group-roll'&&teams[rollTeamIndex]"
-                         class="font-display" style="font-size:1.5em;line-height:1;letter-spacing:0.04em;text-shadow:0 0 20px currentColor"
+                         class="font-display" style="font-size:2em;line-height:1;letter-spacing:0.04em;text-shadow:0 0 20px currentColor"
                          :style="{color:teams[rollTeamIndex].color}">
                       {{ teams[rollTeamIndex].name }}
                     </div>
-                    <div v-else-if="currentTurnType==='boss'" class="font-display text-accent" style="font-size:1.5em;line-height:1;text-shadow:0 0 20px rgba(255,106,26,0.6)">鬼王無慘</div>
+                    <div v-else-if="currentTurnType==='boss'" class="font-display text-accent" style="font-size:2em;line-height:1;text-shadow:0 0 20px rgba(255,106,26,0.6)">鬼王無慘</div>
                     <div v-else class="font-display text-cream" style="font-size:1.15em;line-height:1;letter-spacing:0.08em">
                       {{ {'big-game':'大 遊 戲','big-game-results':'大遊戲結算'}[currentPhase]||'' }}
                     </div>
@@ -387,6 +397,11 @@
                        style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0.5em;position:relative;z-index:1">
                     <div style="font-size:0.65em;letter-spacing:0.14em;color:rgba(208,120,32,0.5)">任務倒數計時</div>
                     <div class="font-display text-accent" style="font-size:3.8em;line-height:1;letter-spacing:0.04em">{{ countdownDisplay }}</div>
+                    <div class="timer-bar" :class="{'timer-pulse': countdownPulse}">
+                      <div class="timer-bar-fill"
+                           :style="{width: countdownProgress + '%', background: countdownBarColor}">
+                      </div>
+                    </div>
                     <button v-if="!countdownRunning" @click="startMission" class="btn btn-action-primary w-full"
                             style="font-size:0.62em;padding:0.48em;letter-spacing:0.1em">▶ 開始計時</button>
                     <button @click="endCountdown" class="btn w-full"
@@ -506,11 +521,6 @@
                       <!-- Task — sword icon -->
                       <div v-else class="cell-sq-icon" style="font-size:0.9em">⚔️</div>
 
-                      <!-- label: 只有特殊格顯示 -->
-                      <div v-if="squareAt(row,col).type!=='task'" class="cell-sq-label"
-                           :style="{color: squareAt(row,col).type==='start'?'rgba(240,190,60,0.7)':squareAt(row,col).type==='card'?'rgba(255,200,60,0.7)':'rgba(180,100,240,0.7)'}">
-                        {{ squareAt(row,col).type==='start'?'出發點':squareAt(row,col).type==='card'?'鎹鴉傳令':'命運試煉' }}
-                      </div>
                     </div>
 
                     <!-- tokens -->
@@ -545,7 +555,7 @@
         <div class="flex-1 overflow-y-auto log-container" style="padding:0.5em 0.5em 0.5em 0.6em">
           <div class="section-label">事件日誌</div>
           <div v-for="(entry,idx) in gameLog" :key="idx"
-               style="font-size:0.65em;padding:0.22em 0.4em;margin-bottom:0.08em;border-radius:1px;border-left:2px solid transparent;transition:border-color 0.2s"
+               style="font-size:0.85em;padding:0.22em 0.4em;margin-bottom:0.08em;border-radius:1px;border-left:2px solid transparent;transition:border-color 0.2s"
                :style="{borderLeftColor: entry.type==='success'?'rgba(80,200,130,0.5)':entry.type==='damage'||entry.type==='fail'?'rgba(255,90,50,0.45)':entry.type==='heal'?'rgba(80,200,140,0.4)':entry.type==='shield'?'rgba(80,150,220,0.4)':entry.type==='card'?'rgba(160,90,210,0.4)':'rgba(255,106,26,0.18)'}">
             <span style="color:rgba(100,70,50,0.6);margin-right:0.3em;font-size:0.85em">{{ entry.time }}</span>
             <span :class="{'log-success':entry.type==='success','log-fail':entry.type==='fail','log-damage':entry.type==='damage','log-system':entry.type==='system','log-shield':entry.type==='shield','log-heal':entry.type==='heal','log-card':entry.type==='card'}">{{ entry.msg }}</span>
