@@ -56,6 +56,26 @@ createApp({
         ? 'grid-column:2/4;grid-row:2/4;'
         : 'grid-column:2/5;grid-row:2/5;';
     },
+    needsDice: function() {
+      return (this.currentPhase === 'group-roll' && this.currentTurnType === 'player') ||
+             (this.currentPhase === 'team-judge' && this.judgeWaitingRoll) ||
+             this.currentPhase === 'boss-roll' ||
+             this.currentPhase === 'boss-attack';
+    },
+    diceDisabled: function() {
+      if (!this.needsDice) return true;
+      if (this.currentPhase === 'group-roll' || this.currentPhase === 'boss-roll') return this.isAnimating;
+      if (this.currentPhase === 'team-judge') return !!this.showDmgOverlay;
+      return false;
+    },
+    boardGridTemplate: function() {
+      var n = this.boardSize;
+      var parts = [];
+      for (var i = 0; i < n; i++) {
+        parts.push(i === 0 || i === n - 1 ? '0.7fr' : '1.3fr');
+      }
+      return parts.join(' ');
+    },
     nextTurnInfo: function() {
       if (this.currentPhase==='group-roll') {
         for (var i=this.rollTeamIndex+1;i<this.teams.length;i++) if(this.teams[i].hp>0) return {name:this.teams[i].name,color:this.teams[i].color};
@@ -184,6 +204,22 @@ createApp({
         this.bossTargets=[]; this.screen='game'; this.gameLog=[];
         this.addLog('system','↩ 已從自動儲存還原，第 '+this.globalRound+' 輪');
       } catch(e) { alert('還原失敗：'+e.message); }
+    },
+    diceClick: function(n) {
+      if (this.currentPhase === 'group-roll' && this.currentTurnType === 'player') this.groupRoll(n);
+      else if (this.currentPhase === 'team-judge' && this.judgeWaitingRoll) this.judgeRoll(n);
+      else if (this.currentPhase === 'boss-roll') this.bossRoll(n);
+      else if (this.currentPhase === 'boss-attack') this.bossAttack(n);
+    },
+    cellTokenCount: function(row, col) {
+      var sq = this.squareAt(row, col);
+      if (!sq) return 0;
+      var sqId = sq.id, count = 0;
+      for (var i = 0; i < this.teams.length; i++) {
+        if (this.teams[i].hp > 0 && this.teamDisplayPos(this.teams[i]) === sqId) count++;
+      }
+      if (this.bossDisplayPos === sqId) count++;
+      return count;
     },
     squareAt: function(row,col) {
       var id=this.currentBoardLayout[row+'-'+col]; if (!id) return null;

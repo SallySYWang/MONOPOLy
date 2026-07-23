@@ -6,7 +6,7 @@
 <title>【擊殺鬼王】大富翁</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <div id="app" :class="{ 'modal-open': anyModalOpen }">
@@ -197,17 +197,17 @@
   </div>
 
   <!-- ══ VICTORY ══ -->
-  <div v-else-if="screen === 'victory'" class="flex h-full w-full" style="padding:3em 5em;gap:4.5em;align-items:center">
+  <div v-else-if="screen === 'victory'" class="flex h-full w-full" style="padding:2em 3.5em;gap:3em;align-items:center">
     <div style="flex:0 0 auto">
       <div style="font-size:0.65em;letter-spacing:0.22em;text-transform:uppercase;color:rgba(208,120,32,0.5);margin-bottom:0.4em">Victory</div>
       <div class="font-display text-accent" style="font-size:4.8em;line-height:0.88;margin-bottom:0.2em">戰績<br>揭曉</div>
       <div style="width:2.5em;height:1.5px;background:linear-gradient(to right,#f09028,transparent);margin-top:0.6em;opacity:0.7"></div>
     </div>
-    <div style="flex:1;border-left:1px solid rgba(255,106,26,0.3);padding-left:2.5em">
+    <div style="flex:1;border-left:1px solid rgba(255,106,26,0.3);padding-left:2em">
       <div class="section-label">最終排名</div>
-      <div style="display:grid;grid-template-columns:2em 2.2em 1fr auto auto auto;gap:0 0.8em;align-items:center;font-size:0.65em;letter-spacing:0.08em;text-transform:uppercase;color:rgba(208,120,32,0.4);padding:0 0 0.5em 0;margin-bottom:0.3em">
+      <div style="display:grid;grid-template-columns:2.2em 3em 1fr auto auto auto;gap:0 1em;align-items:center;font-size:0.75em;letter-spacing:0.08em;text-transform:uppercase;color:rgba(208,120,32,0.4);padding:0 0 0.5em 0;margin-bottom:0.3em">
         <span></span><span></span><span></span>
-        <span>傷害</span><span>步數</span><span style="width:3em;text-align:right"></span>
+        <span>傷害</span><span>步數</span><span style="width:2.5em;text-align:right"></span>
       </div>
       <div v-for="(team, idx) in rankedTeams" :key="team.id"
            class="rank-entry"
@@ -215,17 +215,17 @@
              opacity: victoryRevealStep >= (rankedTeams.length - idx) ? 1 : 0,
              transform: victoryRevealStep >= (rankedTeams.length - idx) ? 'translateY(0)' : 'translateY(1em)'
            }">
-        <div class="flex items-center gap-3"
-             style="padding:0.55em 0;border-bottom:1px solid rgba(255,106,26,0.18)">
-          <span class="font-display text-dim" style="font-size:0.9em;width:2em;flex-shrink:0">0{{ idx+1 }}</span>
+        <div class="flex items-center"
+             style="padding:0.65em 0;gap:0.8em;border-bottom:1px solid rgba(255,106,26,0.18)">
+          <span class="font-display text-dim" style="font-size:1em;width:2.2em;flex-shrink:0">0{{ idx+1 }}</span>
           <img :src="team.avatar"
-               style="width:2.4em;height:2.4em;border-radius:50%;object-fit:cover;flex-shrink:0"
+               style="width:2.9em;height:2.9em;border-radius:50%;object-fit:cover;flex-shrink:0"
                :style="{outline:'2px solid '+team.color,outlineOffset:'2px'}"
                onerror="this.style.display='none'">
-          <span class="text-cream" style="font-size:1.05em;font-weight:500;flex:1">{{ team.name }}</span>
-          <span class="font-display" style="font-size:1.4em;width:2em;text-align:right" :style="{color:team.color}">{{ team.damageDealt }}</span>
-          <span class="font-display" style="font-size:1.4em;width:2em;text-align:right;color:rgba(208,120,32,0.7)">{{ team.totalSteps||0 }}</span>
-          <span style="font-size:0.6em;letter-spacing:0.08em;width:3em;text-align:right">
+          <span class="text-cream" style="font-size:1.25em;font-weight:500;flex:1">{{ team.name }}</span>
+          <span class="font-display" style="font-size:1.75em;width:1.8em;text-align:right" :style="{color:team.color}">{{ team.damageDealt }}</span>
+          <span class="font-display" style="font-size:1.75em;width:1.8em;text-align:right;color:rgba(208,120,32,0.7)">{{ team.totalSteps||0 }}</span>
+          <span style="font-size:0.65em;letter-spacing:0.08em;width:2.5em;text-align:right">
             <span v-if="idx===0" style="color:rgba(208,120,32,0.7)">最強</span>
             <span v-if="team.id===mostTraveledId" style="color:rgba(90,184,138,0.8)">最遠</span>
           </span>
@@ -347,10 +347,11 @@
       </div>
 
       <!-- ── CENTER ── -->
-      <div class="flex flex-col items-center justify-center"
-           style="width:56%;padding:0.4em;background:#080502">
+      <div class="flex flex-col"
+           style="width:56%;padding:0.4em;background:#080502;gap:0">
+        <div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center">
         <div style="width:100%;aspect-ratio:1/1;max-height:100%;position:relative">
-          <div class="board-grid" :style="'height:100%;width:100%;grid-template-columns:repeat('+boardSize+',1fr);grid-template-rows:repeat('+boardSize+',1fr)'">
+          <div class="board-grid" :style="'height:100%;width:100%;grid-template-columns:'+boardGridTemplate+';grid-template-rows:'+boardGridTemplate">
 
             <template v-for="row in boardSize" :key="'r'+row">
               <template v-for="col in boardSize" :key="'r'+row+'c'+col">
@@ -358,20 +359,35 @@
                 <!-- control panel -->
                 <div v-if="row===2&&col===2" class="control-panel panel-glow" :style="[controlPanelGridStyle, {'--panel-glow': currentTurnType === 'boss' ? 'rgba(255,104,24,0.6)' : (currentPhase==='team-judge'&&judgeQueue[judgeTeamIndex] ? judgeQueue[judgeTeamIndex].color : (teams[rollTeamIndex] ? teams[rollTeamIndex].color : '#fff5ec'))}]">
 
-                  <div class="text-center" style="margin-bottom:0.5em;position:relative;z-index:1">
+                  <!-- group-roll: 頭像 + 名字橫排 -->
+                  <div v-if="currentPhase==='group-roll'&&teams[rollTeamIndex]"
+                       style="display:flex;align-items:center;gap:0.55em;justify-content:center;margin-bottom:0.45em;position:relative;z-index:1">
+                    <img :src="teams[rollTeamIndex].avatar"
+                         style="width:2.6em;height:2.6em;border-radius:50%;object-fit:cover;flex-shrink:0"
+                         :style="{outline:'2px solid '+teams[rollTeamIndex].color,outlineOffset:'2px'}"
+                         onerror="this.style.display='none'">
+                    <div style="text-align:left;min-width:0">
+                      <div class="hud-phase-label" style="text-align:left;margin-bottom:0.3em">{{ phaseLabel }}</div>
+                      <div class="font-display" style="font-size:2em;line-height:1;letter-spacing:0.04em;text-shadow:0 0 20px currentColor"
+                           :style="{color:teams[rollTeamIndex].color}">
+                        {{ teams[rollTeamIndex].name }}
+                      </div>
+                      <div v-if="nextTurnInfo" class="text-dim"
+                           style="margin-top:0.35em;padding-top:0.25em;border-top:1px solid rgba(255,106,26,0.18);font-size:0.65em;letter-spacing:0.08em">
+                        NEXT → <span style="font-weight:600" :style="{color:nextTurnInfo.color}">{{ nextTurnInfo.name }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 其他 phase：垂直原版 -->
+                  <div v-else class="text-center" style="margin-bottom:0.5em;position:relative;z-index:1">
                     <img v-if="currentTurnType==='boss'" :src="MUZAN_AVATAR" :style="'width:'+(['big-game-results','team-judge','countdown'].indexOf(currentPhase)>=0?'2em':'3em')+';height:'+(['big-game-results','team-judge','countdown'].indexOf(currentPhase)>=0?'2em':'3em')+';border-radius:50%;object-fit:cover;margin:0 auto 0.3em auto;display:block'" onerror="this.style.display='none'">
                     <img v-else-if="currentPhase==='team-judge'&&judgeQueue[judgeTeamIndex]" :src="judgeQueue[judgeTeamIndex].avatar" style="width:2em;height:2em;border-radius:50%;object-fit:cover;margin:0 auto 0.3em auto;display:block" onerror="this.style.display='none'">
                     <img v-else-if="currentPhase==='big-game-results'||currentPhase==='countdown'" style="display:none">
-                    <img v-else-if="teams[rollTeamIndex]" :src="teams[rollTeamIndex].avatar" style="width:3em;height:3em;border-radius:50%;object-fit:cover;margin:0 auto 0.4em auto;display:block" onerror="this.style.display='none'">
-                    <div class="hud-phase-label">{{ phaseLabel || 'Stand By' }}</div>
-                    <div v-if="currentPhase==='group-roll'&&teams[rollTeamIndex]"
-                         class="font-display" style="font-size:2em;line-height:1;letter-spacing:0.04em;text-shadow:0 0 20px currentColor"
-                         :style="{color:teams[rollTeamIndex].color}">
-                      {{ teams[rollTeamIndex].name }}
-                    </div>
-                    <div v-else-if="currentTurnType==='boss'" class="font-display text-accent" style="font-size:2em;line-height:1;text-shadow:0 0 20px rgba(255,106,26,0.6)">鬼王無慘</div>
+                    <div v-if="currentPhase!=='big-game-results'&&currentPhase!=='big-game'" class="hud-phase-label">{{ phaseLabel || 'Stand By' }}</div>
+                    <div v-if="currentTurnType==='boss'" class="font-display text-accent" style="font-size:2em;line-height:1;text-shadow:0 0 20px rgba(255,106,26,0.6)">鬼王無慘</div>
                     <div v-else class="font-display text-cream" style="font-size:1.15em;line-height:1;letter-spacing:0.08em">
-                      {{ {'big-game':'大 遊 戲','big-game-results':'大遊戲結算'}[currentPhase]||'' }}
+                      {{ {'big-game':'大遊戲時間','big-game-results':'大遊戲結算'}[currentPhase]||'' }}
                     </div>
                     <div v-if="nextTurnInfo" class="text-dim"
                          style="margin-top:0.45em;padding-top:0.3em;border-top:1px solid rgba(255,106,26,0.18);font-size:0.65em;letter-spacing:0.08em">
@@ -379,21 +395,8 @@
                     </div>
                   </div>
 
-                  <!-- GROUP ROLL -->
-                  <div v-if="currentPhase==='group-roll'&&currentTurnType==='player'"
-                       style="width:100%;position:relative;z-index:1">
-                    <div class="action-label">⚔ 選擇骰子點數</div>
-                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.25em">
-                      <button v-for="n in 6" :key="n" @click="groupRoll(n)"
-                              :disabled="isAnimating"
-                              class="dice-btn dice-btn-player"
-                              style="font-size:1.15em;padding:0.42em 0;font-family:'Bebas Neue',sans-serif">{{ n }}</button>
-                    </div>
-                  </div>
-
-
                   <!-- COUNTDOWN -->
-                  <div v-else-if="currentPhase==='countdown'"
+                  <div v-if="currentPhase==='countdown'"
                        style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0.5em;position:relative;z-index:1">
                     <div style="font-size:0.65em;letter-spacing:0.14em;color:rgba(208,120,32,0.5)">任務倒數計時</div>
                     <div class="font-display text-accent" style="font-size:3.8em;line-height:1;letter-spacing:0.04em">{{ countdownDisplay }}</div>
@@ -415,7 +418,7 @@
                       {{ judgeTeamIndex+1 }} / {{ judgeQueue.length }} 隊
                     </div>
                     <div v-if="judgeQueue[judgeTeamIndex]" class="text-center font-display"
-                         style="font-size:0.65em;letter-spacing:0.06em"
+                         style="font-size:1.8em;line-height:1;letter-spacing:0.04em;text-shadow:0 0 16px currentColor"
                          :style="{color:judgeQueue[judgeTeamIndex].color}">
                       {{ judgeQueue[judgeTeamIndex].name }}
                     </div>
@@ -426,19 +429,13 @@
                       </div>
                     </template>
                     <template v-else>
-                      <div class="action-label" style="color:rgba(80,200,130,0.65)">⚔ 過關！選攻擊骰</div>
-                      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.25em">
-                        <button v-for="n in 6" :key="n" @click="judgeRoll(n)" :disabled="showDmgOverlay"
-                                class="dice-btn dice-btn-player"
-                                style="font-size:1.15em;padding:0.42em 0;font-family:'Bebas Neue',sans-serif">{{ n }}</button>
-                      </div>
+                      <div class="text-center" style="font-size:0.62em;color:rgba(80,200,130,0.6);letter-spacing:0.08em;margin-top:0.15em">✓ 任務成功！↓ 選攻擊骰</div>
                     </template>
                   </div>
 
                   <!-- BIG GAME -->
                   <div v-else-if="currentPhase==='big-game'"
                        style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0.4em;position:relative;z-index:1">
-                    <div class="font-display text-cream text-center" style="font-size:0.75em;letter-spacing:0.06em">大遊戲時間！</div>
                     <div class="text-center" style="font-size:0.65em;color:#b8a888;line-height:1.5">進行大遊戲<br>結束後記錄各隊勝負</div>
                     <button @click="startBigGameResults" class="btn btn-action-primary w-full"
                             style="font-size:0.66em;padding:0.5em;margin-top:0.3em;letter-spacing:0.1em">記錄大遊戲結果 →</button>
@@ -446,45 +443,24 @@
 
                   <!-- BIG GAME RESULTS -->
                   <div v-else-if="currentPhase==='big-game-results'"
-                       style="width:100%;display:flex;flex-direction:column;gap:0.2em;position:relative;z-index:1">
-                    <div class="text-center" style="font-size:0.65em;margin-bottom:0.1em;color:#f09028;letter-spacing:0.06em">大遊戲 — 哪幾隊贏？</div>
+                       style="width:100%;display:flex;flex-direction:column;gap:0.35em;position:relative;z-index:1">
                     <div v-for="r in bigGameResults" :key="r.teamId"
-                         style="display:flex;align-items:center;gap:0.3em">
-                      <span style="font-size:0.65em;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" :style="{color:r.color}">{{ r.name }}</span>
+                         style="display:flex;align-items:center;gap:0.4em">
+                      <span style="font-size:0.88em;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" :style="{color:r.color}">{{ r.name }}</span>
                       <button @click="toggleBigGameResult(r.teamId)" class="btn"
-                              :style="r.won?'font-size:0.65em;padding:0.22em 0.7em;background:rgba(90,184,138,0.18);border-color:rgba(90,184,138,0.7);color:#5ab88a':'font-size:0.65em;padding:0.22em 0.7em;border-color:rgba(255,106,26,0.2);color:rgba(255,106,26,0.3)'">
+                              :style="r.won?'font-size:0.82em;padding:0.28em 0.9em;background:rgba(90,184,138,0.18);border-color:rgba(90,184,138,0.7);color:#5ab88a':'font-size:0.82em;padding:0.28em 0.9em;border-color:rgba(255,106,26,0.2);color:rgba(255,106,26,0.3)'">
                         {{ r.won ? '贏 ✓' : '贏？' }}
                       </button>
                     </div>
-                    <div class="text-center" style="font-size:0.65em;color:#6a5a50;margin-top:0.2em">
-                      {{ bigGameResults.filter(function(r){return r.won}).length }} 隊獲勝 → 鬼王扣 {{ bigGameResults.filter(function(r){return r.won}).length }} HP
-                    </div>
                     <button @click="applyBigGameResults" class="btn w-full"
-                            style="font-size:0.66em;padding:0.45em;margin-top:0.2em;border-color:rgba(255,106,26,0.78);color:#ff6818">結算 →</button>
+                            style="font-size:0.72em;padding:0.5em;margin-top:0.15em;border-color:rgba(255,106,26,0.78);color:#ff6818">結算 →</button>
                   </div>
 
-                  <!-- BOSS ROLL -->
-                  <div v-else-if="currentPhase==='boss-roll'"
-                       style="width:100%;position:relative;z-index:1">
-                    <div class="action-label" style="color:rgba(255,80,40,0.55)">☠ 鬼王移動</div>
-                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.25em">
-                      <button v-for="n in 6" :key="n" @click="bossRoll(n)" :disabled="isAnimating"
-                              class="dice-btn dice-btn-boss"
-                              style="font-size:1.15em;padding:0.42em 0;font-family:'Bebas Neue',sans-serif">{{ n }}</button>
-                    </div>
-                  </div>
-
-                  <!-- BOSS ATTACK -->
+                  <!-- BOSS ATTACK (target info only; dice moved to dice bar) -->
                   <div v-else-if="currentPhase==='boss-attack'"
                        style="width:100%;position:relative;z-index:1">
-                    <div class="action-label" style="color:rgba(255,60,30,0.6)">☠ 鬼王攻擊</div>
-                    <div class="text-center" style="font-size:0.65em;margin-bottom:0.3em;color:rgba(255,120,60,0.7);letter-spacing:0.06em">
+                    <div class="text-center" style="font-size:0.65em;color:rgba(255,120,60,0.7);letter-spacing:0.06em">
                       目標：{{ bossTargets.map(function(t){return t.name}).join(' / ') }}
-                    </div>
-                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.25em">
-                      <button v-for="n in 6" :key="n" @click="bossAttack(n)"
-                              class="dice-btn dice-btn-boss"
-                              style="font-size:1.15em;padding:0.42em 0;font-family:'Bebas Neue',sans-serif">{{ n }}</button>
                     </div>
                   </div>
 
@@ -524,7 +500,8 @@
                     </div>
 
                     <!-- tokens -->
-                    <div class="token-row" style="position:relative;z-index:1">
+                    <div class="token-row" style="position:relative;z-index:1"
+                         :class="cellTokenCount(row,col)>=4?'compact-mode':''">
                       <template v-for="team in teams" :key="team.id">
                         <div v-if="teamDisplayPos(team)===squareAt(row,col).id&&team.hp>0"
                              class="token-avatar"
@@ -547,6 +524,30 @@
             </template>
           </div>
         </div>
+        </div><!-- end board area -->
+
+        <!-- ── DICE BAR（常駐，不能按時灰掉）── -->
+        <div style="flex-shrink:0;margin-top:0.3em;padding:0.38em 0.6em;background:#100a04;border:1px solid rgba(255,130,40,0.38);display:flex;align-items:center;gap:0.55em"
+             :style="{opacity: needsDice ? 1 : 0.28}">
+          <!-- label -->
+          <div class="action-label" style="margin:0;white-space:nowrap"
+               :style="{color: currentPhase==='boss-roll'||currentPhase==='boss-attack' ? 'rgba(255,80,40,0.7)' : currentPhase==='team-judge'&&judgeWaitingRoll ? 'rgba(80,200,130,0.65)' : 'rgba(255,150,50,0.55)'}">
+            <template v-if="currentPhase==='group-roll'">⚔ 選擇骰子點數</template>
+            <template v-else-if="currentPhase==='team-judge'&&judgeWaitingRoll">⚔ 過關！選攻擊骰</template>
+            <template v-else-if="currentPhase==='boss-roll'">☠ 鬼王移動</template>
+            <template v-else-if="currentPhase==='boss-attack'">☠ 鬼王攻擊</template>
+            <template v-else>⚔ 選擇骰子點數</template>
+          </div>
+          <!-- buttons: 1 row of 6，統一用 diceClick -->
+          <div style="flex:1;display:grid;grid-template-columns:repeat(6,1fr);gap:0.3em">
+            <button v-for="n in 6" :key="n"
+                    @click="diceClick(n)"
+                    :disabled="diceDisabled"
+                    :class="currentPhase==='boss-roll'||currentPhase==='boss-attack' ? 'dice-btn dice-btn-boss' : 'dice-btn dice-btn-player'"
+                    style="font-size:1em;padding:0.38em 0;font-family:'Bebas Neue',sans-serif">{{ n }}</button>
+          </div>
+        </div>
+
       </div>
 
       <!-- ── RIGHT ── -->
@@ -717,8 +718,8 @@
   </template>
 </div>
 
-<script src="js/data.js"></script>
-<script src="js/game-logic.js"></script>
-<script src="js/app.js"></script>
+<script src="js/data.js?v=8"></script>
+<script src="js/game-logic.js?v=8"></script>
+<script src="js/app.js?v=8"></script>
 </body>
 </html>
